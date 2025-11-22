@@ -1,5 +1,5 @@
 function Copy-ProjectResource {
-    $data = Get-MTProjectInfo
+    $data = Get-MAProjectInfo
     $resFolder = [System.IO.Path]::Join($data.ProjectRoot, 'src', 'resources')
     if (Test-Path $resFolder) {
         ## Copy to root folder instead of creating Resource Folder in module root

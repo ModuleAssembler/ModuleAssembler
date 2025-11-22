@@ -1,5 +1,5 @@
 BeforeAll {
-    $data = Get-MTProjectInfo
+    $data = Get-MAProjectInfo
     $files = Get-ChildItem $data.OutputModuleDir
 }
 

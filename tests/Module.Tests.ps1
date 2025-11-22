@@ -1,5 +1,5 @@
 BeforeAll {
-    $data = Get-MTProjectInfo
+    $data = Get-MAProjectInfo
 }
 
 Describe 'General Module Control' {

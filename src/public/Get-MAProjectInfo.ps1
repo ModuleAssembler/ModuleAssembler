@@ -1,22 +1,22 @@
 <#
 .SYNOPSIS
-Retrieves information about a project by reading data from a project.json file in ModuleTools project folder.
+Retrieves information about a project by reading data from a project.json file in ModuleAssembler project folder.
 
 .DESCRIPTION
-The Get-MTProjectInfo function retrieves information about a project by reading data from a project.json file located in the current directory. Ensure you navigate to a module directory which has project.json in root directory. Most variables are already defined in output of this command which can be used in pester tests and other configs.
+The Get-MAProjectInfo function retrieves information about a project by reading data from a project.json file located in the current directory. Ensure you navigate to a module directory which has project.json in root directory. Most variables are already defined in output of this command which can be used in pester tests and other configs.
 
 .PARAMETER None
 This function does not accept any parameters.
 
 .EXAMPLE
-Get-MTProjectInfo
+Get-MAProjectInfo
 Retrieves project information from the project.json file in the current directory. Useful for debuggin and writing pester tests.
 
 .OUTPUTS
 hastable with all project data.
 
 #>
-function Get-MTProjectInfo {
+function Get-MAProjectInfo {
     $Out = @{}
     $ProjectRoot = Get-Location | Convert-Path
     $Out['ProjecJSON'] = Join-Path -Path $ProjectRoot -ChildPath 'project.json'

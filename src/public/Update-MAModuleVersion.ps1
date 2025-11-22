@@ -13,17 +13,17 @@ The part of the version number to increment (Major, Minor, Patch). Default is pa
 Use this to use semantic version and attach release name as 'preview' which is supported by PowerShell gallery, to remove it use stable release parameter
 
 .EXAMPLE
-Update-MTModuleVersion -Label Major
+Update-MAModuleVersion -Label Major
 Updates the Major version part of the module. Version 2.1.3 will become 3.1.3
 
 .EXAMPLE
-Update-MTModuleVersion
+Update-MAModuleVersion
 Updates the Patch version part of the module. Version 2.1.3 will become 2.1.4
 
 .NOTES
 Ensure you are in project directory when you run this command.
 #>
-function Update-MTModuleVersion {
+function Update-MAModuleVersion {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [ValidateSet('Major', 'Minor', 'Patch')]
@@ -33,7 +33,7 @@ function Update-MTModuleVersion {
     )
     Write-Verbose 'Running Version Update'
 
-    $data = Get-MTProjectInfo
+    $data = Get-MAProjectInfo
     $jsonContent = Get-Content -Path $data.ProjecJSON | ConvertFrom-Json
 
     [semver]$CurrentVersion = $jsonContent.Version

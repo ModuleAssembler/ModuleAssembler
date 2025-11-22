@@ -1,6 +1,6 @@
 function Build-Module {
-    $data = Get-MTProjectInfo
-    $MTBuildVersion = (Get-Command Invoke-MTBuild).Version
+    $data = Get-MAProjectInfo
+    $MTBuildVersion = (Get-Command Invoke-MABuild).Version
     Write-Verbose "Running ModuleTols Version: $MTBuildVersion"
     Write-Verbose 'Buidling module psm1 file'
     Test-ProjectSchema -Schema Build | Out-Null

@@ -12,25 +12,25 @@ Array of tags to run, Provide the tag Pester should run
 Array of tags to exclude, Provide the tag Pester should exclude
 
 .EXAMPLE
-Invoke-MTTest
+Invoke-MATest
 Runs the Pester tests for the project.
 
 .EXAMPLE
-Invoke-MTTest -TagFilter "unit","integrate"
+Invoke-MATest -TagFilter "unit","integrate"
 Runs the Pester tests for the project, that has tag unit or integrate
 
 .EXAMPLE
-Invoke-MTTest -ExcludeTagFilter "unit"
+Invoke-MATest -ExcludeTagFilter "unit"
 Runs the Pester tests for the project, excludes any test with tag unit
 #>
-function Invoke-MTTest {
+function Invoke-MATest {
     [CmdletBinding()]
     param (
         [string[]]$TagFilter,
         [string[]]$ExcludeTagFilter
     )
     Test-ProjectSchema Pester | Out-Null
-    $Script:data = Get-MTProjectInfo 
+    $Script:data = Get-MAProjectInfo 
     $pesterConfig = New-PesterConfiguration -Hashtable $data.Pester
 
     $testPath = './tests' 

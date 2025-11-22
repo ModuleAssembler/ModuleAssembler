@@ -1,6 +1,6 @@
 function Build-Manifest {
     Write-Verbose 'Building psd1 data file Manifest'
-    $data = Get-MTProjectInfo
+    $data = Get-MAProjectInfo
 
     ## TODO - DO schema check
 

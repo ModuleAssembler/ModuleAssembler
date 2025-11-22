@@ -1,36 +1,36 @@
 <div align="center" width="100%">
-    <h1>ModuleTools</h1>
+    <h1>ModuleAssembler</h1>
     <p>Fast, Versatile, standalone PowerShell module builder. Built for CICD and Automation.</p><p>
-    <a target="_blank" href="https://github.com/belibug"><img src="https://img.shields.io/badge/maintainer-BELI-orange" /></a>
-    <a target="_blank" href="https://GitHub.com/belibug/ModuleTools/graphs/contributors/"><img src="https://img.shields.io/github/contributors/belibug/ModuleTools.svg" /></a><br>
-    <a target="_blank" href="https://GitHub.com/belibug/ModuleTools/commits/"><img src="https://img.shields.io/github/last-commit/belibug/ModuleTools.svg" /></a>
-    <a target="_blank" href="https://GitHub.com/belibug/ModuleTools/issues/"><img src="https://img.shields.io/github/issues/belibug/ModuleTools.svg" /></a>
-    <a target="_blank" href="https://github.com/belibug/ModuleTools/issues?q=is%3Aissue+is%3Aclosed"><img src="https://img.shields.io/github/issues-closed/belibug/ModuleTools.svg" /></a><br>
+    <!-- <a target="_blank" href="https://github.com/belibug"><img src="https://img.shields.io/badge/maintainer-BELI-orange" /></a>
+    <a target="_blank" href="https://GitHub.com/belibug/ModuleAssembler/graphs/contributors/"><img src="https://img.shields.io/github/contributors/belibug/ModuleAssembler.svg" /></a><br>
+    <a target="_blank" href="https://GitHub.com/belibug/ModuleAssembler/commits/"><img src="https://img.shields.io/github/last-commit/belibug/ModuleAssembler.svg" /></a>
+    <a target="_blank" href="https://GitHub.com/belibug/ModuleAssembler/issues/"><img src="https://img.shields.io/github/issues/belibug/ModuleAssembler.svg" /></a>
+    <a target="_blank" href="https://github.com/belibug/ModuleAssembler/issues?q=is%3Aissue+is%3Aclosed"><img src="https://img.shields.io/github/issues-closed/belibug/ModuleAssembler.svg" /></a><br> -->
 </div>
 
 ## 💬 Description
 
-Whether you're creating simple or robust modules, ModuleTools streamlines the process, making it perfect for CI/CD and automation environments. With comprehensive features included, you can start building PowerShell modules in less than 30 seconds. Let ModuleTools handle the build logic, so you can focus on developing the core functionality of your module.
+Whether you're creating simple or robust modules, ModuleAssembler streamlines the process, making it perfect for CI/CD and automation environments. With comprehensive features included, you can start building PowerShell modules in less than 30 seconds. Let ModuleAssembler handle the build logic, so you can focus on developing the core functionality of your module.
 
-[![ModuleTools@PowerShell Gallery][BadgeIOCount]][PSGalleryLink]
+[![ModuleAssembler@PowerShell Gallery][BadgeIOCount]][PSGalleryLink]
 ![WorkFlow Status][WorkFlowStatus]
 
-The structure of the ModuleTools module is meticulously designed according to PowerShell best practices for module development. While some design decisions may seem unconventional, they are made to ensure that ModuleTools and the process of building modules remain straightforward and easy to manage.
+The structure of the ModuleAssembler module is meticulously designed according to PowerShell best practices for module development. While some design decisions may seem unconventional, they are made to ensure that ModuleAssembler and the process of building modules remain straightforward and easy to manage.
 
 > [!IMPORTANT]
-> Checkout this [Blog article](https://blog.belibug.com/post/ps-modulebuild) explaining core concepts of ModuleTools.
+> Checkout this [Blog article](https://blog.belibug.com/post/ps-modulebuild) explaining core concepts of ModuleAssembler.
 
 ## ⚙️ Install
 
 ```PowerShell
-Install-Module -Name ModuleTools
+Install-Module -Name ModuleAssembler
 ```
 
 > Note: ModuleTolls is still in early development phase and lot of changes are expected. Please read through [ChangeLog](/CHANGELOG.md) for all updates.
 
 ## 🧵 Design
 
-To ensure this module works correctly, you need to maintain the folder structure and the `project.json` file path. The best way to get started is by running the `New-MTModule` command, which guides you through a series of questions and creates the necessary scaffolding.
+To ensure this module works correctly, you need to maintain the folder structure and the `project.json` file path. The best way to get started is by running the `New-MAModule` command, which guides you through a series of questions and creates the necessary scaffolding.
 
 ## 📂 Folder Structure
 
@@ -65,7 +65,7 @@ Generated module is stored in dist folder, you can easily import it or publish i
 
 The `project.json` file contains all the important details about your module and is used during the module build. It should comply with a specific schema. You can refer to the sample `project-sample.json` file in the `example` directory for guidance.
 
-Run `New-MTModule` to generate the scaffolding; this will also create the `project.json` file.
+Run `New-MAModule` to generate the scaffolding; this will also create the `project.json` file.
 
 ### Src Folder
 
@@ -114,47 +114,47 @@ If you want to run `pester` tests keep them in `tests` folder, if not you can ig
 
 ## 💻 Commands
 
-### New-MTModule
+### New-MAModule
 
 This interactive command helps you create the module structure. Easily create the skeleton of your module and get started with module building in no time.
 
 ```powershell
 ## Create a module skeleton in Work Directory
-New-MTModule ~/Work
+New-MAModule ~/Work
 ```
 
 ![image-20240625210008896](./assets/image-20240625210008896.png)
 
-### Invoke-MTBuild
+### Invoke-MABuild
 
-`ModuleTools` is designed so that you don't need any additional tools like `make` or `psake` to run the build commands. There's no need to maintain complex `build.ps1` files or sample `.psd1` files. Simply follow the structure outlined above, and you can run `Invoke-MTBuild` to build the module. The output will be saved in the `dist` folder, ready for distribution.
+`ModuleAssembler` is designed so that you don't need any additional tools like `make` or `psake` to run the build commands. There's no need to maintain complex `build.ps1` files or sample `.psd1` files. Simply follow the structure outlined above, and you can run `Invoke-MABuild` to build the module. The output will be saved in the `dist` folder, ready for distribution.
 
 ```powershell
 # From the Module root 
-Invoke-MTBuild
+Invoke-MABuild
 
 ## Verbose for more details
-Invoke-MTBuild -Verbose
+Invoke-MABuild -Verbose
 ```
 
-### Get-MTProjectInfo
+### Get-MAProjectInfo
 
 This functions give you complete info about the project which can be used in pester tests or for general troubleshooting.
 
-### Invoke-MTTest
+### Invoke-MATest
 
-All the pester configurations are stored in `project.json`, simply run `Invoke-MTTest` command from project root, it will run all the tests inside `tests` folder
+All the pester configurations are stored in `project.json`, simply run `Invoke-MATest` command from project root, it will run all the tests inside `tests` folder
 
 - To skip a test insdie test directory use `-skip` in describe/it/context block within Pester test.
-- Use `Get-MTProjectInfo` command inside pester to get great amount of info about project and files
+- Use `Get-MAProjectInfo` command inside pester to get great amount of info about project and files
 
-### Update-MTModuleVersion
+### Update-MAModuleVersion
 
 A simple command to update the module version by modifying the values in `project.json`. You can also manually edit the file in your favorite editor. This command makes it easy to update the semantic version.
 
-- Running `Update-MTModuleVersion` without any parameters will update the patch version (e.g., 1.2.3 -> 1.2.4)
-- Running `Update-MTModuleVersion -Label Major` updates the major version and resets Minor, Patch to 0 (e.g., 1.2.1 -> 2.0.0)
-- Running `Update-MTModuleVersion -Label Minor` updates the minor version and resets Patch to 0 (e.g., 1.2.3 -> 1.3.0)
+- Running `Update-MAModuleVersion` without any parameters will update the patch version (e.g., 1.2.3 -> 1.2.4)
+- Running `Update-MAModuleVersion -Label Major` updates the major version and resets Minor, Patch to 0 (e.g., 1.2.1 -> 2.0.0)
+- Running `Update-MAModuleVersion -Label Minor` updates the minor version and resets Patch to 0 (e.g., 1.2.3 -> 1.3.0)
 
 ## Advanced - Use it in Github Actions
 
@@ -164,7 +164,7 @@ A simple command to update the module version by modifying the values in `projec
 This is not required for local module builds, if you are running github actions, use the following yaml workflow template to test, build and publish module which helps to automate the process of:
 
 1. Checking out the repository code.
-1. Installing the `ModuleTools` module from the PowerShell Gallery.
+1. Installing the `ModuleAssembler` module from the PowerShell Gallery.
 1. Building the module.
 1. Running Pester tests.
 1. Publishing the module to a specified repository.
@@ -185,17 +185,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install ModuleTools module form PSGallery
+      - name: Install ModuleAssembler module form PSGallery
         run: |
-          Install-PSResource -Repository PSGallery -Name ModuleTools -TrustRepository
+          Install-PSResource -Repository PSGallery -Name ModuleAssembler -TrustRepository
         shell: pwsh
 
       - name: Build Module
-        run: Invoke-MTBuild -Verbose
+        run: Invoke-MABuild -Verbose
         shell: pwsh
 
       - name: Run Pester Tests
-        run: Invoke-MTTest
+        run: Invoke-MATest
         shell: pwsh
 
       - name: Publish Package to Github
@@ -208,7 +208,7 @@ jobs:
 
 ## 📝 Requirement
 
-- Only tested on PowerShell 7.4, ~most likely~ will not work on 5.1. Underlying module can still support older version, only the ModuleTools builder wont work on older version.
+- Only tested on PowerShell 7.4, ~most likely~ will not work on 5.1. Underlying module can still support older version, only the ModuleAssembler builder wont work on older version.
 - No depenedencies. This module doesn’t depend on any other module. Completely self contained
 
 ## ✅ ToDo
@@ -223,6 +223,6 @@ Contributions are welcome! Please fork the repository and submit a pull request 
 
 This project is licensed under the MIT License. See the LICENSE file for details.
 
-[BadgeIOCount]: https://img.shields.io/powershellgallery/dt/ModuleTools?label=ModuleTools%40PowerShell%20Gallery
-[PSGalleryLink]: https://www.powershellgallery.com/packages/ModuleTools/
-[WorkFlowStatus]: https://img.shields.io/github/actions/workflow/status/belibug/ModuleTools/Tests.yml
+[BadgeIOCount]: https://img.shields.io/powershellgallery/dt/ModuleAssembler?label=ModuleAssembler%40PowerShell%20Gallery
+[PSGalleryLink]: https://www.powershellgallery.com/packages/ModuleAssembler/
+[WorkFlowStatus]: https://img.shields.io/github/actions/workflow/status/belibug/ModuleAssembler/Tests.yml
