@@ -16,6 +16,10 @@ function Invoke-MABuild {
     [CmdletBinding()]
     param (
     )
+
+    $MTBuildVersion = (Get-Command Invoke-MABuild).Version
+    Write-Verbose "Running ModuleAssembler Version: $MTBuildVersion"
+
     $ErrorActionPreference = 'Stop'
     Reset-ProjectDist
     Build-Module
