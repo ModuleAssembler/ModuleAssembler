@@ -25,7 +25,7 @@ function Get-FunctionNameFromFile {
             Mandatory = $true,
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [string]$Path
+        [string] $Path
     )
 
     begin {
@@ -39,7 +39,7 @@ function Get-FunctionNameFromFile {
             $functionName = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false) | ForEach-Object { $_.Name }
             return $functionName
         } catch {
-            return '' 
+            return ''
         }
     }
 

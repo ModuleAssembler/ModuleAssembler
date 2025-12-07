@@ -16,9 +16,11 @@ function Initialize-GitRepo {
 
     [CmdletBinding(SupportsShouldProcess = $true)]
     param (
-        [Parameter(Mandatory = $true)]
+        [Parameter(
+            Mandatory = $true,
+            Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [string]$DirectoryPath
+        [string] $DirectoryPath
     )
 
     begin {

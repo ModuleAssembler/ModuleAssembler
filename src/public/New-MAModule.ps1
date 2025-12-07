@@ -22,7 +22,9 @@ function New-MAModule {
     )
     $ErrorActionPreference = 'Stop'
     Push-Location
-    if (-not(Test-Path $Path)) { Write-Error 'Not a valid path' }
+    if (-not(Test-Path $Path)) {
+        Write-Error 'Not a valid path' 
+    }
     $Questions = [ordered]@{
         ProjectName           = @{
             Caption = 'Module Name'
@@ -77,7 +79,7 @@ function New-MAModule {
     }
     $Answer = @{}
     $Questions.Keys | ForEach-Object {
-        $Answer.$_ = Read-AwesomeHost -Ask $Questions.$_
+        $Answer.$_ = Read-HostResponse -Ask $Questions.$_
     }
 
     # TODO check other components
@@ -123,7 +125,9 @@ function New-MAModule {
     $JsonData.Manifest.Author = $Answer.Author
     $JsonData.Manifest.PowerShellHostVersion = $Answer.PowerShellHostVersion
     $JsonData.Manifest.GUID = (New-Guid).GUID
-    if ($Answer.EnablePester -eq 'No') { $JsonData.Remove('Pester') }
+    if ($Answer.EnablePester -eq 'No') {
+        $JsonData.Remove('Pester') 
+    }
 
     Write-Verbose $JsonData
     $JsonData | ConvertTo-Json | Out-File $ProjectJSONFile

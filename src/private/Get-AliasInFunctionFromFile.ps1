@@ -24,7 +24,7 @@ function Get-AliasInFunctionFromFile {
             Mandatory = $true,
             Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [string]$Path
+        [string] $Path
     )
 
     begin {

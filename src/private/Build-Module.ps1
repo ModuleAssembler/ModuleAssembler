@@ -20,7 +20,7 @@ function Build-Module {
     begin {
         $data = Get-MAProjectInfo
         Write-Verbose 'START: Building Module.'
-        Test-ProjectSchema -Schema Build | Out-Null
+        Test-JsonSchema -Schema Build | Out-Null
     }
 
     process {
