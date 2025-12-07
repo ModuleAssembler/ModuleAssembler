@@ -3,7 +3,7 @@
 Create module scaffolding along with project.json file to easily build and manage modules
 
 .DESCRIPTION
-This command creates folder structure and project.json file easily. Use this to quikcly setup a ModuleAssembler compatible module. 
+This command creates folder structure and project.json file easily. Use this to quikcly setup a ModuleAssembler compatible module.
 
 .PARAMETER Path
 Path where module will be created. Provide root folder path, module folder will be created as subdirectory. Path should be valid.
@@ -82,9 +82,9 @@ function New-MAModule {
 
     # TODO check other components
     if ($Answer.ProjectName -notmatch '^[A-Za-z][A-Za-z0-9_.]*$') {
-        Write-Error 'Module Name invalid. Module should be one word and contain only Letters,Numbers and ' 
+        Write-Error 'Module Name invalid. Module should be one word and contain only Letters,Numbers and '
     }
-  
+
     $DirProject = Join-Path -Path $Path -ChildPath $Answer.ProjectName
     $DirSrc = Join-Path -Path $DirProject -ChildPath 'src'
     $DirPrivate = Join-Path -Path $DirSrc -ChildPath 'private'
@@ -111,7 +111,7 @@ function New-MAModule {
     }
     if ( $Answer.EnableGit -eq 'Yes') {
         Write-Message 'Initialize Git Repo'
-        New-InitiateGitRepo -DirectoryPath $DirProject
+        Initialize-GitRepo -DirectoryPath $DirProject
     }
 
     ## Create ProjectJSON
