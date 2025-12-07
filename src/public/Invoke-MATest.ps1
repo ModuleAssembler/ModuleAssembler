@@ -1,49 +1,66 @@
-<#
-.SYNOPSIS
-Runs Pester tests for using settings from project.json
-
-.DESCRIPTION
-This function runs Pester tests using the specified configuration and settings in project.json. Place all your tests in "tests" folder
-
-.PARAMETER TagFilter
-Array of tags to run, Provide the tag Pester should run
-
-.PARAMETER ExcludeTagFilter
-Array of tags to exclude, Provide the tag Pester should exclude
-
-.EXAMPLE
-Invoke-MATest
-Runs the Pester tests for the project.
-
-.EXAMPLE
-Invoke-MATest -TagFilter "unit","integrate"
-Runs the Pester tests for the project, that has tag unit or integrate
-
-.EXAMPLE
-Invoke-MATest -ExcludeTagFilter "unit"
-Runs the Pester tests for the project, excludes any test with tag unit
-#>
 function Invoke-MATest {
-    [CmdletBinding()]
-    param (
-        [string[]]$TagFilter,
-        [string[]]$ExcludeTagFilter
-    )
-    Test-JsonSchema Pester | Out-Null
-    $Script:data = Get-MAProjectInfo
-    $pesterConfig = New-PesterConfiguration -Hashtable $data.Pester
+    <#
+    .SYNOPSIS
+        Runs Pester tests using settings from project.json file.
 
-    $testPath = './tests'
-    $pesterConfig.Run.Path = $testPath
-    $pesterConfig.Run.PassThru = $true
-    $pesterConfig.Run.Exit = $true
-    $pesterConfig.Run.Throw = $true
-    $pesterConfig.Filter.Tag = $TagFilter
-    $pesterConfig.Filter.ExcludeTag = $ExcludeTagFilter
-    $pesterConfig.TestResult.OutputPath = './dist/TestResults.xml'
-    $TestResult = Invoke-Pester -Configuration $pesterConfig
-    if ($TestResult.Result -ne 'Passed') {
-        Write-Error 'Tests failed' -ErrorAction Stop
-        return $LASTEXITCODE
+    .DESCRIPTION
+        This function runs Pester tests using the specified configuration and settings in project.json.
+        Place all module tests in "tests" folder.
+
+    .PARAMETER TagFilter
+        Array of Pester tags to run.
+
+    .PARAMETER ExcludeTagFilter
+        Array of Pester tags to run.
+
+    .EXAMPLE
+        Execute all Pester tests.
+        Invoke-MATest
+
+    .EXAMPLE
+        Execute only Pester tests with the tags unit or integrate.
+        Invoke-MATest -TagFilter 'unit','integrate'
+
+    .EXAMPLE
+        Runs the Pester tests, excludes any test with tag unit
+        Invoke-MATest -ExcludeTagFilter 'unit'
+    #>
+
+    [CmdletBinding(PositionalBinding = $false)]
+    param (
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [string[]] $TagFilter,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateNotNullOrEmpty()]
+        [string[]] $ExcludeTagFilter
+    )
+
+    begin {
+        Test-JsonSchema Pester | Out-Null
+        $Script:data = Get-MAProjectInfo
+        $pesterConfig = New-PesterConfiguration -Hashtable $data.Pester
+    }
+
+    process {
+        $testPath = './tests'
+        $pesterConfig.Run.Path = $testPath
+        $pesterConfig.Run.PassThru = $true
+        $pesterConfig.Run.Exit = $true
+        $pesterConfig.Run.Throw = $true
+        $pesterConfig.Filter.Tag = $TagFilter
+        $pesterConfig.Filter.ExcludeTag = $ExcludeTagFilter
+        $pesterConfig.TestResult.OutputPath = './dist/TestResults.xml'
+
+        $TestResult = Invoke-Pester -Configuration $pesterConfig
+        if ($TestResult.Result -ne 'Passed') {
+            Write-Error 'Tests failed' -ErrorAction Stop
+            return $LASTEXITCODE
+        }
+    }
+
+    end {
+        # Cleanup code
     }
 }
