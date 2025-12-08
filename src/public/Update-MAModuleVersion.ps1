@@ -8,18 +8,31 @@ function Update-MAModuleVersion {
         It increments the version number based on the specified version part (Major, Minor, Patch). Can also attach preview/stable to Release property.
 
     .PARAMETER Label
-        The part of the version number to increment (Major, Minor, Patch). Default is patch.
+        The part of the version number to increment (Major, Minor, Patch). Default is Patch.
 
-    .PARAMETER PreviewRelease
-        A switch release name as 'preview' which is supported by PowerShell gallery, to remove it use stable release parameter
+    .PARAMETER PrereleaseType
+        Specify the prerelease type to use (alpha, beta, preview, rc).
+        If executed again with no Label and the same PrereleaseType type, the prerelease number will increment.
 
     .EXAMPLE
-        Updates the Major version part of the module. Version 2.1.3 will become 3.1.3
+        Updates the Major version part of the module. Version 2.1.3 will become 3.1.3.
         Update-MAModuleVersion -Label Major
 
     .EXAMPLE
-        Updates the Patch version part of the module. Version 2.1.3 will become 2.1.4
+        Updates the Patch version part of the module. Version 2.1.3 will become 2.1.4.
         Update-MAModuleVersion
+
+    .EXAMPLE
+        Adds a specified PreReleaseLabel to the module version. Version 1.0.0 will become 1.0.0-preview01.
+        Update-MAModuleVersion -PreReleaseType preview
+
+    .EXAMPLE
+        Increment a pre-existing PreReleaseLabel. Version 1.0.0-preview01 will become 1.0.0-preview02.
+        Update-MAModuleVersion -PreReleaseType preview
+
+    .EXAMPLE
+        Sets a new version and specify it as a PreRelease. Version 0.1.0 will become 1.0.0-rc01.
+        Update-MAModuleVersion -Label Major -PreReleaseType rc
 
     .NOTES
         Ensure you are in project directory when you run this command.
@@ -31,25 +44,29 @@ function Update-MAModuleVersion {
             Mandatory = $false,
             Position = 0)]
         [ValidateSet('Major', 'Minor', 'Patch')]
-        [string] $Label = 'Patch',
+        [string] $Label,
 
         [Parameter(
             Mandatory = $false,
             Position = 1)]
-        [switch]$PreviewRelease
+        [ValidateSet('alpha', 'beta', 'preview', 'rc')]
+        [string] $PreReleaseType
     )
 
     begin {
-        Write-Verbose "Updating the $($Label) version number for the module."
+        $data = Get-MAProjectInfo
+        $jsonContent = Get-Content -Path $data.ProjecJSON | ConvertFrom-Json
+        [semver]$CurrentVersion = $jsonContent.Version
+
+        if (!($PreReleaseType) -and !($Label)) {
+            $Label = 'Patch'
+        }
     }
 
     process {
-        $data = Get-MAProjectInfo
-        $jsonContent = Get-Content -Path $data.ProjecJSON | ConvertFrom-Json
-
-        [semver]$CurrentVersion = $jsonContent.Version
         $Major = $CurrentVersion.Major
         $Minor = $CurrentVersion.Minor
+        $Patch = $CurrentVersion.Patch
 
         if ($Label -eq 'Major') {
             $Major = $CurrentVersion.Major + 1
@@ -62,19 +79,28 @@ function Update-MAModuleVersion {
             $Patch = $CurrentVersion.Patch + 1
         }
 
-        if ($PreviewRelease) {
-            $ReleaseType = 'preview'
-        } elseif ($StableRelease) {
-            $ReleaseType = $null
+        if ($PrereleaseType) {
+            $CurrentVersion.PreReleaseLabel -imatch '^((?:alpha|beta|preview|rc))(\d+)?$' | Out-Null
+            try {
+                $currentPreReleaseType = $matches[1]
+            } catch {
+                $currentPreReleaseType = $null
+            }
+
+            if ($PreReleaseType -eq $currentPreReleaseType -and !($Label)) {
+                $ReleaseType = Get-PreReleaseIncrement -PreReleaseLabel $CurrentVersion.PreReleaseLabel
+            } else {
+                $ReleaseType = Get-PreReleaseIncrement -PreReleaseLabel $PrereleaseType
+            }
         } else {
-            $ReleaseType = $CurrentVersion.PreReleaseLabel
+            $ReleaseType = $null
         }
 
         $newVersion = [semver]::new($Major, $Minor, $Patch, $ReleaseType, $null)
 
         # Update the version in the JSON object
         $jsonContent.Version = $newVersion.ToString()
-        Write-Host "Version bumped to : $newVersion"
+        Write-Host "Version bumped $CurrentVersion -> $newVersion"
 
         # Convert the JSON object back to JSON format
         $newJsonContent = $jsonContent | ConvertTo-Json
