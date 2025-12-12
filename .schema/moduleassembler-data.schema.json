@@ -1,0 +1,81 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "ModuleAssemblerDataSchema_v1.0.0",
+    "description": "Information utilized by ModuleAssembler when building a module.",
+    "type": "object",
+    "properties": {
+        "jsonSchemaVersion": {
+            "description": "Version of ModuleAssemblerDataSchema.",
+            "type": "string"
+        },
+        "ProjectName": {
+            "description": "Name of the module project.",
+            "type": "string"
+        },
+        "Description": {
+            "description": "Description of the functionality provided by this module.",
+            "type": "string"
+        },
+        "Version": {
+            "description": "Version number of this module, use Semantic Versioning.",
+            "type": "string"
+        },
+        "License": {
+            "description": "The type of License being used for this module (ex: MIT).",
+            "type": "string"
+        },
+        "copyResourcesToModuleRoot": {
+            "description": "Specifies if resource files will be placed in the built module's root directory, instead of in a resources subfolder.",
+            "type": "boolean"
+        },
+        "Manifest": {
+            "type": "object",
+            "properties": {
+                "Author": {
+                    "description": "Author of this module.",
+                    "type": "string"
+                },
+                "CompanyName": {
+                    "description": "Company or vendor of this module.",
+                    "type": "string"
+                },
+                "PowerShellVersion": {
+                    "description": "Minimum version of the PowerShell engine required by this module.",
+                    "type": "string"
+                },
+                "GUID": {
+                    "description": "ID used to uniquely identify this module.",
+                    "type": "string"
+                },
+                "Tags": {
+                    "description": "Tags applied to this module. These help with module discovery in online galleries.",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "ProjectUri": {
+                    "description": "A URL to the main website for this project.",
+                    "type": "string"
+                },
+                "IconUri": {
+                    "description": "A URL to an icon representing this module.",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "Author",
+                "PowerShellVersion",
+                "GUID"
+            ]
+        }
+    },
+    "required": [
+        "jsonSchemaVersion",
+        "ProjectName",
+        "Description",
+        "Version",
+        "License",
+        "Manifest"
+    ]
+}

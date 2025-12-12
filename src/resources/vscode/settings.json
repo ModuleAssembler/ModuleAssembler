@@ -66,5 +66,14 @@
         "default": true,
         "MD033": false,
         "no-hard-tabs": true
-    }
+    },
+    // JSON schema mapping for ModuleAssembler data file
+    "json.schemas": [
+        {
+            "fileMatch": [
+                "*.madata.json"
+            ],
+            "url": "./.schema/moduleassembler-data.schema.json"
+        }
+    ]
 }
