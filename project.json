@@ -1,22 +1,22 @@
 {
-  "ProjectName": "ModuleAssembler",
-  "Description": "ModuleAssembler is a versatile, standalone PowerShell module builder. Create anything from simple to robust modules with ease. Built for CICD and Automation.",
-  "Version": "1.3.0",
-  "copyResourcesToModuleRoot": false,
-  "Manifest": {
-    "Author": "Manjunath Beli",
-    "PowerShellHostVersion": "7.4",
-    "GUID": "d1595b4a-a79f-4440-94f0-3196f4d29c41",
-    "Tags": [],
-    "ProjectUri": "https://github.com/belibug/ModuleAssembler"
-  },
-  "Pester": {
-    "TestResult": {
-      "Enabled": true,
-      "OutputFormat": "NUnitXml"
+    "ProjectName": "ModuleAssembler",
+    "Description": "ModuleAssembler is a versatile, standalone PowerShell module builder. Create anything from simple to robust modules with ease. Built for CICD and Automation.",
+    "Version": "1.0.0",
+    "copyResourcesToModuleRoot": false,
+    "Manifest": {
+        "Author": "TrisBits",
+        "PowerShellHostVersion": "7.4",
+        "GUID": "a11215d2-0401-4d80-8447-5bbd5dd8c3f3",
+        "Tags": [],
+        "ProjectUri": "https://github.com/ModuleAssembler/ModuleAssembler"
     },
-    "Output": {
-      "Verbosity": "Detailed"
+    "Pester": {
+        "TestResult": {
+            "Enabled": true,
+            "OutputFormat": "NUnitXml"
+        },
+        "Output": {
+            "Verbosity": "Detailed"
+        }
     }
-  }
 }

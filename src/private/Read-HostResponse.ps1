@@ -43,7 +43,7 @@ function Read-HostResponse {
             if ([string]::IsNullOrEmpty($response.Values)) {
                 $result = $Ask.Default
             } else {
-                $result = $response.Values
+                $result = ($response.Values).Trim()
             }
         }
         ## For Choice based

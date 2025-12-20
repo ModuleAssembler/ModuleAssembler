@@ -5,7 +5,7 @@
     "type": "object",
     "properties": {
         "jsonSchemaVersion": {
-            "description": "Version of ModuleAssemblerDataSchema.",
+            "description": "Version of the ModuleAssemblerDataSchema being used.",
             "type": "string"
         },
         "ProjectName": {
@@ -18,10 +18,6 @@
         },
         "Version": {
             "description": "Version number of this module, use Semantic Versioning.",
-            "type": "string"
-        },
-        "License": {
-            "description": "The type of License being used for this module (ex: MIT).",
             "type": "string"
         },
         "copyResourcesToModuleRoot": {
@@ -56,6 +52,10 @@
                 },
                 "ProjectUri": {
                     "description": "A URL to the main website for this project.",
+                    "type": "string"
+                },
+                "LicenseUri": {
+                    "description": "A URL to the license for this project.",
                     "type": "string"
                 },
                 "IconUri": {

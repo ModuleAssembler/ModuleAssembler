@@ -1,14 +1,18 @@
 {
+    "jsonSchemaVersion": "1.0.0",
     "ProjectName": "",
     "Description": "",
     "Version": "",
     "copyResourcesToModuleRoot": false,
     "Manifest": {
         "Author": "",
-        "PowerShellHostVersion": "",
+        "CompanyName": "",
+        "PowerShellVersion": "",
         "GUID": "",
         "Tags": [],
-        "ProjectUri": ""
+        "ProjectUri": "",
+        "LicenseUri": "",
+        "IconUri": ""
     },
     "Pester": {
         "TestResult": {
