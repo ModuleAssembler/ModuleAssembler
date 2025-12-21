@@ -26,8 +26,8 @@ function Build-Manifest {
         $functionToExport = @()
         $aliasToExport = @()
         $PubFunctionFiles.FullName | ForEach-Object {
-            $functionToExport += Get-FunctionNameFromFile -filePath $_
-            $aliasToExport += Get-AliasInFunctionFromFile -filePath $_
+            $functionToExport += Get-FunctionNameFromFile -Path $_
+            $aliasToExport += Get-AliasInFunctionFromFile -Path $_
         }
 
         ## Import Formatting (if any)

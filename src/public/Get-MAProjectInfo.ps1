@@ -23,14 +23,14 @@ function Get-MAProjectInfo {
     process {
         $Out = @{}
         $ProjectRoot = Get-Location | Convert-Path
-        $Out['ProjecJSON'] = Join-Path -Path $ProjectRoot -ChildPath 'project.json'
+        $Out['ProjectJSON'] = Join-Path -Path $ProjectRoot -ChildPath 'moduleproject.madata.json'
 
-        if (-not (Test-Path $Out.ProjecJSON)) {
-            Write-Error 'Not a Project folder, project.json not found' -ErrorAction Stop
+        if (-not (Test-Path $Out.ProjectJSON)) {
+            Write-Error 'Not a Project folder, moduleproject.madata.json not found' -ErrorAction Stop
         }
 
         ## Metadata, Import all json data
-        $jsonData = Get-Content -Path $Out.ProjecJSON | ConvertFrom-Json -AsHashtable
+        $jsonData = Get-Content -Path $Out.ProjectJSON | ConvertFrom-Json -AsHashtable
         foreach ($key in $jsonData.Keys) {
             $Out[$key] = $jsonData[$key]
         }
@@ -46,7 +46,9 @@ function Get-MAProjectInfo {
         $Out['ModuleFilePSM1'] = [System.IO.Path]::Combine($Out.OutputModuleDir, "$ProjectName.psm1")
         $Out['ManifestFilePSD1'] = [System.IO.Path]::Combine($Out.OutputModuleDir, "$ProjectName.psd1")
 
-        $Output = [pscustomobject]$Out | Add-Member -TypeName MTProjectInfo -PassThru
+        $outSortedByKey = [ordered]@{}
+        $Out.GetEnumerator() | Sort-Object Name | ForEach-Object { $outSortedByKey[$_.Name] = $_.Value }
+        $Output = [pscustomobject]$outSortedByKey | Add-Member -TypeName MAProjectInfo -PassThru
         return $Output
     }
 

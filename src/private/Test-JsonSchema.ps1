@@ -34,15 +34,15 @@ function Test-JsonSchema {
     process {
         Write-Verbose "Running Schema test against JSON using $Schema schema."
         $SchemaPath = @{
-            Build  = "$PSScriptRoot\resources\Schema-Build.json"
-            Pester = "$PSScriptRoot\resources\Schema-Pester.json"
+            Build  = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'schema', 'moduleassembler-data.schema.json')
+            Pester = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'Schema-Pester.json')
         }
         $result = switch ($Schema) {
             'Build' {
-                Test-Json -Path 'project.json' -Schema (Get-Content $SchemaPath.Build -Raw) -ErrorAction Stop
+                Test-Json -Path 'moduleproject.madata.json' -Schema (Get-Content $SchemaPath.Build -Raw) -ErrorAction Stop
             }
             'Pester' {
-                Test-Json -Path 'project.json' -Schema (Get-Content $SchemaPath.Pester -Raw) -ErrorAction Stop
+                Test-Json -Path 'moduleproject.madata.json' -Schema (Get-Content $SchemaPath.Pester -Raw) -ErrorAction Stop
             }
             default {
                 $false

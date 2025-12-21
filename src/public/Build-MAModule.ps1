@@ -15,8 +15,8 @@ function Build-MAModule {
     param ()
 
     begin {
-        $MTBuildVersion = (Get-Command Build-MAModule).Version
-        Write-Verbose "Running ModuleAssembler Version: $MTBuildVersion"
+        $MABuildVersion = (Get-Command Build-MAModule).Version
+        Write-Verbose "Running ModuleAssembler Version: $MABuildVersion"
     }
 
     process {
