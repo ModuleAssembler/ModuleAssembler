@@ -52,7 +52,7 @@ All the Module files should be in inside `src` folder
 
 ### Dist Folder
 
-Generated module is stored in dist folder, you can easily import it or publish it to PowerShell repository. 
+Generated module is stored in dist folder, you can easily import it or publish it to PowerShell repository.
 
 ```
  dist
@@ -85,7 +85,6 @@ The `resources` folder within the `src` directory is intended for including any 
 - **Documentation files**: Include any supplementary documentation that supports the usage or development of the module.
 - **Data files**: Store any data files that are used by your module, such as CSV or JSON files.
 - **Subfolder**: Include any additional folders and their content to be included with the module, such as dependant Modules, APIs, DLLs, etc... organized by a subfolder.
-
 
 By default, resource files from `src/resources` go into `dist/resources`. To place them directly in dist (avoiding the resources subfolder), set `copyResourcesToModuleRoot` to `true`. This provides greater control in certain deployment scenarios where resources files are preferred in module root directory.
 
@@ -125,25 +124,25 @@ New-MAModule ~/Work
 
 ![image-20240625210008896](./assets/image-20240625210008896.png)
 
-### Invoke-MABuild
+### Build-MAModule
 
-`ModuleAssembler` is designed so that you don't need any additional tools like `make` or `psake` to run the build commands. There's no need to maintain complex `build.ps1` files or sample `.psd1` files. Simply follow the structure outlined above, and you can run `Invoke-MABuild` to build the module. The output will be saved in the `dist` folder, ready for distribution.
+`ModuleAssembler` is designed so that you don't need any additional tools like `make` or `psake` to run the build commands. There's no need to maintain complex `build.ps1` files or sample `.psd1` files. Simply follow the structure outlined above, and you can run `Build-MAModule` to build the module. The output will be saved in the `dist` folder, ready for distribution.
 
 ```powershell
-# From the Module root 
-Invoke-MABuild
+# From the Module root
+Build-MAModule
 
 ## Verbose for more details
-Invoke-MABuild -Verbose
+Build-MAModule -Verbose
 ```
 
 ### Get-MAProjectInfo
 
 This functions give you complete info about the project which can be used in pester tests or for general troubleshooting.
 
-### Invoke-MATest
+### Test-MAModule
 
-All the pester configurations are stored in `project.json`, simply run `Invoke-MATest` command from project root, it will run all the tests inside `tests` folder
+All the pester configurations are stored in `project.json`, simply run `Test-MAModule` command from project root, it will run all the tests inside `tests` folder
 
 - To skip a test insdie test directory use `-skip` in describe/it/context block within Pester test.
 - Use `Get-MAProjectInfo` command inside pester to get great amount of info about project and files
@@ -191,11 +190,11 @@ jobs:
         shell: pwsh
 
       - name: Build Module
-        run: Invoke-MABuild -Verbose
+        run: Build-MAModule -Verbose
         shell: pwsh
 
       - name: Run Pester Tests
-        run: Invoke-MATest
+        run: Test-MAModule
         shell: pwsh
 
       - name: Publish Package to Github

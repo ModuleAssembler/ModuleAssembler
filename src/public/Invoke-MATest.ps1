@@ -1,4 +1,4 @@
-function Invoke-MATest {
+function Test-MAModule {
     <#
     .SYNOPSIS
         Runs Pester tests using settings from project.json file.
@@ -15,15 +15,15 @@ function Invoke-MATest {
 
     .EXAMPLE
         Execute all Pester tests.
-        Invoke-MATest
+        Test-MAModule
 
     .EXAMPLE
         Execute only Pester tests with the tags unit or integrate.
-        Invoke-MATest -TagFilter 'unit','integrate'
+        Test-MAModule -TagFilter 'unit','integrate'
 
     .EXAMPLE
         Runs the Pester tests, excludes any test with tag unit
-        Invoke-MATest -ExcludeTagFilter 'unit'
+        Test-MAModule -ExcludeTagFilter 'unit'
     #>
 
     [CmdletBinding(PositionalBinding = $false)]

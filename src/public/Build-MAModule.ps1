@@ -1,4 +1,4 @@
-function Invoke-MABuild {
+function Build-MAModule {
     <#
     .SYNOPSIS
         Invokes the process to build a module in ModuleAssembler format.
@@ -8,14 +8,14 @@ function Invoke-MABuild {
 
     .EXAMPLE
         Execute a module build.
-        Invoke-MABuild
+        Build-MAModule
     #>
 
     [CmdletBinding()]
     param ()
 
     begin {
-        $MTBuildVersion = (Get-Command Invoke-MABuild).Version
+        $MTBuildVersion = (Get-Command Build-MAModule).Version
         Write-Verbose "Running ModuleAssembler Version: $MTBuildVersion"
     }
 
