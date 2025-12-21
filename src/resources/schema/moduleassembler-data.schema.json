@@ -75,7 +75,6 @@
         "ProjectName",
         "Description",
         "Version",
-        "License",
         "Manifest"
     ]
 }
