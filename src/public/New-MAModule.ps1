@@ -164,16 +164,16 @@ function New-MAModule {
 
         switch ($Answer.ProjectLicense) {
             'Apache2' {
-                $licenseTemplate = [System.IO.Path]::Join($PSScriptRoot, 'resources', 'LicenseTemplates', 'Apache_v2')
+                $licenseTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'LicenseTemplates', 'Apache_v2')
             }
             'BSD3' {
-                $licenseTemplate = [System.IO.Path]::Join($PSScriptRoot, 'resources', 'LicenseTemplates', 'BSD_3-Clause')
+                $licenseTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'LicenseTemplates', 'BSD_3-Clause')
             }
             'GPL3' {
-                $licenseTemplate = [System.IO.Path]::Join($PSScriptRoot, 'resources', 'LicenseTemplates', 'GPLv3')
+                $licenseTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'LicenseTemplates', 'GPLv3')
             }
             default {
-                $licenseTemplate = [System.IO.Path]::Join($PSScriptRoot, 'resources', 'LicenseTemplates', 'MIT')
+                $licenseTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'LicenseTemplates', 'MIT')
             }
         }
         Write-Host 'Setting Project License'
@@ -198,16 +198,16 @@ function New-MAModule {
         if ( $Answer.EnablePester -eq 'Yes') {
             Write-Host 'Include Pester Configs'
             New-Item -ItemType Directory -Path $DirTests | Out-Null
-            $defaultTests = [System.IO.Path]::Join($PSScriptRoot, 'resources', 'PesterTests', '*')
+            $defaultTests = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'PesterTests', '*')
             Copy-Item -Path $defaultTests -Destination $DirTests -Recurse -Force | Out-Null
         }
 
 
         if ($Answer.EnableVSCode -eq 'Yes') {
             Write-Host 'Include Visual Studio Code Configs'
-            $vsSource = [System.IO.Path]::Join($PSScriptRoot, 'resources', 'vscode')
+            $vsSource = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'vscode')
             $vsDestination = Join-Path -Path $DirProject -ChildPath '.vscode'
-            $schemaSource = [System.IO.Path]::Join($PSScriptRoot, 'resources', 'schema')
+            $schemaSource = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'schema')
             $schemaDestination = Join-Path -Path $DirProject -ChildPath '.schema'
             Copy-Item -Path $vsSource -Destination $vsDestination -Recurse -Force | Out-Null
             Copy-Item -Path $schemaSource -Destination $schemaDestination -Recurse -Force | Out-Null
@@ -217,7 +217,7 @@ function New-MAModule {
         if ( $Answer.EnableGit -eq 'Yes') {
             Write-Host 'Initialize Git Repo'
             Initialize-GitRepo -DirectoryPath $DirProject
-            $gitIgnoreSource = [System.IO.Path]::Join($PSScriptRoot, 'resources', 'gitignore')
+            $gitIgnoreSource = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'gitignore')
             $gitIgnoreDestination = Join-Path -Path $DirProject -ChildPath '.gitignore'
             Copy-Item -Path $gitIgnoreSource -Destination $gitIgnoreDestination -Force | Out-Null
         }

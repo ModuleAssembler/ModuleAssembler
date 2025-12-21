@@ -37,14 +37,14 @@ function Get-MAProjectInfo {
         $ProjectName = $Out.ProjectName
         ## Folders
         $Out['ProjectRoot'] = $ProjectRoot
-        $Out['PublicDir'] = [System.IO.Path]::Join($ProjectRoot, 'src', 'public')
-        $Out['PrivateDir'] = [System.IO.Path]::Join($ProjectRoot, 'src', 'private')
-        $Out['ClassesDir'] = [System.IO.Path]::Join($ProjectRoot, 'src', 'classes')
-        $Out['ResourcesDir'] = [System.IO.Path]::Join($ProjectRoot, 'src', 'resources')
-        $Out['OutputDir'] = [System.IO.Path]::Join($ProjectRoot, 'dist')
-        $Out['OutputModuleDir'] = [System.IO.Path]::Join($Out.OutputDir, $ProjectName)
-        $Out['ModuleFilePSM1'] = [System.IO.Path]::Join($Out.OutputModuleDir, "$ProjectName.psm1")
-        $Out['ManifestFilePSD1'] = [System.IO.Path]::Join($Out.OutputModuleDir, "$ProjectName.psd1")
+        $Out['PublicDir'] = [System.IO.Path]::Combine($ProjectRoot, 'src', 'public')
+        $Out['PrivateDir'] = [System.IO.Path]::Combine($ProjectRoot, 'src', 'private')
+        $Out['ClassesDir'] = [System.IO.Path]::Combine($ProjectRoot, 'src', 'classes')
+        $Out['ResourcesDir'] = [System.IO.Path]::Combine($ProjectRoot, 'src', 'resources')
+        $Out['OutputDir'] = [System.IO.Path]::Combine($ProjectRoot, 'dist')
+        $Out['OutputModuleDir'] = [System.IO.Path]::Combine($Out.OutputDir, $ProjectName)
+        $Out['ModuleFilePSM1'] = [System.IO.Path]::Combine($Out.OutputModuleDir, "$ProjectName.psm1")
+        $Out['ManifestFilePSD1'] = [System.IO.Path]::Combine($Out.OutputModuleDir, "$ProjectName.psd1")
 
         $Output = [pscustomobject]$Out | Add-Member -TypeName MTProjectInfo -PassThru
         return $Output

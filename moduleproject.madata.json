@@ -10,7 +10,11 @@
         "PowerShellVersion": "7.4",
         "GUID": "a11215d2-0401-4d80-8447-5bbd5dd8c3f3",
         "Tags": [
-            "Module Template"
+            "PowerShell Module Template",
+            "pwsh",
+            "Windows",
+            "Linux",
+            "MacOS"
         ],
         "ProjectUri": "https://github.com/ModuleAssembler/ModuleAssembler",
         "LicenseUri": "https://github.com/ModuleAssembler/ModuleAssembler/blob/main/LICENSE",

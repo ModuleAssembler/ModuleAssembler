@@ -16,7 +16,7 @@ function Copy-ProjectResource {
 
     begin {
         $data = Get-MAProjectInfo
-        $resFolder = [System.IO.Path]::Join($data.ProjectRoot, 'src', 'resources')
+        $resFolder = [System.IO.Path]::Combine($data.ProjectRoot, 'src', 'resources')
 
         if (Test-Path $resFolder) {
             $items = Get-ChildItem -Path $resFolder -ErrorAction SilentlyContinue
