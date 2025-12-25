@@ -25,6 +25,7 @@
             "type": "boolean"
         },
         "Manifest": {
+            "description": "PowerShell Module Manifest Configuration Items.",
             "type": "object",
             "properties": {
                 "Author": {
@@ -68,6 +69,62 @@
                 "PowerShellVersion",
                 "GUID"
             ]
+        },
+        "Pester": {
+            "description": "Pester Configuration Items.",
+            "type": "object",
+            "properties": {
+                "CodeCoverage": {
+                    "description": "Code Coverage Configuration.",
+                    "type": "object",
+                    "properties": {
+                        "Enabled": {
+                            "description": "Enable Code Coverage.",
+                            "type": "boolean"
+                        },
+                        "OutputFormat": {
+                            "description": "Format to use for code coverage report. Valid options are JaCoCo, CoverageGutters, Cobertura.",
+                            "type": "string",
+                            "pattern": "^(JaCoCo|CoverageGutters|Cobertura)$"
+                        },
+                        "CoveragePercentTarget": {
+                            "description": "Target percent of code coverage that you want to achieve.",
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100
+                        }
+                    },
+                    "required": []
+                },
+                "TestResult": {
+                    "description": "Test Result Configuration.",
+                    "type": "object",
+                    "properties": {
+                        "Enabled": {
+                            "description": "Enable Test Results.",
+                            "type": "boolean"
+                        },
+                        "OutputFormat": {
+                            "description": "Format to use for test result report. Valid values NUnitXml, NUnit2.5, NUnit3 or JUnitXml.",
+                            "type": "string",
+                            "pattern": "^(NUnitXml|NUnit2\\.5|NUnit3|JUnitXml)$"
+                        }
+                    },
+                    "required": []
+                },
+                "Output": {
+                    "description": "Output Configuration.",
+                    "type": "object",
+                    "properties": {
+                        "Verbosity": {
+                            "description": "The verbosity of output. Valid options are None, Normal, Detailed or Diagnostic.",
+                            "type": "string",
+                            "pattern": "^(None|Normal|Detailed|Diagnostic)$"
+                        }
+                    },
+                    "required": []
+                }
+            }
         }
     },
     "required": [

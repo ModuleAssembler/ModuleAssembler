@@ -40,10 +40,10 @@ function Import-MAFunction {
             # Copy function files to temp root
             $functionFiles | Copy-Item -Destination $tempDir
 
-            # Copy moduleproject.madata.json
-            $madataFile = [System.IO.Path]::Combine($PSScriptRoot, 'moduleproject.madata.json')
-            if (Test-Path $madataFile) {
-                Copy-Item -Path $madataFile -Destination $tempDir
+            # Copy module assembler setting folder
+            $madataDir = [System.IO.Path]::Combine($PSScriptRoot, '.moduleassembler')
+            if (Test-Path $madataDir) {
+                Copy-Item -Path $madataDir -Destination $tempDir -Recurse -Force
             }
 
             # Copy resources to temp

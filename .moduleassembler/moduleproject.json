@@ -1,11 +1,13 @@
 {
+    "jsonSchemaVersion": "1.0.0",
     "ProjectName": "ModuleAssembler",
     "Description": "ModuleAssembler is a versatile, standalone PowerShell module builder. Create anything from simple to robust modules with ease. Built for CICD and Automation.",
-    "Version": "1.0.0",
+    "Version": "0.1.0",
     "copyResourcesToModuleRoot": false,
     "Manifest": {
         "Author": "TrisBits",
-        "PowerShellHostVersion": "7.4",
+        "CompanyName": "",
+        "PowerShellVersion": "7.4",
         "GUID": "a11215d2-0401-4d80-8447-5bbd5dd8c3f3",
         "Tags": [
             "PowerShell Module Template",
@@ -14,12 +16,19 @@
             "Linux",
             "MacOS"
         ],
-        "ProjectUri": "https://github.com/ModuleAssembler/ModuleAssembler"
+        "ProjectUri": "https://github.com/ModuleAssembler/ModuleAssembler",
+        "LicenseUri": "https://github.com/ModuleAssembler/ModuleAssembler/blob/main/LICENSE",
+        "IconUri": "https://github.com/ModuleAssembler/ModuleAssembler/blob/main/assets/ModuleAssember.jpg?raw=true"
     },
     "Pester": {
+        "CodeCoverage": {
+            "Enabled": false,
+            "CoveragePercentTarget": 75,
+            "OutputFormat": "JaCoCo"
+        },
         "TestResult": {
             "Enabled": true,
-            "OutputFormat": "NUnitXml"
+            "OutputFormat": "JUnitXml"
         },
         "Output": {
             "Verbosity": "Detailed"

@@ -28,7 +28,7 @@ function Test-JsonSchema {
     )
 
     begin {
-        # Initialization code
+        $data = Get-MAProjectInfo
     }
 
     process {
@@ -39,10 +39,10 @@ function Test-JsonSchema {
         }
         $result = switch ($Schema) {
             'Build' {
-                Test-Json -Path 'moduleproject.madata.json' -Schema (Get-Content $SchemaPath.Build -Raw) -ErrorAction Stop
+                Test-Json -Path $data.ProjectJSON -Schema (Get-Content $SchemaPath.Build -Raw) -ErrorAction Stop
             }
             'Pester' {
-                Test-Json -Path 'moduleproject.madata.json' -Schema (Get-Content $SchemaPath.Pester -Raw) -ErrorAction Stop
+                Test-Json -Path $data.ProjectJSON -Schema (Get-Content $SchemaPath.Pester -Raw) -ErrorAction Stop
             }
             default {
                 $false

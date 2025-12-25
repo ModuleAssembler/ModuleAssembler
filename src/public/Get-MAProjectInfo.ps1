@@ -23,10 +23,10 @@ function Get-MAProjectInfo {
     process {
         $Out = @{}
         $ProjectRoot = Get-Location | Convert-Path
-        $Out['ProjectJSON'] = Join-Path -Path $ProjectRoot -ChildPath 'moduleproject.madata.json'
+        $Out['ProjectJSON'] = [System.IO.Path]::Combine($ProjectRoot, '.moduleassembler', 'moduleproject.json')
 
         if (-not (Test-Path $Out.ProjectJSON)) {
-            Write-Error 'Not a Project folder, moduleproject.madata.json not found' -ErrorAction Stop
+            Write-Error 'Not a Module Assembler project, moduleproject.json not found.' -ErrorAction Stop
         }
 
         ## Metadata, Import all json data

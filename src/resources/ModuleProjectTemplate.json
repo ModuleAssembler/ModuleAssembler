@@ -15,9 +15,14 @@
         "IconUri": ""
     },
     "Pester": {
+        "CodeCoverage": {
+            "Enabled": false,
+            "CoveragePercentTarget": 75,
+            "OutputFormat": "JaCoCo"
+        },
         "TestResult": {
             "Enabled": true,
-            "OutputFormat": "NUnitXml"
+            "OutputFormat": "JUnitXml"
         },
         "Output": {
             "Verbosity": "Detailed"

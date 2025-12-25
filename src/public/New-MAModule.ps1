@@ -145,7 +145,9 @@ function New-MAModule {
         $DirResources = Join-Path -Path $DirSrc -ChildPath 'resources'
         $DirClasses = Join-Path -Path $DirSrc -ChildPath 'classes'
         $DirTests = Join-Path -Path $DirProject -ChildPath 'tests'
-        $ProjectJSONFile = Join-Path $DirProject -ChildPath 'moduleproject.madata.json'
+        $ModuleAssemblerSettings = Join-Path -Path $DirProject -ChildPath '.moduleassembler'
+        $ProjectJSONFile = Join-Path $ModuleAssemblerSettings -ChildPath 'moduleproject.json'
+        $ModuleProjectTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'ModuleProjectTemplate.json')
 
         if (Test-Path $DirProject -and -not ($null -eq (Get-ChildItem -LiteralPath $DirProject -Force | Select-Object -First 1))) {
             Write-Error 'Project already exists, aborting.' | Out-Null
@@ -156,11 +158,17 @@ function New-MAModule {
         # Setup Module
         Write-Host "`nStarted Module Scaffolding" -ForegroundColor Green
         Write-Host 'Setting up Directories'
-        ($DirSrc, $DirPrivate, $DirPublic, $DirResources, $DirClasses) | ForEach-Object {
+        ($ModuleAssemblerSettings, $ModuleAssemblerJsonSchemas, $DirSrc, $DirPrivate, $DirPublic, $DirResources, $DirClasses) | ForEach-Object {
             'Creating Directory: {0}' -f $_ | Write-Verbose
             New-Item -ItemType Directory -Path $_ | Out-Null
         }
 
+        if ($ModuleAssemblerSettings) {
+            $schemaSource = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'schema')
+            Copy-Item -Path $schemaSource -Destination $ModuleAssemblerSettings -Recurse -Force | Out-Null
+        } else {
+            throw "The folder $ModuleAssemblerSettings does not exist as expected."
+        }
 
         switch ($Answer.ProjectLicense) {
             'Apache2' {
@@ -207,10 +215,7 @@ function New-MAModule {
             Write-Host 'Include Visual Studio Code Configs'
             $vsSource = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'vscode')
             $vsDestination = Join-Path -Path $DirProject -ChildPath '.vscode'
-            $schemaSource = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'schema')
-            $schemaDestination = Join-Path -Path $DirProject -ChildPath '.schema'
             Copy-Item -Path $vsSource -Destination $vsDestination -Recurse -Force | Out-Null
-            Copy-Item -Path $schemaSource -Destination $schemaDestination -Recurse -Force | Out-Null
         }
 
 
@@ -224,7 +229,7 @@ function New-MAModule {
 
 
         ## Create ProjectJSON
-        $JsonData = Get-Content "$PSScriptRoot\resources\ModuleProjectTemplate.json" -Raw | ConvertFrom-Json -AsHashtable
+        $JsonData = Get-Content $ModuleProjectTemplate -Raw | ConvertFrom-Json -AsHashtable
 
         $JsonData.ProjectName = $Answer.ProjectName
         $JsonData.Description = $Answer.Description

@@ -71,9 +71,9 @@
     "json.schemas": [
         {
             "fileMatch": [
-                "*.madata.json"
+                "/.moduleassembler/moduleproject.json"
             ],
-            "url": "./.schema/moduleassembler-data.schema.json"
+            "url": "./.moduleassembler/schema/moduleassembler.schema.json"
         }
     ]
 }
