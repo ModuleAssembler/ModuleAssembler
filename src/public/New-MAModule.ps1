@@ -158,16 +158,9 @@ function New-MAModule {
         # Setup Module
         Write-Host "`nStarted Module Scaffolding" -ForegroundColor Green
         Write-Host 'Setting up Directories'
-        ($ModuleAssemblerSettings, $ModuleAssemblerJsonSchemas, $DirSrc, $DirPrivate, $DirPublic, $DirResources, $DirClasses) | ForEach-Object {
+        ($ModuleAssemblerSettings, $DirSrc, $DirPrivate, $DirPublic, $DirResources, $DirClasses) | ForEach-Object {
             'Creating Directory: {0}' -f $_ | Write-Verbose
             New-Item -ItemType Directory -Path $_ | Out-Null
-        }
-
-        if ($ModuleAssemblerSettings) {
-            $schemaSource = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'schema')
-            Copy-Item -Path $schemaSource -Destination $ModuleAssemblerSettings -Recurse -Force | Out-Null
-        } else {
-            throw "The folder $ModuleAssemblerSettings does not exist as expected."
         }
 
         switch ($Answer.ProjectLicense) {

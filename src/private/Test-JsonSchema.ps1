@@ -6,48 +6,37 @@ function Test-JsonSchema {
     .DESCRIPTION
         Test the validity of JSON against a set of permitted schema.
 
-    .PARAMETER Schema
-        Parameter description
+    .PARAMETER SchemaVersion
+        The version of the ModuleAssembler JSON schema to utilize for validation. Default is the latest vesion.
 
     .EXAMPLE
-        Test the JSON using the Build schema.
-        Test-JsonSchema -Schema Build
+        Test the JSON using the latest ModuleAssembler schema.
+        Test-JsonSchema
 
     .EXAMPLE
-        Test the JSON using the Pester schema.
-        Test-JsonSchema -Schema Pester
+        Test the JSON using a specific version of the ModuleAssembler schema.
+        Test-JsonSchema SchemaVersion 'v1.0.0'
     #>
 
     [CmdletBinding()]
-    param (
-        [Parameter(
-            Mandatory = $true,
+    param (        [Parameter(
+            Mandatory = $false,
             Position = 0)]
-        [ValidateSet('Build', 'Pester')]
-        [string] $Schema
+        [ValidateSet('v1.0.0')]
+        [string] $SchemaVersion = 'v1.0.0'
     )
+
 
     begin {
         $data = Get-MAProjectInfo
     }
 
     process {
-        Write-Verbose "Running Schema test against JSON using $Schema schema."
-        $SchemaPath = @{
-            Build  = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'schema', 'moduleassembler-data.schema.json')
-            Pester = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'Schema-Pester.json')
-        }
-        $result = switch ($Schema) {
-            'Build' {
-                Test-Json -Path $data.ProjectJSON -Schema (Get-Content $SchemaPath.Build -Raw) -ErrorAction Stop
-            }
-            'Pester' {
-                Test-Json -Path $data.ProjectJSON -Schema (Get-Content $SchemaPath.Pester -Raw) -ErrorAction Stop
-            }
-            default {
-                $false
-            }
-        }
+        Write-Verbose 'Running Schema Validation against JSON using ModuleAssembler schema.'
+        $SchemaPath = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'schema', $SchemaVersion , 'moduleassembler.schema.json')
+
+        $result = Test-Json -Path $data.ProjectJSON -Schema (Get-Content $SchemaPath.Build -Raw) -ErrorAction Stop
+
         return $result
     }
 
