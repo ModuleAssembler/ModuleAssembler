@@ -38,7 +38,7 @@ function Test-MAModule {
     )
 
     begin {
-        Test-JsonSchema Pester | Out-Null
+        Test-JsonSchema | Out-Null
         $Script:data = Get-MAProjectInfo
         $pesterConfig = New-PesterConfiguration -Hashtable $data.Pester
     }

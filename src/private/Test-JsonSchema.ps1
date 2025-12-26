@@ -19,7 +19,8 @@ function Test-JsonSchema {
     #>
 
     [CmdletBinding()]
-    param (        [Parameter(
+    param (
+        [Parameter(
             Mandatory = $false,
             Position = 0)]
         [ValidateSet('v1.0.0')]
@@ -34,8 +35,9 @@ function Test-JsonSchema {
     process {
         Write-Verbose 'Running Schema Validation against JSON using ModuleAssembler schema.'
         $SchemaPath = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'schema', $SchemaVersion , 'moduleassembler.schema.json')
+        Write-Host $SchemaPath
 
-        $result = Test-Json -Path $data.ProjectJSON -Schema (Get-Content $SchemaPath.Build -Raw) -ErrorAction Stop
+        $result = Test-Json -Path $data.ProjectJSON -SchemaFile $SchemaPath -ErrorAction Stop
 
         return $result
     }
