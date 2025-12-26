@@ -149,7 +149,7 @@ function New-MAModule {
         $ProjectJSONFile = Join-Path $ModuleAssemblerSettings -ChildPath 'moduleproject.json'
         $ModuleProjectTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'ModuleProjectTemplate.json')
 
-        if (Test-Path $DirProject -and -not ($null -eq (Get-ChildItem -LiteralPath $DirProject -Force | Select-Object -First 1))) {
+        if (Test-Path $DirProject -and -not ($null -eq (Get-ChildItem -LiteralPath $DirProject -Force -ErrorAction Ignore | Select-Object -First 1))) {
             Write-Error 'Project already exists, aborting.' | Out-Null
         } elseif (-not (Test-Path $DirProject)) {
             New-Item -ItemType Directory -Path $DirProject | Out-Null
