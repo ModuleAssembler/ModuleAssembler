@@ -1,13 +1,10 @@
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "title": "ModuleAssemblerDataSchema_v1.0.0",
-    "description": "Information utilized by ModuleAssembler when building a module.",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://raw.githubusercontent.com/ModuleAssembler/ModuleAssembler/refs/heads/main/src/resources/schema/v1.0.0/moduleassembler.schema.json",
+    "title": "ModuleAssemblerSchema",
+    "description": "ModuleAssembler data utilized when building a module.",
     "type": "object",
     "properties": {
-        "jsonSchemaVersion": {
-            "description": "Version of the ModuleAssemblerDataSchema being used.",
-            "type": "string"
-        },
         "ProjectName": {
             "description": "Name of the module project.",
             "type": "string"
@@ -22,7 +19,8 @@
         },
         "copyResourcesToModuleRoot": {
             "description": "Specifies if resource files will be placed in the built module's root directory, instead of in a resources subfolder.",
-            "type": "boolean"
+            "type": "boolean",
+            "default": false
         },
         "Manifest": {
             "description": "PowerShell Module Manifest Configuration Items.",
@@ -80,18 +78,21 @@
                     "properties": {
                         "Enabled": {
                             "description": "Enable Code Coverage.",
-                            "type": "boolean"
+                            "type": "boolean",
+                            "default": false
                         },
                         "OutputFormat": {
                             "description": "Format to use for code coverage report. Valid options are JaCoCo, CoverageGutters, Cobertura.",
                             "type": "string",
-                            "pattern": "^(JaCoCo|CoverageGutters|Cobertura)$"
+                            "pattern": "^(JaCoCo|CoverageGutters|Cobertura)$",
+                            "default": "JaCoCo"
                         },
                         "CoveragePercentTarget": {
                             "description": "Target percent of code coverage that you want to achieve.",
                             "type": "number",
                             "minimum": 0,
-                            "maximum": 100
+                            "maximum": 100,
+                            "default": 75
                         }
                     },
                     "required": []
@@ -102,12 +103,14 @@
                     "properties": {
                         "Enabled": {
                             "description": "Enable Test Results.",
-                            "type": "boolean"
+                            "type": "boolean",
+                            "default": true
                         },
                         "OutputFormat": {
                             "description": "Format to use for test result report. Valid values NUnitXml, NUnit2.5, NUnit3 or JUnitXml.",
                             "type": "string",
-                            "pattern": "^(NUnitXml|NUnit2\\.5|NUnit3|JUnitXml)$"
+                            "pattern": "^(NUnitXml|NUnit2\\.5|NUnit3|JUnitXml)$",
+                            "default": "JUnitXml"
                         }
                     },
                     "required": []
@@ -119,7 +122,8 @@
                         "Verbosity": {
                             "description": "The verbosity of output. Valid options are None, Normal, Detailed or Diagnostic.",
                             "type": "string",
-                            "pattern": "^(None|Normal|Detailed|Diagnostic)$"
+                            "pattern": "^(None|Normal|Detailed|Diagnostic)$",
+                            "default": "Detailed"
                         }
                     },
                     "required": []
@@ -128,7 +132,6 @@
         }
     },
     "required": [
-        "jsonSchemaVersion",
         "ProjectName",
         "Description",
         "Version",

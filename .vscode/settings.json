@@ -73,7 +73,7 @@
             "fileMatch": [
                 "/.moduleassembler/moduleproject.json"
             ],
-            "url": "./.moduleassembler/schema/moduleassembler.schema.json"
+            "url": "https://raw.githubusercontent.com/ModuleAssembler/ModuleAssembler/refs/heads/main/src/resources/schema/v1.0.0/moduleassembler.schema.json"
         }
     ]
 }
