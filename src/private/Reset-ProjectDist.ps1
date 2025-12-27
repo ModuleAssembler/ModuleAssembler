@@ -11,7 +11,7 @@ function Reset-ProjectDist {
         Reset-ProjectDist
     #>
 
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess = $true)]
     param ()
 
     begin {
@@ -23,11 +23,18 @@ function Reset-ProjectDist {
         try {
             Write-Verbose 'Running dist folder reset'
             if (Test-Path $data.OutputDir) {
-                Remove-Item -Path $data.OutputDir -Recurse -Force
+                if ($PSCmdlet.ShouldProcess($data.OutputDir)) {
+                    Remove-Item -Path $data.OutputDir -Recurse -Force
+                }
             }
             # Setup Folders
-            New-Item -Path $data.OutputDir -ItemType Directory -Force | Out-Null # Dist folder
-            New-Item -Path $data.OutputModuleDir -Type Directory -Force | Out-Null # Module Folder
+            if ($PSCmdlet.ShouldProcess($data.OutputDir)) {
+                New-Item -Path $data.OutputDir -ItemType Directory -Force | Out-Null # Dist folder
+            }
+
+            if ($PSCmdlet.ShouldProcess($data.OutputModuleDir)) {
+                New-Item -Path $data.OutputModuleDir -Type Directory -Force | Out-Null # Module Folder
+            }
         } catch {
             Write-Error 'Failed to reset Dist folder'
         }

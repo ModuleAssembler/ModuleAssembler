@@ -38,7 +38,7 @@ function Update-MAModuleVersion {
         Ensure you are in project directory when you run this command.
     #>
 
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess = $true)]
     param (
         [Parameter(
             Mandatory = $false,
@@ -55,7 +55,7 @@ function Update-MAModuleVersion {
 
     begin {
         $data = Get-MAProjectInfo
-        $jsonContent = Get-Content -Path $data.ProjecJSON | ConvertFrom-Json
+        $jsonContent = Get-Content -Path $data.ProjectJSON | ConvertFrom-Json
         [semver]$CurrentVersion = $jsonContent.Version
 
         if (!($PreReleaseType) -and !($Label)) {
@@ -98,15 +98,17 @@ function Update-MAModuleVersion {
 
         $newVersion = [semver]::new($Major, $Minor, $Patch, $ReleaseType, $null)
 
-        # Update the version in the JSON object
-        $jsonContent.Version = $newVersion.ToString()
-        Write-Host "Version bumped $CurrentVersion -> $newVersion"
+        if ($PSCmdlet.ShouldProcess("Setting module version in JSON from $CurrentVersion to $newVersion", $data.ProjectJSON, 'Version Update')) {
+            # Update the version in the JSON object
+            $jsonContent.Version = $newVersion.ToString()
+            Write-Host "Version bumped $CurrentVersion -> $newVersion"
 
-        # Convert the JSON object back to JSON format
-        $newJsonContent = $jsonContent | ConvertTo-Json
+            # Convert the JSON object back to JSON format
+            $newJsonContent = $jsonContent | ConvertTo-Json
 
-        # Write the updated JSON back to the file
-        $newJsonContent | Set-Content -Path $data.ProjecJSON
+            # Write the updated JSON back to the file
+            $newJsonContent | Set-Content -Path $data.ProjecJSON
+        }
     }
 
     end {
