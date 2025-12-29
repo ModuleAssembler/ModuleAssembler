@@ -20,7 +20,7 @@ function Build-MAModuleDocumentation {
 
         Write-Verbose 'Initialize Docs directory.'
         if (Test-Path -Path $docsDir) {
-            Remove-Item -Path $docsDir -Include '*.md' -Force
+            Remove-Item -Path $docsDir -Include '*.md' -Recurse -Force
         } else {
             New-Item -Path $docsDir -ItemType Directory -Force
         }
@@ -30,7 +30,7 @@ function Build-MAModuleDocumentation {
         Write-Verbose 'Generating documentation...'
 
         # Import required modules
-        Import-Module $data.ModuleFilePSM1 -Force
+        Import-Module $data.ManifestFilePSD1 -Force
         Import-Module -Name Microsoft.PowerShell.PlatyPS -Force
 
         $moduleCommands = Get-Command -Module $data.ProjectName

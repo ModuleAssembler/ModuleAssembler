@@ -46,6 +46,8 @@ function Build-Manifest {
             Path              = $data.ManifestFilePSD1
             Description       = $data.Description
             FunctionsToExport = $functionToExport
+            CmdletsToExport   = @()
+            VariablesToExport = @()
             AliasesToExport   = $aliasToExport
             RootModule        = "$($data.ProjectName).psm1"
             ModuleVersion     = [version]$sv

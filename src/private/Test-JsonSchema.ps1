@@ -35,7 +35,6 @@ function Test-JsonSchema {
     process {
         Write-Verbose 'Running Schema Validation against JSON using ModuleAssembler schema.'
         $SchemaPath = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'schema', $SchemaVersion , 'moduleassembler.schema.json')
-        Write-Host $SchemaPath
 
         $result = Test-Json -Path $data.ProjectJSON -SchemaFile $SchemaPath -ErrorAction Stop
 

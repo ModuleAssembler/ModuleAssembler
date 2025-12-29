@@ -35,15 +35,6 @@ function Build-Module {
             $sb.AppendLine('') | Out-Null
         }
 
-        # Public Folder
-        $files = Get-ChildItem -Path $data.PublicDir -Filter *.ps1
-        $files | ForEach-Object {
-            Write-Verbose "Appending Public Function: $($_.Name)"
-            $sb.AppendLine("# source: $($_.Name)") | Out-Null
-            $sb.AppendLine([IO.File]::ReadAllText($_.FullName)) | Out-Null
-            $sb.AppendLine('') | Out-Null
-        }
-
         # Private Folder
         $files = Get-ChildItem -Path $data.PrivateDir -Filter *.ps1 -ErrorAction SilentlyContinue
         if ($files) {
@@ -54,6 +45,16 @@ function Build-Module {
                 $sb.AppendLine('') | Out-Null
             }
         }
+
+        # Public Folder
+        $files = Get-ChildItem -Path $data.PublicDir -Filter *.ps1
+        $files | ForEach-Object {
+            Write-Verbose "Appending Public Function: $($_.Name)"
+            $sb.AppendLine("# source: $($_.Name)") | Out-Null
+            $sb.AppendLine([IO.File]::ReadAllText($_.FullName)) | Out-Null
+            $sb.AppendLine('') | Out-Null
+        }
+
         try {
             Set-Content -Path $data.ModuleFilePSM1 -Value $sb.ToString() -Encoding 'UTF8' -ErrorAction Stop
         } catch {

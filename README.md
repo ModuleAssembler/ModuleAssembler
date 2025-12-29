@@ -3,7 +3,7 @@
     <p>Fast, Versatile, standalone PowerShell module builder. Built for CICD and Automation.</p>
 </div>
 
-# NOTE:  This project is currently a Work in Progress and not yet ready for use
+> NOTE:  This project is currently a Work in Progress, so is not yet Stable.
 
 ## 💬 Description
 
