@@ -51,7 +51,7 @@ function Test-MAModule {
         $pesterConfig.Run.Throw = $true
         $pesterConfig.Filter.Tag = $TagFilter
         $pesterConfig.Filter.ExcludeTag = $ExcludeTagFilter
-        $pesterConfig.TestResult.OutputPath = './dist/TestResults.xml'
+        $pesterConfig.TestResult.OutputPath = [System.IO.Path]::Combine('.', 'dist', 'PesterTestResults.xml')
 
         $TestResult = Invoke-Pester -Configuration $pesterConfig
         if ($TestResult.Result -ne 'Passed') {
