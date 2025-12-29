@@ -83,7 +83,9 @@ function Invoke-TestModuleBuild {
         $moduleFilename = "$(Split-Path -Path $PSScriptRoot -Leaf)Test.psm1"
         $manifestFilename = "$($tempModuleName).psd1"
         $tempDir = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), $tempModuleName)
+        $resourcesPath = Join-Path $tempDir -ChildPath 'resources'
         $manifestPath = Join-Path $tempDir -ChildPath $manifestFilename
+        $publicPath = [System.IO.Path]::Combine($PSScriptRoot, 'src', 'public')
 
         if (Test-Path $tempDir) {
             Remove-Item $tempDir -Recurse -Force
