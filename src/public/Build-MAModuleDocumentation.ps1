@@ -20,9 +20,9 @@ function Build-MAModuleDocumentation {
 
         Write-Verbose 'Initialize Docs directory.'
         if (Test-Path -Path $docsDir) {
-            Remove-Item -Path $docsDir -Include '*.md' -Recurse -Force
+            Remove-Item -Path $docsDir -Include '*.md' -Recurse -Force | Out-Null
         } else {
-            New-Item -Path $docsDir -ItemType Directory -Force
+            New-Item -Path $docsDir -ItemType Directory -Force | Out-Null
         }
     }
 
@@ -85,17 +85,20 @@ function Build-MAModuleDocumentation {
                 $example.Remarks = $formattedLines -join [System.Environment]::NewLine
             }
 
-            Export-MarkdownCommandHelp -CommandHelp $commandHelp -OutputFolder $docsDir
+            Export-MarkdownCommandHelp -Metadata @{ Locale = 'en-US' } -CommandHelp $commandHelp -OutputFolder $docsDir | Out-Null
             $moduleCommandHelp += $commandHelp
         }
 
+
         # Generate module file
         $newMarkdownCommandHelpSplat = @{
+            HelpVersion  = $data.version
+            Locale       = 'en-US'
             CommandHelp  = $moduleCommandHelp
             OutputFolder = $docsDir
             Force        = $true
         }
-        New-MarkdownModuleFile @newMarkdownCommandHelpSplat
+        New-MarkdownModuleFile @newMarkdownCommandHelpSplat | Out-Null
 
         Write-Verbose 'Documentation generation completed successfully'
 
@@ -136,7 +139,7 @@ function Build-MAModuleDocumentation {
                 }
             }
 
-            Write-MarkdownFileContent -Path $path -Content ($linesOut -join [System.Environment]::NewLine)
+            Write-MarkdownFileContent -Path $path -Content ($linesOut -join [System.Environment]::NewLine) | Out-Null
         }
 
     }

@@ -83,7 +83,7 @@ function Invoke-TestModuleBuild {
         $moduleFilename = "$(Split-Path -Path $PSScriptRoot -Leaf)Test.psm1"
         $manifestFilename = "$($tempModuleName).psd1"
         $tempDir = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), $tempModuleName)
-        $resourcesPath = Join-Path $tempDir -ChildPath 'resources'
+        $resourcesSourcePath = [System.IO.Path]::Combine($PSScriptRoot, 'src', 'resources')
         $manifestPath = Join-Path $tempDir -ChildPath $manifestFilename
         $publicPath = [System.IO.Path]::Combine($PSScriptRoot, 'src', 'public')
 
@@ -98,9 +98,9 @@ function Invoke-TestModuleBuild {
         Build-ModuleManualTest -Path $tempDir -Verbose
 
         # Copy resources to temp location
-        if (Test-Path $resourcesPath) {
+        if (Test-Path $resourcesSourcePath) {
             Write-Verbose "Copying resources from $resourcesPath to $tempDir"
-            Copy-Item -Path $resourcesPath -Destination $tempDir -Recurse -Force
+            Copy-Item -Path $resourcesSourcePath -Destination $tempDir -Recurse -Force
             if (Test-Path (Join-Path $tempDir 'resources')) {
                 Write-Verbose 'Resources copied successfully'
             } else {
