@@ -1,2 +1,5 @@
 # Module Build Output
 dist/
+
+# Documentation Output
+docs/
