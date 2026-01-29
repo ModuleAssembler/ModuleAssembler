@@ -10,8 +10,9 @@ function Initialize-GitRepo {
         The directory path in which to initialize the Git repository.
 
     .EXAMPLE
-        Initializes the Git repository in the directory provided.
         Initialize-GitRepo -DirectoryPath "C:\NewModule"
+
+        Initializes the Git repository in the directory provided.
     #>
 
     [CmdletBinding(SupportsShouldProcess = $true)]

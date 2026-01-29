@@ -9,11 +9,18 @@ function Get-MAProjectInfo {
         Most variables are already defined in output of this command which can be used in pester tests and other configs.
 
     .EXAMPLE
-        Get a hashtable output of all module project metadata.
         Get-MAProjectInfo
+
+        Get a hashtable output of all module project metadata.
+
+    .OUTPUTS
+        System.Collections.Hashtable
+
+        A hashtable with the module project metadata.
     #>
 
     [CmdletBinding()]
+    [Alias('MAInfo')]
     param ()
 
     begin {

@@ -15,30 +15,36 @@ function Update-MAModuleVersion {
         If executed again with no Label and the same PrereleaseType type, the prerelease number will increment.
 
     .EXAMPLE
-        Updates the Major version part of the module. Version 2.1.3 will become 3.1.3.
         Update-MAModuleVersion -Label Major
 
+        Updates the Major version part of the module. Version 2.1.3 will become 3.1.3.
+
     .EXAMPLE
-        Updates the Patch version part of the module. Version 2.1.3 will become 2.1.4.
         Update-MAModuleVersion
 
+        Updates the Patch version part of the module. Version 2.1.3 will become 2.1.4.
+
     .EXAMPLE
+        Update-MAModuleVersion -PreReleaseType preview
+
         Adds a specified PreReleaseLabel to the module version. Version 1.0.0 will become 1.0.0-preview01.
-        Update-MAModuleVersion -PreReleaseType preview
 
     .EXAMPLE
+        Update-MAModuleVersion -PreReleaseType preview
+
         Increment a pre-existing PreReleaseLabel. Version 1.0.0-preview01 will become 1.0.0-preview02.
-        Update-MAModuleVersion -PreReleaseType preview
 
     .EXAMPLE
-        Sets a new version and specify it as a PreRelease. Version 0.1.0 will become 1.0.0-rc01.
         Update-MAModuleVersion -Label Major -PreReleaseType rc
 
+        Sets a new version and specify it as a PreRelease. Version 0.1.0 will become 1.0.0-rc01.
+
     .NOTES
-        Ensure you are in project directory when you run this command.
+        Ensure you are in the project directory when running this command.
     #>
 
     [CmdletBinding(SupportsShouldProcess = $true)]
+    [Alias('MAVersion')]
     param (
         [Parameter(
             Mandatory = $false,

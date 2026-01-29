@@ -7,8 +7,9 @@ function Reset-ProjectDist {
         Resets the project distribution (dist) folder, which contains the built module.
 
     .EXAMPLE
-        Reset the project dist folder.
         Reset-ProjectDist
+
+        Reset the project dist folder.
     #>
 
     [CmdletBinding(SupportsShouldProcess = $true)]

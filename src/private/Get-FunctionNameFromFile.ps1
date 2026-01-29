@@ -11,12 +11,14 @@ function Get-FunctionNameFromFile {
         Path to the function ps1 file.
 
     .EXAMPLE
-        Gather function names for the given file.
         Get-FunctionNameFromFile -Path '.\Verb-Noun.ps1'
 
+        Gather function names for the given file.
+
     .EXAMPLE
-        Gather function names for the given file, using positional parameter.
         Get-FunctionNameFromFile '.\Verb-Noun.ps1'
+
+        Gather function names for the given file, using positional parameter.
     #>
 
     [CmdletBinding()]

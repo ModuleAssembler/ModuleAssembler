@@ -10,8 +10,6 @@ function Read-HostResponse {
         An object which contains a question to prompt the user with.
 
     .EXAMPLE
-        Prompt the user with a question and read the result.
-
         $question = @{
             Caption = 'Module Name'
             Message = 'Enter Module name of your choice, should be single word with no special characters'
@@ -19,6 +17,8 @@ function Read-HostResponse {
             Default = 'MANDATORY'
         }
         Read-HostResponse -Ask $question
+
+        Prompt the user with a question and read the result.
     #>
 
     [CmdletBinding()]

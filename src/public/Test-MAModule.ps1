@@ -14,19 +14,23 @@ function Test-MAModule {
         Array of Pester tags to run.
 
     .EXAMPLE
-        Execute all Pester tests.
         Test-MAModule
 
-    .EXAMPLE
-        Execute only Pester tests with the tags unit or integrate.
-        Test-MAModule -TagFilter 'unit','integrate'
+        Execute all Pester tests.
 
     .EXAMPLE
-        Runs the Pester tests, excludes any test with tag unit
+        Test-MAModule -TagFilter 'unit','integrate'
+
+        Execute only Pester tests with the tags unit or integrate.
+
+    .EXAMPLE
         Test-MAModule -ExcludeTagFilter 'unit'
+
+        Runs the Pester tests, excludes any test with tag unit.
     #>
 
     [CmdletBinding(PositionalBinding = $false)]
+    [Alias('MATest')]
     param (
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]

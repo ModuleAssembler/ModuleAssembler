@@ -19,8 +19,9 @@ function Write-MarkdownFileContent {
         The starting delay in Milliseconds between retry attempts.
 
     .EXAMPLE
-        Example description
-        Verb-Noun -ParameterName "Value"
+        Write-MarkdownFileContent -Path C:\docs -Content 'My content'
+
+        Write out the Markdown file content.
     #>
 
     [CmdletBinding()]

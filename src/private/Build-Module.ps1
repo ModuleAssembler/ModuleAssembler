@@ -10,8 +10,9 @@ function Build-Module {
         Parameter description
 
     .EXAMPLE
-        Execute the module build.
         Build-Module
+
+        Execute the module build.
     #>
 
     [CmdletBinding()]

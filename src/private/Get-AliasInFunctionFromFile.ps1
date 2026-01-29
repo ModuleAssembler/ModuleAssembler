@@ -10,12 +10,14 @@ function Get-AliasInFunctionFromFile {
         Path to the function ps1 file.
 
     .EXAMPLE
-        Gather alias names for the given function file.
         Get-AliasInFunctionFromFile -Path '.\Verb-Noun.ps1'
 
+        Gather alias names for the given function file.
+
     .EXAMPLE
-        Gather alias names for the given function file, using positional parameter.
         Get-AliasInFunctionFromFile '.\Verb-Noun.ps1'
+
+        Gather alias names for the given function file, using positional parameter.
     #>
 
     [CmdletBinding()]

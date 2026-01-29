@@ -14,8 +14,9 @@ function Test-JsonSchema {
         Test-JsonSchema
 
     .EXAMPLE
-        Test the JSON using a specific version of the ModuleAssembler schema.
         Test-JsonSchema SchemaVersion 'v1.0.0'
+
+        Test the JSON using a specific version of the ModuleAssembler schema.
     #>
 
     [CmdletBinding()]

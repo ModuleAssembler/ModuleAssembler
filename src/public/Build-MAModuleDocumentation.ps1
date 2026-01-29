@@ -1,24 +1,34 @@
 function Build-MAModuleDocumentation {
     <#
     .SYNOPSIS
-        Creates module help in Markdown, based on the Comment-based Help in the functions.
+        Creates module documentation in Markdown, based on the Comment-based Help in the functions.
 
     .DESCRIPTION
-        Generates Markdown help files for the module's public functions, from the Comment-based Help specified in each function.
+        Generates Markdown documentation files for the module's public functions, from the Comment-based Help specified in each function.
 
     .EXAMPLE
+        Build-MAModuleDocumentation
+
         Create module Markdown documentation.
-        Build-MAModuleDocumentationVerb
     #>
 
     [CmdletBinding()]
+    [Alias('MADocs')]
     param ()
 
     begin {
+        Write-Verbose 'START: Generating documentation.'
         $data = Get-MAProjectInfo
-        $docsDir = Join-Path $data.ProjectRoot -ChildPath 'docs'
+        $docsDir = [System.IO.Path]::Combine($data.ProjectRoot, 'docs', $data.ProjectName)
 
-        Write-Verbose 'Initialize Docs directory.'
+        Write-Verbose 'Importing module.'
+        try {
+            Import-Module $data.ManifestFilePSD1 -Force -ErrorAction Stop
+        } catch {
+            throw "Import of the built module failed with message:  $($_.Exception.Message)"
+        }
+
+        Write-Verbose 'Initialize docs directory.'
         if (Test-Path -Path $docsDir) {
             Remove-Item -Path $docsDir -Include '*.md' -Recurse -Force | Out-Null
         } else {
@@ -27,124 +37,170 @@ function Build-MAModuleDocumentation {
     }
 
     process {
-        Write-Verbose 'Generating documentation...'
-
-        # Import required modules
-        Import-Module $data.ManifestFilePSD1 -Force
-        Import-Module -Name Microsoft.PowerShell.PlatyPS -Force
-
         $moduleCommands = Get-Command -Module $data.ProjectName
-        $moduleCommandHelp = @()
 
         foreach ($command in $moduleCommands) {
-            Write-Verbose "Processing command: $($command.Name)"
-            $commandHelp = New-CommandHelp $command
+            Write-Verbose "Generating documentation for function $command."
+            $helpContent = Get-Help $command -Full
+            $commandContent = Get-Command -Name $command
 
-            $commandHelp.Examples | ForEach-Object {
-                $example = $_
-                $lines = $example.Remarks -split '\r\n|\n' | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+            $fileContent = "# $($command)`n`n"
 
-                $formattedLines = [System.Collections.ArrayList]::new()
-                $codeBuffer = [System.Collections.ArrayList]::new()
-
-                for ($i = 0; $i -lt $lines.Count; $i++) {
-                    $line = $lines[$i]
-
-                    # If this is a description line (heuristic), add it as text
-                    if (Test-ExampleDescriptionLine $line) {
-                        # If we were in a code block, flush it first
-                        if ($codeBuffer.Count -gt 0) {
-                            [void]$formattedLines.Add("``````powershell")
-                            $formattedLines.AddRange($codeBuffer)
-                            [void]$formattedLines.Add("``````")
-                            $codeBuffer.Clear()
-                        }
-                        # Add description with proper spacing
-                        if ($formattedLines.Count -gt 0 -and -not $formattedLines[-1].Equals('')) {
-                            [void]$formattedLines.Add('')
-                        }
-                        [void]$formattedLines.Add($line)
-                    }
-                    # Otherwise treat it as code
-                    else {
-                        if ($formattedLines.Count -gt 0 -and -not $formattedLines[-1].Equals('')) {
-                            [void]$formattedLines.Add('')
-                        }
-                        [void]$codeBuffer.Add($line)
-                    }
-                }
-
-                # Flush any remaining code buffer
-                if ($codeBuffer.Count -gt 0) {
-                    [void]$formattedLines.Add("``````powershell")
-                    $formattedLines.AddRange($codeBuffer)
-                    [void]$formattedLines.Add("``````")
-                }
-
-                # Join everything with proper spacing
-                $example.Remarks = $formattedLines -join [System.Environment]::NewLine
+            # Validate the minimum required sections are present in the Comment-based Help.
+            if (!($helpContent.synopsis)) {
+                throw "The Comment-based Help for $($command) must contain a .SYNOPSIS section."
             }
 
-            Export-MarkdownCommandHelp -Metadata @{ Locale = 'en-US' } -CommandHelp $commandHelp -OutputFolder $docsDir | Out-Null
-            $moduleCommandHelp += $commandHelp
-        }
+            if (!($helpContent.description)) {
+                throw "The Comment-based Help for $($command) must contain a .DESCRIPTION section."
+            }
 
+            if (!($helpContent.examples)) {
+                throw "The Comment-based Help for $($command) must contain at least one .EXAMPLE section."
+            }
 
-        # Generate module file
-        $newMarkdownCommandHelpSplat = @{
-            HelpVersion  = $data.version
-            Locale       = 'en-US'
-            CommandHelp  = $moduleCommandHelp
-            OutputFolder = $docsDir
-            Force        = $true
-        }
-        New-MarkdownModuleFile @newMarkdownCommandHelpSplat | Out-Null
+            # Synopsis Section
+            $fileContent += "## Synopsis`n`n"
+            $fileContent += ($helpContent.synopsis | Out-String).Trim()
+            $fileContent += "`n`n"
 
-        Write-Verbose 'Documentation generation completed successfully'
+            # Syntax Section
+            $syntax = Get-Command -Name $command -Syntax
+            $formattedSyntax = $syntax -replace '(\s+\[)', "`n   `$1"
 
-        # Remove unwanted sections from generated markdown files
-        # Define the section headers (case-insensitive) you want to remove from generated markdown files.
-        # Example: @('ALIASES','RELATED LINKS')
-        $SectionsToRemove = @('ALIASES')
+            $fileContent += "## Syntax`n`n"
+            $fileContent += "``````powershell"
+            $fileContent += $formattedSyntax
+            $fileContent += "```````n`n"
 
-        # Build a regex that matches any of the section names after the "##" header
-        $escaped = $SectionsToRemove | ForEach-Object { [regex]::Escape($_) }
-        $removeHeaderRegex = '^(?i)\s*##\s*(?:' + ($escaped -join '|') + ')\b'
+            # Description Section
+            $fileContent += "## Description`n`n"
+            $fileContent += ($helpContent.description | Out-String).Trim()
+            $fileContent += "`n"
 
-        $mdFiles = Get-ChildItem -Path '.\docs' -Recurse -Filter '*.md' -File -ErrorAction SilentlyContinue
-        foreach ($md in $mdFiles) {
-            $path = $md.FullName
-            Write-Verbose "Processing removal of sections ($($SectionsToRemove -join ', ')): $path"
+            # Alias section
+            $funcAlias = Get-Alias -Definition $command -ErrorAction SilentlyContinue
+            if ($funcAlias) {
+                $fileContent += "`n## Aliases`n`n"
+                $fileContent += $funcAlias.Name -join ', '
+                $fileContent += "`n"
+            }
 
-            $inSection = $false
-            $linesOut = New-Object System.Collections.Generic.List[string]
-            Get-Content -Path $path | ForEach-Object {
-                $line = $_
+            # Examples Section
+            $fileContent += "`n## Examples`n"
 
-                if (-not $inSection -and $line -match $removeHeaderRegex) {
-                    # start skipping lines until the next "## " header
-                    $inSection = $true
-                    return
+            foreach ($example in $helpContent.examples.example) {
+                if (Test-DescriptionLine $example.code) {
+                    throw "An example for $($command) has the description before the code, which does not follow the order required by Get-Help. Place the example code followed by the description on a new line, optionally with an empty line between the two."
                 }
 
-                if ($inSection -and $line -match '^\s*##\s+') {
-                    # end skipping and emit this header line
-                    $inSection = $false
-                    [void]$linesOut.Add($line)
-                    return
+                $fileContent += "`n### " + (($example.title | Out-String).Replace('-', '')).Trim()
+                $fileContent += "`n`n``````powershell`n"
+                $fileContent += ($example.introduction | Out-String).Trim() + ' ' + ($example.code | Out-String).Trim()
+                $fileContent += "`n```````n`n"
+                $fileContent += ($example.remarks | Out-String).Trim() + "`n"
+            }
+
+            # Parameters Section
+            if ($helpContent.Parameters -or $commandContent.CmdletBinding) {
+                $fileContent += "`n## Parameters`n`n"
+
+                foreach ($param in $helpContent.Parameters.parameter) {
+                    $nameParam = ($param.name | Out-String).Trim()
+                    $fileContent += '### -' + $nameParam + "`n`n"
+
+                    $descriptionParm = ($param.description | Out-String).Trim()
+                    if (-not [string]::IsNullOrEmpty($descriptionParm)) {
+                        $fileContent += $descriptionParm + "`n`n"
+                    }
+
+                    $fileContent += "| Property | Value |`n"
+                    $fileContent += "| --- | --- |`n"
+                    $fileContent += "| Type | $(($param.parameterValue | Out-String).Trim()) |`n"
+                    $fileContent += "| Required | $(($param.required | Out-String).Trim()) |`n"
+
+                    $defaultValue = ($param.defaultValue | Out-String).Trim()
+                    if ($defaultValue) {
+                        $fileContent += "| Default Value | $($defaultValue) |`n"
+                    }
+
+                    $delimitedValidValues = $commandContent.Parameters.$($nameParam).Attributes.ValidValues -join ', '
+                    if ($delimitedValidValues) {
+                        $fileContent += "| Valid Values | $($delimitedValidValues) |`n"
+                    }
+
+                    $delimitedAlias = $commandContent.Parameters.$($nameParam).Aliases -join ', '
+                    if ($delimitedAlias) {
+                        $fileContent += "| Alias | $($delimitedAlias) |`n"
+                    }
+
+                    $fileContent += "| Accept Pipeline Input | $(($param.pipelineInput | Out-String).Trim()) |`n"
+                    $fileContent += "| Accept Wildcards | $(($param.globbing | Out-String).Trim()) |`n"
+
+                    $positionParam = ($param.position | Out-String).Trim()
+                    if ($positionParam) {
+                        $fileContent += "| Position | $($positionParam) |`n"
+                    }
+                    $fileContent += "`n"
                 }
 
-                if (-not $inSection) {
-                    [void]$linesOut.Add($line)
+                if ($commandContent.CmdletBinding) {
+                    $fileContent += "### \<CommonParameters\>`n`n"
+                    $fileContent += "This cmdlet supports the common parameters: Verbose, Debug, ErrorAction, ErrorVariable, WarningAction, WarningVariable, OutBuffer, PipelineVariable, and OutVariable.`n`n"
+                    $fileContent += "For more information, see about_CommonParameters [https://go.microsoft.com/fwlink/?LinkID=113216].`n"
                 }
             }
 
-            Write-MarkdownFileContent -Path $path -Content ($linesOut -join [System.Environment]::NewLine) | Out-Null
-        }
+            # Inputs Section
 
+            # Outputs Section
+            if ($helpContent.returnValues) {
+                $fileContent += "`n## Outputs`n`n"
+                $returnValueCount = @($helpContent.returnValues.returnValue).Count
+                $currentIndex = 0
+
+                foreach ($returnValue in $helpContent.returnValues.returnValue) {
+                    $currentIndex++
+                    $typeContent = ($returnValue.type.name | Out-String).Trim()
+                    if ($typeContent) {
+                        $lines = @($typeContent -split "`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })
+
+                        if ($lines.Count -gt 0) {
+                            # First line is the type
+                            if (Test-DescriptionLine $lines[0]) {
+                                throw "An Output type for $($command) has the description before the type definition, which does not follow the order required. Place the type followed by the description on a new line, optionally with an empty line between the two."
+                            }
+                            $fileContent += '### ' + $lines[0]
+
+                            # Remaining lines are the description
+                            if ($lines.Count -gt 1) {
+                                $fileContent += "`n`n" + ($lines[1..($lines.Count - 1)] -join "`n") + "`n"
+                            } else {
+                                $fileContent += "`n"
+                            }
+
+                            # Add blank line between outputs, but not after the last one
+                            if ($currentIndex -lt $returnValueCount) {
+                                $fileContent += "`n"
+                            }
+                        }
+                    }
+                }
+            }
+
+            # Notes Section
+            if ($helpContent.alertSet) {
+                $fileContent += "`n## Notes`n`n"
+                $fileContent += ($helpContent.alertSet | Out-String).Trim() + "`n"
+            }
+
+            # Export to Markdown
+            $mdFilePath = Join-Path $docsDir -ChildPath "$($command).md"
+            $fileContent | Out-File -FilePath $mdFilePath -Encoding UTF8NoBOM -NoNewline
+        }
     }
 
     end {
-        # Cleanup code
+        Write-Verbose 'COMPLETE: Generating documentation.'
     }
 }

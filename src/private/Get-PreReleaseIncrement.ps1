@@ -10,8 +10,9 @@ function Get-PreReleaseIncrement {
         The PreReleaseLabel for the Symantic Version.
 
     .EXAMPLE
-        Bump the PreReleaseLabel from preview01 to preview02.
         Get-PrereleaseIncrement -PreReleaseLabel 'preview01'
+
+        Bump the PreReleaseLabel from preview01 to preview02.
     #>
 
     [CmdletBinding()]

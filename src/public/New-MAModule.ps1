@@ -10,15 +10,18 @@ function New-MAModule {
         Path where module will be created. Provide root folder path, module folder will be created as a subdirectory.
 
     .EXAMPLE
-        Creates module project inside c:\work folder.
         New-MAModule -Path 'C:\work'
 
+        Creates module project inside c:\work folder.
+
     .EXAMPLE
-        Creates module project in the current folder.
         New-MAModule
+
+        Creates module project in the current folder.
     #>
 
     [CmdletBinding(SupportsShouldProcess = $true)]
+    [Alias('MANew')]
     param (
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]

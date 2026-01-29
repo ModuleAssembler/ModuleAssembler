@@ -7,8 +7,9 @@ function Build-Manifest {
         The required module data is gathered, validated, and used to create the module manifest file.
 
     .EXAMPLE
-        Execute the module manifest build.
         Build-Manifest
+
+        Execute the module manifest build.
     #>
 
     [CmdletBinding()]

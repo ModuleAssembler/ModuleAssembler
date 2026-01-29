@@ -7,11 +7,13 @@ function Build-MAModule {
         Invokes the process to build by cleaning up the dist folder, building the module. and copies all necessary resource files.
 
     .EXAMPLE
-        Execute a module build.
         Build-MAModule
+
+        Execute a module build.
     #>
 
     [CmdletBinding()]
+    [Alias('MABuild')]
     param ()
 
     begin {

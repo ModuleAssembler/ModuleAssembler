@@ -7,8 +7,9 @@ function Copy-ProjectResource {
         Copies the contents of the resources folder, to the resources folder in the built module or optionally its root.
 
     .EXAMPLE
-        Copy resource files to built module.
         Copy-ProjectResource
+
+        Copy resource files to built module.
     #>
 
     [CmdletBinding()]

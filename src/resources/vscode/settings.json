@@ -65,6 +65,7 @@
     "markdownlint.config": {
         "default": true,
         "MD033": false,
+        "MD060": false,
         "no-hard-tabs": true
     },
     // JSON schema mapping for ModuleAssembler data file
