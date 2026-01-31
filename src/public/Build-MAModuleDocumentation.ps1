@@ -20,6 +20,7 @@ function Build-MAModuleDocumentation {
         Write-Verbose 'START: Generating documentation.'
         $data = Get-MAProjectInfo
         $docsDir = [System.IO.Path]::Combine($data.ProjectRoot, 'docs', $data.ProjectName)
+        $docsCommandsDir = Join-Path $docsDir -ChildPath 'Commands'
 
         Write-Verbose 'Importing module.'
         try {
@@ -32,12 +33,24 @@ function Build-MAModuleDocumentation {
         if (Test-Path -Path $docsDir) {
             Remove-Item -Path $docsDir -Include '*.md' -Recurse -Force | Out-Null
         } else {
-            New-Item -Path $docsDir -ItemType Directory -Force | Out-Null
+            New-Item -Path $docsCommandsDir -ItemType Directory -Force | Out-Null
+        }
+
+        if (-not (Test-Path -Path $docsCommandsDir)) {
+            New-Item -Path $docsCommandsDir -ItemType Directory -Force | Out-Null
         }
     }
 
     process {
         $moduleCommands = Get-Command -Module $data.ProjectName
+
+        # Module main page
+        $fileMain = "# $($data.ProjectName)`n`n"
+        $fileMain += "## Version`n`n"
+        $fileMain += $data.Version
+        $fileMain += "`n`n## Description`n`n"
+        $fileMain += $data.Description
+        $fileMain += "`n`n## Commands`n`n"
 
         foreach ($command in $moduleCommands) {
             Write-Verbose "Generating documentation for function $command."
@@ -152,6 +165,39 @@ function Build-MAModuleDocumentation {
             }
 
             # Inputs Section
+            if ($helpContent.inputTypes) {
+                $fileContent += "`n## Inputs`n`n"
+                $returnValueCount = @($helpContent.inputTypes.inputType).Count
+                $currentIndex = 0
+
+                foreach ($returnValue in $helpContent.inputTypes.inputType) {
+                    $currentIndex++
+                    $typeContent = ($returnValue.type.name | Out-String).Trim()
+                    if ($typeContent) {
+                        $lines = @($typeContent -split "`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ -ne '' })
+
+                        if ($lines.Count -gt 0) {
+                            # First line is the type
+                            if (Test-DescriptionLine $lines[0]) {
+                                throw "An Input type for $($command) has the description before the type definition, which does not follow the order required. Place the type followed by the description on a new line, optionally with an empty line between the two."
+                            }
+                            $fileContent += '### ' + $lines[0]
+
+                            # Remaining lines are the description
+                            if ($lines.Count -gt 1) {
+                                $fileContent += "`n`n" + ($lines[1..($lines.Count - 1)] -join "`n") + "`n"
+                            } else {
+                                $fileContent += "`n"
+                            }
+
+                            # Add blank line between inputs, but not after the last one
+                            if ($currentIndex -lt $returnValueCount) {
+                                $fileContent += "`n"
+                            }
+                        }
+                    }
+                }
+            }
 
             # Outputs Section
             if ($helpContent.returnValues) {
@@ -195,9 +241,14 @@ function Build-MAModuleDocumentation {
             }
 
             # Export to Markdown
-            $mdFilePath = Join-Path $docsDir -ChildPath "$($command).md"
+            $mdFilePath = Join-Path $docsCommandsDir -ChildPath "$($command).md"
             $fileContent | Out-File -FilePath $mdFilePath -Encoding UTF8NoBOM -NoNewline
+
+            $fileMain += "- [$($command)](Commands/$($command).md)`n"
         }
+
+        $mdMainFilePath = Join-Path $docsDir -ChildPath 'index.md'
+        $fileMain | Out-File -FilePath $mdMainFilePath -Encoding UTF8NoBOM -NoNewline
     }
 
     end {

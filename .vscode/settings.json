@@ -64,6 +64,7 @@
     // Markdown Lint Settings
     "markdownlint.config": {
         "default": true,
+        "MD024": false,
         "MD033": false,
         "MD060": false,
         "no-hard-tabs": true
