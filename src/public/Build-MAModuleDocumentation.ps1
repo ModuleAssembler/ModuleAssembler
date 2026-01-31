@@ -247,6 +247,7 @@ function Build-MAModuleDocumentation {
             $fileMain += "- [$($command)](Commands/$($command).md)`n"
         }
 
+        Write-Verbose 'Generating documentation index.'
         $mdMainFilePath = Join-Path $docsDir -ChildPath 'index.md'
         $fileMain | Out-File -FilePath $mdMainFilePath -Encoding UTF8NoBOM -NoNewline
     }
