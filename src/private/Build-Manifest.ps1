@@ -55,7 +55,7 @@ function Build-Manifest {
             FormatsToProcess  = $FormatsToProcess
         }
 
-        ## Release lable
+        ## Release label
         if ($sv.PreReleaseLabel) {
             $ParmsManifest['Prerelease'] = $sv.PreReleaseLabel
         }

@@ -60,6 +60,59 @@
                 "IconUri": {
                     "description": "A URL to an icon representing this module.",
                     "type": "string"
+                },
+                "RequiredModules": {
+                    "description": "Modules that must be imported into the global environment.",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ModuleName": {
+                                "description": "The required module name.",
+                                "type": "string"
+                            },
+                            "GUID": {
+                                "description": "GUID of the required module.",
+                                "type": "string"
+                            },
+                            "ModuleVersion": {
+                                "description": "Minimum acceptable version of the required module.",
+                                "type": "string"
+                            },
+                            "RequiredVersion": {
+                                "description": "Exact version of the required module.",
+                                "type": "string"
+                            },
+                            "MaximumVersion": {
+                                "description": "Maximum acceptable version of the required module.",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "ModuleName"
+                        ],
+                        "if": {
+                            "required": [
+                                "RequiredVersion"
+                            ]
+                        },
+                        "then": {
+                            "not": {
+                                "anyOf": [
+                                    {
+                                        "required": [
+                                            "ModuleVersion"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "MaximumVersion"
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
                 }
             },
             "required": [

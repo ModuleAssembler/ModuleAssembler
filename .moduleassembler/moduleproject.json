@@ -18,7 +18,19 @@
         ],
         "ProjectUri": "https://github.com/ModuleAssembler/ModuleAssembler",
         "LicenseUri": "https://github.com/ModuleAssembler/ModuleAssembler/blob/main/LICENSE",
-        "IconUri": "https://github.com/ModuleAssembler/ModuleAssembler/blob/main/assets/ModuleAssember.jpg?raw=true"
+        "IconUri": "https://github.com/ModuleAssembler/ModuleAssembler/blob/main/assets/ModuleAssember.jpg?raw=true",
+        "RequiredModules": [
+            {
+                "ModuleName": "PSScriptAnalyzer",
+                "ModuleVersion": "1.24.0",
+                "MaximumVersion": "1.99.99"
+            },
+            {
+                "ModuleName": "Pester",
+                "ModuleVersion": "5.7.1",
+                "MaximumVersion": "5.99.99"
+            }
+        ]
     },
     "Pester": {
         "CodeCoverage": {
