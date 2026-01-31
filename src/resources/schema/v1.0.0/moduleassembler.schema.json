@@ -80,7 +80,7 @@
                                 "type": "string"
                             },
                             "RequiredVersion": {
-                                "description": "Exact version of the required module.",
+                                "description": "Exact version of the required module. If specified then ModuleVersion and MaximumVersion can't be used.",
                                 "type": "string"
                             },
                             "MaximumVersion": {
