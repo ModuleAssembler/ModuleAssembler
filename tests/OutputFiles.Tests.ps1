@@ -1,6 +1,6 @@
 BeforeAll {
     $data = Get-MAProjectInfo
-    $files = Get-ChildItem $data.OutputModuleDir
+    $script:files = Get-ChildItem $data.OutputModuleDir
 }
 
 Describe 'Module and Manifest testing' {
