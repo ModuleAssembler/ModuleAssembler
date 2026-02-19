@@ -107,13 +107,14 @@ function Update-MAModuleVersion {
         if ($PSCmdlet.ShouldProcess("Setting module version in JSON from $CurrentVersion to $newVersion", $data.ProjectJSON, 'Version Update')) {
             # Update the version in the JSON object
             $jsonContent.Version = $newVersion.ToString()
-            Write-Host "Version bumped $CurrentVersion -> $newVersion"
+            Write-Host "Version updated $CurrentVersion -> $newVersion"
 
             # Convert the JSON object back to JSON format
-            $newJsonContent = $jsonContent | ConvertTo-Json
+            $newJsonContent
+            $newJsonContent = $jsonContent | ConvertTo-Json -Depth 5
 
             # Write the updated JSON back to the file
-            $newJsonContent | Set-Content -Path $data.ProjecJSON
+            $newJsonContent | Set-Content -Path $data.ProjectJSON
         }
     }
 

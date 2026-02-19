@@ -240,7 +240,7 @@ function New-MAModule {
         }
 
         Write-Verbose $JsonData
-        $JsonData | ConvertTo-Json | Out-File $ProjectJSONFile
+        $JsonData | ConvertTo-Json -Depth 5 | Out-File $ProjectJSONFile
 
         'Module {0} scaffolding complete' -f $Answer.ProjectName | Write-Host -ForegroundColor Green
     }

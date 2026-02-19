@@ -35,7 +35,7 @@ function Get-PreReleaseIncrement {
 
             $newNumStr = $newNum.ToString().PadLeft(2, '0')
 
-            return "$prefix$newNumStr"
+            return "$($prefix)$($newNumStr)"
         } else {
             return "$($PreReleaseLabel)01"
         }
