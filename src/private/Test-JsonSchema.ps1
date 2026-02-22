@@ -34,11 +34,19 @@ function Test-JsonSchema {
     }
 
     process {
-        Write-Verbose 'Running Schema Validation against JSON using ModuleAssembler schema.'
-        $SchemaPath = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'schema', $SchemaVersion , 'moduleassembler.schema.json')
+        Write-Verbose 'Fetching ModuleAssembler schema.'
+        $schemaUrl = "https://raw.githubusercontent.com/ModuleAssembler/ModuleAssembler/refs/heads/main/src/resources/schema/$($SchemaVersion)/moduleassembler.schema.json"
 
-        $result = Test-Json -Path $data.ProjectJSON -SchemaFile $SchemaPath -ErrorAction Stop
+        try {
+            $schemaContent = (Invoke-WebRequest -UseBasicParsing -Uri $schemaUrl -ErrorAction Stop).Content
+        } catch {
+            throw "Failed to download the schema from $($schemaUrl): $_"
+        }
 
+        Write-Verbose 'Running Schema Validation against moduleproject.json using ModuleAssembler schema.'
+        $result = Test-Json -Path $data.ProjectJSON -Schema $schemaContent -ErrorAction Stop
+
+        Write-Verbose "Is moduleproject.json passing validation: $result"
         return $result
     }
 

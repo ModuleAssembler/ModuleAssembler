@@ -8,7 +8,7 @@ BeforeAll {
         ExcludeRules        = @('PSAvoidUsingWriteHost')
     }
 }
-Describe 'File: <_.basename>' -ForEach $files {
+Describe 'File: <_.basename>' -ForEach $files -Tag 'Function' {
     Context 'Code Quality Check' {
         It 'is valid PowerShell Code' {
             $psFile = Get-Content -Path $_ -ErrorAction Stop
@@ -16,6 +16,7 @@ Describe 'File: <_.basename>' -ForEach $files {
             $null = [System.Management.Automation.PSParser]::Tokenize($psFile, [ref]$errors)
             $errors.Count | Should -Be 0
         }
+
         It 'passess ScriptAnalyzer' {
             $saResults = Invoke-ScriptAnalyzer -Path $_ -Settings $ScriptAnalyzerSettings
             $saResults | Should -BeNullOrEmpty -Because $($saResults.Message -join ';')
