@@ -14,11 +14,11 @@ BeforeAll {
 Describe 'Module Testing' -Tag 'Module' {
     Context 'Module files exist' {
         It "$($data.ProjectName).psm1 should exist" {
-            $script:psmPresent | Should -Be $true
+            $script:psmPresent | Should -BeTrue
         }
 
         It "$($data.ProjectName).psd1 should exist" {
-            $script:psdPresent | Should -Be $true
+            $script:psdPresent | Should -BeTrue
         }
     }
 
@@ -68,7 +68,7 @@ Describe 'Module Testing' -Tag 'Module' {
                 return
             }
 
-            "$($data.ProjectName).psm1" -eq $script:manifest.RootModule | Should -Be $true
+            "$($data.ProjectName).psm1" -eq $script:manifest.RootModule | Should -BeTrue
         }
 
         It 'is ModuleVersion correct' {
@@ -78,7 +78,7 @@ Describe 'Module Testing' -Tag 'Module' {
             }
 
             [version]$sv = [semver]$data.Version
-            $sv -eq $script:manifest.ModuleVersion | Should -Be $true
+            $sv -eq $script:manifest.ModuleVersion | Should -BeTrue
         }
 
         It 'is Prerelease correct' {
@@ -88,7 +88,7 @@ Describe 'Module Testing' -Tag 'Module' {
             }
 
             $sv = [semver]$data.Version
-            $sv.PreReleaseLabel -eq $script:manifest.PrivateData.PSData.Prerelease | Should -Be $true
+            $sv.PreReleaseLabel -eq $script:manifest.PrivateData.PSData.Prerelease | Should -BeTrue
         }
 
         It 'is GUID correct' {
@@ -97,7 +97,7 @@ Describe 'Module Testing' -Tag 'Module' {
                 return
             }
 
-            $data.Manifest.GUID -eq $script:manifest.GUID | Should -Be $true
+            $data.Manifest.GUID -eq $script:manifest.GUID | Should -BeTrue
         }
 
         It 'is Author correct' {
@@ -106,7 +106,7 @@ Describe 'Module Testing' -Tag 'Module' {
                 return
             }
 
-            $data.Manifest.Author -eq $script:manifest.Author | Should -Be $true
+            $data.Manifest.Author -eq $script:manifest.Author | Should -BeTrue
         }
 
         It 'is CompanyName correct' {
@@ -121,7 +121,7 @@ Describe 'Module Testing' -Tag 'Module' {
                 $company = $data.Manifest.CompanyName
             }
 
-            $company -eq $script:manifest.CompanyName | Should -Be $true
+            $company -eq $script:manifest.CompanyName | Should -BeTrue
         }
 
         It 'is Copyright correct' {
@@ -136,7 +136,7 @@ Describe 'Module Testing' -Tag 'Module' {
                 $copyright = "(c) $($data.Manifest.CompanyName). All rights reserved."
             }
 
-            $copyright -eq $script:manifest.Copyright | Should -Be $true
+            $copyright -eq $script:manifest.Copyright | Should -BeTrue
         }
     }
 }
