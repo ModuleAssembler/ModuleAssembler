@@ -68,7 +68,7 @@ Describe 'Module Testing' -Tag 'Module' {
                 return
             }
 
-            "$($data.ProjectName).psm1" -eq $script:manifest.RootModule | Should -BeTrue
+            "$($data.ProjectName).psm1" | Should -Be $script:manifest.RootModule
         }
 
         It 'is ModuleVersion correct' {
@@ -78,7 +78,7 @@ Describe 'Module Testing' -Tag 'Module' {
             }
 
             [version]$sv = [semver]$data.Version
-            $sv -eq $script:manifest.ModuleVersion | Should -BeTrue
+            $sv | Should -Be $script:manifest.ModuleVersion
         }
 
         It 'is Prerelease correct' {
@@ -88,7 +88,7 @@ Describe 'Module Testing' -Tag 'Module' {
             }
 
             $sv = [semver]$data.Version
-            $sv.PreReleaseLabel -eq $script:manifest.PrivateData.PSData.Prerelease | Should -BeTrue
+            $sv.PreReleaseLabel | Should -Be $script:manifest.PrivateData.PSData.Prerelease
         }
 
         It 'is GUID correct' {
@@ -97,7 +97,7 @@ Describe 'Module Testing' -Tag 'Module' {
                 return
             }
 
-            $data.Manifest.GUID -eq $script:manifest.GUID | Should -BeTrue
+            $data.Manifest.GUID | Should -Be $script:manifest.GUID
         }
 
         It 'is Author correct' {
@@ -106,7 +106,7 @@ Describe 'Module Testing' -Tag 'Module' {
                 return
             }
 
-            $data.Manifest.Author -eq $script:manifest.Author | Should -BeTrue
+            $data.Manifest.Author | Should -Be $script:manifest.Author
         }
 
         It 'is CompanyName correct' {
@@ -121,7 +121,7 @@ Describe 'Module Testing' -Tag 'Module' {
                 $company = $data.Manifest.CompanyName
             }
 
-            $company -eq $script:manifest.CompanyName | Should -BeTrue
+            $company | Should -Be $script:manifest.CompanyName
         }
 
         It 'is Copyright correct' {
@@ -137,6 +137,15 @@ Describe 'Module Testing' -Tag 'Module' {
             }
 
             $copyright -eq $script:manifest.Copyright | Should -BeTrue
+        }
+
+        It 'is PowerShellVersion correct' {
+            if (-not $script:psdPresent) {
+                Set-ItResult -Skip
+                return
+            }
+
+            $data.Manifest.PowerShellVersion | Should -Be $script:manifest.PowerShellVersion
         }
     }
 }
