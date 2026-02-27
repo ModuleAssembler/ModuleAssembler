@@ -71,7 +71,7 @@ Describe 'Module Testing' -Tag 'Module' {
             "$($data.ProjectName).psm1" | Should -Be $script:manifest.RootModule
         }
 
-        It 'is ModuleVersion correct' {
+        It 'should have ModuleVersion matching moduleproject.json' {
             if (-not $script:psdPresent) {
                 Set-ItResult -Skip
                 return
@@ -81,7 +81,7 @@ Describe 'Module Testing' -Tag 'Module' {
             $sv | Should -Be $script:manifest.ModuleVersion
         }
 
-        It 'is Prerelease correct' {
+        It 'should have Prerelease matching moduleproject.json' {
             if (-not $script:psdPresent) {
                 Set-ItResult -Skip
                 return
@@ -91,7 +91,7 @@ Describe 'Module Testing' -Tag 'Module' {
             $sv.PreReleaseLabel | Should -Be $script:manifest.PrivateData.PSData.Prerelease
         }
 
-        It 'is GUID correct' {
+        It 'should have GUID matching moduleproject.json' {
             if (-not $script:psdPresent) {
                 Set-ItResult -Skip
                 return
@@ -100,7 +100,7 @@ Describe 'Module Testing' -Tag 'Module' {
             $data.Manifest.GUID | Should -Be $script:manifest.GUID
         }
 
-        It 'is Author correct' {
+        It 'should have Author matching moduleproject.json' {
             if (-not $script:psdPresent) {
                 Set-ItResult -Skip
                 return
@@ -109,7 +109,7 @@ Describe 'Module Testing' -Tag 'Module' {
             $data.Manifest.Author | Should -Be $script:manifest.Author
         }
 
-        It 'is CompanyName correct' {
+        It 'should have CompanyName matching moduleproject.json' {
             if (-not $script:psdPresent) {
                 Set-ItResult -Skip
                 return
@@ -124,7 +124,7 @@ Describe 'Module Testing' -Tag 'Module' {
             $company | Should -Be $script:manifest.CompanyName
         }
 
-        It 'is Copyright correct' {
+        It 'should have Copyright matching moduleproject.json' {
             if (-not $script:psdPresent) {
                 Set-ItResult -Skip
                 return
@@ -139,13 +139,55 @@ Describe 'Module Testing' -Tag 'Module' {
             $copyright -eq $script:manifest.Copyright | Should -BeTrue
         }
 
-        It 'is PowerShellVersion correct' {
+        It 'should have PowerShellVersion matching moduleproject.json' {
             if (-not $script:psdPresent) {
                 Set-ItResult -Skip
                 return
             }
 
             $data.Manifest.PowerShellVersion | Should -Be $script:manifest.PowerShellVersion
+        }
+
+        It 'should have RequiredModules matching moduleproject.json' {
+            if (-not $script:psdPresent) {
+                Set-ItResult -Skip
+                return
+            }
+
+            $manifestModules = @($script:manifest.RequiredModules)
+            $projectModules = @($data.Manifest.RequiredModules)
+
+            $manifestModules.Count | Should -Be $projectModules.Count -Because 'manifest should have same number of required modules as moduleassember.json'
+
+            if ($projectModules.Count -gt 0) {
+                foreach ($i in 0..($projectModules.Count - 1)) {
+                    $projectModule = $projectModules[$i]
+                    $manifestModule = $manifestModules[$i]
+
+                    $manifestName = if ($manifestModule -is [string]) {
+                        $manifestModule
+                    } else {
+                        $manifestModule.ModuleName
+                    }
+                    $manifestName | Should -Be $projectModule.ModuleName
+
+                    if ($projectModule.ModuleVersion) {
+                        $manifestModule.ModuleVersion | Should -Be $projectModule.ModuleVersion
+                    }
+
+                    if ($projectModule.MaximumVersion) {
+                        $manifestModule.MaximumVersion | Should -Be $projectModule.MaximumVersion
+                    }
+
+                    if ($projectModule.RequiredVersion) {
+                        $manifestModule.RequiredVersion | Should -Be $projectModule.RequiredVersion
+                    }
+
+                    if ($projectModule.GUID) {
+                        $manifestModule.GUID | Should -Be $projectModule.GUID
+                    }
+                }
+            }
         }
     }
 }
