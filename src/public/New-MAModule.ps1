@@ -203,8 +203,14 @@ function New-MAModule {
         if ( $Answer.EnablePester -eq 'Yes') {
             Write-Host 'Include Pester Configs'
             New-Item -ItemType Directory -Path $DirTests | Out-Null
+            $DirUnitTests = Join-Path -Path $DirTests -ChildPath 'Unit'
+            New-Item -ItemType Directory -Path $DirUnitTests | Out-Null
+            New-Item -ItemType Directory -Path $(Join-Path -Path $DirUnitTests -ChildPath 'classes') | Out-Null
+            New-Item -ItemType Directory -Path $(Join-Path -Path $DirUnitTests -ChildPath 'private') | Out-Null
+            New-Item -ItemType Directory -Path $(Join-Path -Path $DirUnitTests -ChildPath 'public') | Out-Null
             $defaultTests = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'PesterTests', '*')
             Copy-Item -Path $defaultTests -Destination $DirTests -Recurse -Force | Out-Null
+
         }
 
 
