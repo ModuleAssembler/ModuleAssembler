@@ -300,6 +300,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
 
             $exportedFunctions | Should -Not -Contain '*' -Because 'wildcard FunctionsToExport harms module load performance'
             $exportedFunctions.Count | Should -Be $expectedFunctions.Count -Because 'manifest FunctionsToExport count should match public function count'
+
             if ($expectedFunctions.Count -gt 0) {
                 $exportedFunctions | Should -Be $expectedFunctions
             }
@@ -317,6 +318,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
                     $functionNode = $ast.FindAll({
                             $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst]
                         }, $true)[0]
+
                     if ($functionNode) {
                         ($functionNode.Body.ParamBlock.Attributes |
                             Where-Object { $_.TypeName -like 'Alias' } |
@@ -337,12 +339,23 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
     }
 
     Describe 'General Module Control' -Tag 'ModuleQA' {
-        It 'should import without errors' {
+        It 'should import without error' {
             if (-not $script:psmPresent -or -not $script:psdPresent) {
                 Set-ItResult -Skip
                 return
             }
-            { Import-Module -Name $data.OutputModuleDir -ErrorAction Stop } | Should -Not -Throw
+
+            { Import-Module -Name $data.OutputModuleDir -Force -ErrorAction Stop } | Should -Not -Throw
             Get-Module -Name $data.ProjectName | Should -Not -BeNullOrEmpty
+        }
+
+        It 'should remove without error' {
+            if (-not $script:psmPresent -or -not $script:psdPresent) {
+                Set-ItResult -Skip
+                return
+            }
+
+            { Remove-Module -Name $data.ProjectName -ErrorAction Stop } | Should -Not -Throw
+            Get-Module $data.ProjectName | Should -BeNullOrEmpty
         }
     }
