@@ -3,11 +3,7 @@ BeforeDiscovery {
 }
 
 BeforeAll {
-    $script:ScriptAnalyzerSettings = @{
-        IncludeDefaultRules = $true
-        Severity            = @('Warning', 'Error')
-        ExcludeRules        = @('PSAvoidUsingWriteHost')
-    }
+    $script:ScriptAnalyzerSettings = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', 'PSScriptAnalyzerSettings.psd1')
 
     $script:data = Get-MAProjectInfo
     $script:psmPresent = Test-Path -Path $data.ModuleFilePSM1
@@ -45,7 +41,9 @@ Describe 'Function and File Name Consistency' -Tag 'FunctionQA' {
                 try {
                     $content = Get-Content -Path $file.FullName -Raw
                     $ast = [System.Management.Automation.Language.Parser]::ParseInput($content, [ref]$null, [ref]$null)
-                    $functionDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false)
+                    $functionDefs = $ast.FindAll(
+                        { $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] },
+                        $false)
 
                     if ($functionDefs.Count -eq 0) {
                         $results += "File '$($file.Name)' - no function declaration found"
@@ -78,7 +76,9 @@ Describe 'Function and File Name Consistency' -Tag 'FunctionQA' {
                 try {
                     $content = Get-Content -Path $file.FullName -Raw
                     $ast = [System.Management.Automation.Language.Parser]::ParseInput($content, [ref]$null, [ref]$null)
-                    $functionDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false)
+                    $functionDefs = $ast.FindAll(
+                        { $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] },
+                        $false)
 
                     if ($functionDefs.Count -eq 0) {
                         $results += "File '$($file.Name)' - no function declaration found"

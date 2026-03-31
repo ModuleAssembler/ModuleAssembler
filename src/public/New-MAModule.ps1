@@ -211,6 +211,10 @@ function New-MAModule {
             $defaultTests = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'PesterTests', '*')
             Copy-Item -Path $defaultTests -Destination $DirTests -Recurse -Force | Out-Null
 
+            $scriptAnalyzerSettings = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'PSScriptAnalyzerSettings.psd1')
+            if (!(Test-Path (Join-Path $DirProject -ChildPath 'PSScriptAnalyzerSettings.psd1'))) {
+                Copy-Item -Path $scriptAnalyzerSettings -Destination $DirProject -Force | Out-Null
+            }
         }
 
 
@@ -219,6 +223,11 @@ function New-MAModule {
             $vsSource = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'vscode')
             $vsDestination = Join-Path -Path $DirProject -ChildPath '.vscode'
             Copy-Item -Path $vsSource -Destination $vsDestination -Recurse -Force | Out-Null
+
+            $scriptAnalyzerSettings = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'PSScriptAnalyzerSettings.psd1')
+            if (!(Test-Path (Join-Path $DirProject -ChildPath 'PSScriptAnalyzerSettings.psd1'))) {
+                Copy-Item -Path $scriptAnalyzerSettings -Destination $DirProject -Force | Out-Null
+            }
         }
 
 

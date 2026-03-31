@@ -21,6 +21,7 @@ function Get-AliasInFunctionFromFile {
     #>
 
     [CmdletBinding()]
+    [OutputType([string])]
     param (
         [Parameter(
             Mandatory = $true,
@@ -48,7 +49,7 @@ function Get-AliasInFunctionFromFile {
             $aliases = ($paramsAttributes | Where-Object { $_.TypeName -like 'Alias' } | ForEach-Object PositionalArguments).Value
             return $aliases
         } catch {
-            return
+            return ''
         }
     }
 

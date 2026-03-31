@@ -16,6 +16,7 @@ function Get-PreReleaseIncrement {
     #>
 
     [CmdletBinding()]
+    [OutputType([string])]
     param (
         [Parameter(Mandatory = $true)]
         [ValidateNotNullOrEmpty()]

@@ -16,6 +16,7 @@ function Test-DescriptionLine {
     #>
 
     [CmdletBinding()]
+    [OutputType([bool])]
     param (
         [Parameter(
             Mandatory = $true,

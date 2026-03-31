@@ -22,6 +22,7 @@ function Get-FunctionNameFromFile {
     #>
 
     [CmdletBinding()]
+    [OutputType([string])]
     param (
         [Parameter(
             Mandatory = $true,
