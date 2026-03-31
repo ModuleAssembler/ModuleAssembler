@@ -1,10 +1,14 @@
 BeforeDiscovery {
-    $script:files = Get-ChildItem -Path .\src -Filter '*.ps1' -Recurse
+    $data = Get-MAProjectInfo
+    $script:classFiles = Get-ChildItem -Path $data.ClassesDir -Filter '*.ps1'
+    $script:files = @(
+        Get-ChildItem -Path $data.PublicDir -Filter '*.ps1'
+        Get-ChildItem -Path $data.PrivateDir -Filter '*.ps1'
+    )
 }
 
 BeforeAll {
     $script:ScriptAnalyzerSettings = [System.IO.Path]::Combine($PSScriptRoot, '..', '..', 'PSScriptAnalyzerSettings.psd1')
-
     $script:data = Get-MAProjectInfo
     $script:psmPresent = Test-Path -Path $data.ModuleFilePSM1
     $script:psdPresent = Test-Path -Path $data.ManifestFilePSD1
@@ -12,7 +16,7 @@ BeforeAll {
     $script:privateFunctions = Get-ChildItem -Path $script:data.PrivateDir -Filter '*.ps1'
 }
 
-Describe 'File: <_.basename>' -ForEach $files -Tag 'FunctionQA' {
+Describe 'Class File: <_.BaseName>' -ForEach $classFiles -Tag 'FunctionQA' {
     Context 'Code Quality Check' {
         It 'is valid PowerShell Code' {
             $psFile = Get-Content -Path $_ -ErrorAction Stop
@@ -24,6 +28,63 @@ Describe 'File: <_.basename>' -ForEach $files -Tag 'FunctionQA' {
         It 'passess ScriptAnalyzer' {
             $saResults = Invoke-ScriptAnalyzer -Path $_ -Settings $ScriptAnalyzerSettings
             $saResults | Should -BeNullOrEmpty -Because $($saResults.Message -join ';')
+        }
+    }
+}
+
+Describe 'File: <_.BaseName>' -ForEach $files -Tag 'FunctionQA' {
+    Context 'Code Quality Check' {
+        It 'is valid PowerShell Code' {
+            $psFile = Get-Content -Path $_ -ErrorAction Stop
+            $errors = $null
+            $null = [System.Management.Automation.PSParser]::Tokenize($psFile, [ref]$errors)
+            $errors.Count | Should -Be 0
+        }
+
+        It 'passess ScriptAnalyzer' {
+            $saResults = Invoke-ScriptAnalyzer -Path $_ -Settings $ScriptAnalyzerSettings
+            $saResults | Should -BeNullOrEmpty -Because $($saResults.Message -join ';')
+        }
+
+        It 'has comment-based help .SYNOPSIS' {
+            $content = Get-Content -Path $_.FullName -Raw
+            $ast = [System.Management.Automation.Language.Parser]::ParseInput($content, [ref]$null, [ref]$null)
+            $functionDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false)
+            $functionHelp = $functionDefs.GetHelpContent()
+
+            $functionHelp.Synopsis | Should -Not -BeNullOrEmpty
+        }
+
+        It 'has comment-based help .DESCRIPTION' {
+            $content = Get-Content -Path $_.FullName -Raw
+            $ast = [System.Management.Automation.Language.Parser]::ParseInput($content, [ref]$null, [ref]$null)
+            $functionDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false)
+            $functionHelp = $functionDefs.GetHelpContent()
+
+            $functionHelp.Description | Should -Not -BeNullOrEmpty
+        }
+
+        It 'has comment-based help with at least one .EXAMPLE' {
+            $content = Get-Content -Path $_.FullName -Raw
+            $ast = [System.Management.Automation.Language.Parser]::ParseInput($content, [ref]$null, [ref]$null)
+            $functionDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false)
+            $functionHelp = $functionDefs.GetHelpContent()
+
+            $functionHelp.Examples.Count | Should -BeGreaterThan 0
+            $functionHelp.Examples[0] | Should -Match ([regex]::Escape($_.BaseName))
+        }
+
+        It 'has comment-based help with .PARAMETER for each declared parameter' {
+            $content = Get-Content -Path $_.FullName -Raw
+            $ast = [System.Management.Automation.Language.Parser]::ParseInput($content, [ref]$null, [ref]$null)
+            $functionDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false)
+            $functionHelp = $functionDefs.GetHelpContent()
+
+            $parameters = $functionDefs.Body.ParamBlock.Parameters.Name.VariablePath.ForEach({ $_.ToString() })
+
+            foreach ($parameter in $parameters) {
+                $functionHelp.Parameters.($parameter.ToUpper()) | Should -Not -BeNullOrEmpty -Because ('the parameter {0} must have a .PARAMETER definition' -f $parameter)
+            }
         }
     }
 }
@@ -41,9 +102,7 @@ Describe 'Function and File Name Consistency' -Tag 'FunctionQA' {
                 try {
                     $content = Get-Content -Path $file.FullName -Raw
                     $ast = [System.Management.Automation.Language.Parser]::ParseInput($content, [ref]$null, [ref]$null)
-                    $functionDefs = $ast.FindAll(
-                        { $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] },
-                        $false)
+                    $functionDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false)
 
                     if ($functionDefs.Count -eq 0) {
                         $results += "File '$($file.Name)' - no function declaration found"
@@ -76,9 +135,7 @@ Describe 'Function and File Name Consistency' -Tag 'FunctionQA' {
                 try {
                     $content = Get-Content -Path $file.FullName -Raw
                     $ast = [System.Management.Automation.Language.Parser]::ParseInput($content, [ref]$null, [ref]$null)
-                    $functionDefs = $ast.FindAll(
-                        { $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] },
-                        $false)
+                    $functionDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false)
 
                     if ($functionDefs.Count -eq 0) {
                         $results += "File '$($file.Name)' - no function declaration found"
