@@ -10,7 +10,7 @@ function Test-DescriptionLine {
         The string to evaluate if it is a description or code.
 
     .EXAMPLE
-        Test-DescriptionLine -ParameterName "Value"
+        Test-DescriptionLine -Line "My sample description."
 
         Test an example description.
     #>

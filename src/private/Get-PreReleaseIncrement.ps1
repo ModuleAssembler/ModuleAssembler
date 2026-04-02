@@ -7,7 +7,7 @@ function Get-PreReleaseIncrement {
         Takes the current PreReleaseLabel and increments the two digit number at the end.
 
     .PARAMETER PreReleaseLabel
-        The PreReleaseLabel for the Symantic Version.
+        The PreReleaseLabel for the Semantic Version.
 
     .EXAMPLE
         Get-PrereleaseIncrement -PreReleaseLabel 'preview01'

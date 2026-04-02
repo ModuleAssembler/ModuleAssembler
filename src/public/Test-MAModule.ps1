@@ -11,7 +11,7 @@ function Test-MAModule {
         Array of Pester tags to run.
 
     .PARAMETER ExcludeTagFilter
-        Array of Pester tags to run.
+        Array of Pester tags to exclude.
 
     .EXAMPLE
         Test-MAModule

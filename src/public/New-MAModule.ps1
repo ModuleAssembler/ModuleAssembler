@@ -4,7 +4,7 @@ function New-MAModule {
         Create module scaffolding along with project.json file to build and manage modules.
 
     .DESCRIPTION
-        Creates module project folder structure and project.json file. Use this to quikcly setup a ModuleAssembler compatible module.
+        Creates module project folder structure and project.json file. Use this to quickly setup a ModuleAssembler compatible module.
 
     .PARAMETER Path
         Path where module will be created. Provide root folder path, module folder will be created as a subdirectory.
