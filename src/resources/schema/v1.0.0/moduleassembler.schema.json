@@ -17,7 +17,7 @@
             "description": "Version number of this module, use Semantic Versioning.",
             "type": "string"
         },
-        "copyResourcesToModuleRoot": {
+        "CopyResourcesToModuleRoot": {
             "description": "Specifies if resource files will be placed in the built module's root directory, instead of in a resources subfolder.",
             "type": "boolean",
             "default": false
@@ -79,12 +79,12 @@
                                 "description": "Minimum acceptable version of the required module.",
                                 "type": "string"
                             },
-                            "RequiredVersion": {
-                                "description": "Exact version of the required module. If specified then ModuleVersion and MaximumVersion can't be used.",
-                                "type": "string"
-                            },
                             "MaximumVersion": {
                                 "description": "Maximum acceptable version of the required module.",
+                                "type": "string"
+                            },
+                            "RequiredVersion": {
+                                "description": "Exact version of the required module. If specified then ModuleVersion and MaximumVersion can't be used.",
                                 "type": "string"
                             }
                         },
@@ -148,7 +148,9 @@
                             "default": 75
                         }
                     },
-                    "required": []
+                    "required": [
+                        "Enabled"
+                    ]
                 },
                 "TestResult": {
                     "description": "Test Result Configuration.",
@@ -166,7 +168,9 @@
                             "default": "JUnitXml"
                         }
                     },
-                    "required": []
+                    "required": [
+                        "Enabled"
+                    ]
                 },
                 "Output": {
                     "description": "Output Configuration.",
@@ -179,7 +183,9 @@
                             "default": "Detailed"
                         }
                     },
-                    "required": []
+                    "required": [
+                        "Verbosity"
+                    ]
                 }
             }
         }

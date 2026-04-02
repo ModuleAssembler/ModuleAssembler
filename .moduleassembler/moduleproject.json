@@ -3,7 +3,7 @@
     "ProjectName": "ModuleAssembler",
     "Description": "ModuleAssembler is a versatile, standalone PowerShell module builder. Create anything from simple to robust modules with ease. Built for CICD and Automation.",
     "Version": "0.1.0",
-    "copyResourcesToModuleRoot": false,
+    "CopyResourcesToModuleRoot": false,
     "Manifest": {
         "Author": "TrisBits",
         "CompanyName": "",

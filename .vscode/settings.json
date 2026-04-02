@@ -14,6 +14,7 @@
     "files.insertFinalNewline": true,
     "files.trimFinalNewlines": true,
     "files.trimTrailingWhitespace": true,
+    "json.schemaDownload.enable": true,
     // PowerShell Settings
     "powershell.buttons.showRunButtons": true,
     "powershell.codeFolding.enable": true,
@@ -56,6 +57,7 @@
     // Markdown Language Settings
     "[markdown]": {
         "editor.tabSize": 2,
+        "editor.wordWrap": "off",
         "editor.quickSuggestions": {
             "comments": "off",
             "strings": "off",
@@ -65,10 +67,15 @@
     // Markdown Lint Settings
     "markdownlint.config": {
         "default": true,
-        "MD024": false,
+        "no-hard-tabs": true,
+        "MD024": {
+            "siblings_only": true
+        },
         "MD033": false,
-        "MD060": false,
-        "no-hard-tabs": true
+        "MD060": {
+            "aligned_delimiter": false,
+            "style": "compact"
+        }
     },
     // JSON schema mapping for ModuleAssembler data file
     "json.schemas": [

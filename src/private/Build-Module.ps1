@@ -21,7 +21,9 @@ function Build-Module {
     begin {
         $data = Get-MAProjectInfo
         Write-Verbose 'START: Building Module.'
-        Test-JsonSchema | Out-Null
+        if (!(Test-JsonSchema)) {
+            throw 'The JSON in moduleproject.json did not pass validation.'
+        }
     }
 
     process {

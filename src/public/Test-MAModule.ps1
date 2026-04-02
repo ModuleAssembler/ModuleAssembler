@@ -42,7 +42,10 @@ function Test-MAModule {
     )
 
     begin {
-        Test-JsonSchema | Out-Null
+        if (!(Test-JsonSchema)) {
+            throw 'The JSON in moduleproject.json did not pass validation.'
+        }
+
         $data = Get-MAProjectInfo
         $pesterConfig = New-PesterConfiguration -Hashtable $data.Pester
     }

@@ -34,7 +34,7 @@ function Copy-ProjectResource {
     }
 
     process {
-        if ($data.copyResourcesToModuleRoot) {
+        if ($data.CopyResourcesToModuleRoot) {
             # Copy the resources folder content to the OutputModuleDir root
             foreach ($item in $items) {
                 Write-Verbose "Copying $($item.Name)"
