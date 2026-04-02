@@ -3,7 +3,7 @@
     "ProjectName": "",
     "Description": "",
     "Version": "",
-    "copyResourcesToModuleRoot": false,
+    "CopyResourcesToModuleRoot": false,
     "Manifest": {
         "Author": "",
         "CompanyName": "",
