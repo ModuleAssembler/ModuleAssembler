@@ -27,6 +27,7 @@ function Test-MAModule {
         Test-MAModule -ExcludeTagFilter 'unit'
 
         Runs the Pester tests, excludes any test with tag unit.
+
     #>
 
     [CmdletBinding(PositionalBinding = $false)]
@@ -54,20 +55,15 @@ function Test-MAModule {
         $testPath = './tests'
         $pesterConfig.Run.Path = $testPath
         $pesterConfig.Run.PassThru = $true
-        $pesterConfig.Run.Exit = $true
-        $pesterConfig.Run.Throw = $true
+        $pesterConfig.Run.Exit = $false
+        $pesterConfig.Run.Throw = $false
         $pesterConfig.Filter.Tag = $TagFilter
         $pesterConfig.Filter.ExcludeTag = $ExcludeTagFilter
         $pesterConfig.TestResult.OutputPath = [System.IO.Path]::Combine('.', 'dist', 'PesterTestResults.xml')
 
         $TestResult = Invoke-Pester -Configuration $pesterConfig
         if ($TestResult.Result -ne 'Passed') {
-            Write-Error 'Tests failed' -ErrorAction Stop
-            return $LASTEXITCODE
+            Write-Error "$($TestResult.FailedCount) of $($TestResult.TotalCount) tests failed." -ErrorAction Stop
         }
-    }
-
-    end {
-        # Cleanup code
     }
 }

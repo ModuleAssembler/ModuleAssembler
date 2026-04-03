@@ -31,10 +31,6 @@ function Get-FunctionNameFromFile {
         [string] $Path
     )
 
-    begin {
-        # Initialization code
-    }
-
     process {
         try {
             $moduleContent = Get-Content -Path $Path -Raw
@@ -44,9 +40,5 @@ function Get-FunctionNameFromFile {
         } catch {
             return ''
         }
-    }
-
-    end {
-        # Cleanup code
     }
 }

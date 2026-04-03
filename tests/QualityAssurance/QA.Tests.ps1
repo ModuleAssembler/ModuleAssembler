@@ -191,7 +191,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
             $errors.Count | Should -Be 0
         }
 
-        It 'passess ScriptAnalyzer' {
+        It 'passes ScriptAnalyzer' {
             if (-not $script:psmPresent) {
                 Set-ItResult -Skip
                 return

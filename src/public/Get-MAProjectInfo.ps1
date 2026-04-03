@@ -14,20 +14,18 @@ function Get-MAProjectInfo {
         Get a hashtable output of all module project metadata.
 
     .OUTPUTS
-        System.Collections.Hashtable
+        MAProjectInfo
 
-        A hashtable with the module project metadata.
+        A PSCustomObject with the custom type name MAProjectInfo containing the module project metadata.
     #>
 
     [CmdletBinding()]
     [Alias('MAInfo')]
     param ()
 
-    begin {
-        Write-Verbose 'Getting project metadata.'
-    }
-
     process {
+        Write-Verbose 'Getting project metadata.'
+
         $Out = @{}
         $ProjectRoot = Get-Location | Convert-Path
         $Out['ProjectJSON'] = [System.IO.Path]::Combine($ProjectRoot, '.moduleassembler', 'moduleproject.json')
@@ -57,9 +55,5 @@ function Get-MAProjectInfo {
         $Out.GetEnumerator() | Sort-Object Name | ForEach-Object { $outSortedByKey[$_.Name] = $_.Value }
         $Output = [pscustomobject]$outSortedByKey | Add-Member -TypeName MAProjectInfo -PassThru
         return $Output
-    }
-
-    end {
-        # Cleanup code
     }
 }

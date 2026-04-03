@@ -17,19 +17,15 @@ function Build-MAModule {
     param ()
 
     begin {
+        $ErrorActionPreference = 'Stop'
         $MABuildVersion = (Get-Command Build-MAModule).Version
         Write-Verbose "Running ModuleAssembler Version: $MABuildVersion"
     }
 
     process {
-        $ErrorActionPreference = 'Stop'
         Reset-ProjectDist
         Build-Module
         Build-Manifest
         Copy-ProjectResource
-    }
-
-    end {
-        # Cleanup code
     }
 }

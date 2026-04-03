@@ -24,33 +24,30 @@ function Initialize-GitRepo {
         [string] $DirectoryPath
     )
 
-    begin {
-        if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+    process {
+        if (!(Get-Command git -ErrorAction SilentlyContinue)) {
             Write-Warning 'Git is not installed. Please install Git and initialize repo manually.'
             return
         }
 
         Push-Location -StackName 'GitInit'
-    }
+        try {
+            Set-Location $DirectoryPath
 
-    process {
-        Set-Location $DirectoryPath
-
-        if (Test-Path -Path '.git') {
-            Write-Warning 'A Git repository already exists in this directory. Skipping git init.'
-
-            if ($PSCmdlet.ShouldProcess($DirectoryPath, ("Initiating git on $DirectoryPath"))) {
-                try {
-                    git init | Out-Null
-                } catch {
-                    Write-Error 'Failed to initialize Git repo.'
+            if (!(Test-Path -Path '.git')) {
+                if ($PSCmdlet.ShouldProcess($DirectoryPath, "Initializing git on $DirectoryPath")) {
+                    try {
+                        git init | Out-Null
+                    } catch {
+                        Write-Error 'Failed to initialize Git repo.'
+                    }
                 }
+                Write-Verbose 'Git initialized successfully.'
+            } else {
+                Write-Warning 'A Git repository already exists in this directory. Skipping git init.'
             }
-            Write-Verbose 'Git initialized successfully.'
+        } finally {
+            Pop-Location -StackName 'GitInit'
         }
-    }
-
-    end {
-        Pop-Location -StackName 'GitInit'
     }
 }

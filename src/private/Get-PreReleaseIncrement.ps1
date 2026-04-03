@@ -10,7 +10,7 @@ function Get-PreReleaseIncrement {
         The PreReleaseLabel for the Semantic Version.
 
     .EXAMPLE
-        Get-PrereleaseIncrement -PreReleaseLabel 'preview01'
+        Get-PreReleaseIncrement -PreReleaseLabel 'preview01'
 
         Bump the PreReleaseLabel from preview01 to preview02.
     #>
@@ -22,10 +22,6 @@ function Get-PreReleaseIncrement {
         [ValidateNotNullOrEmpty()]
         [string] $PreReleaseLabel
     )
-
-    begin {
-        # Initialization code
-    }
 
     process {
         # Match any prefix followed by one or more digits at the end
@@ -40,9 +36,5 @@ function Get-PreReleaseIncrement {
         } else {
             return "$($PreReleaseLabel)01"
         }
-    }
-
-    end {
-        # Cleanup code
     }
 }

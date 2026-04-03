@@ -25,7 +25,7 @@ Describe 'Class File: <_.BaseName>' -ForEach $classFiles -Tag 'FunctionQA' {
             $errors.Count | Should -Be 0
         }
 
-        It 'passess ScriptAnalyzer' {
+        It 'passes ScriptAnalyzer' {
             $saResults = Invoke-ScriptAnalyzer -Path $_ -Settings $ScriptAnalyzerSettings
             $saResults | Should -BeNullOrEmpty -Because $($saResults.Message -join ';')
         }
@@ -41,7 +41,7 @@ Describe 'File: <_.BaseName>' -ForEach $files -Tag 'FunctionQA' {
             $errors.Count | Should -Be 0
         }
 
-        It 'passess ScriptAnalyzer' {
+        It 'passes ScriptAnalyzer' {
             $saResults = Invoke-ScriptAnalyzer -Path $_ -Settings $ScriptAnalyzerSettings
             $saResults | Should -BeNullOrEmpty -Because $($saResults.Message -join ';')
         }
@@ -191,7 +191,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
             $errors.Count | Should -Be 0
         }
 
-        It 'passess ScriptAnalyzer' {
+        It 'passes ScriptAnalyzer' {
             if (-not $script:psmPresent) {
                 Set-ItResult -Skip
                 return

@@ -6,9 +6,6 @@ function Build-Module {
     .DESCRIPTION
         The ps1 files contained in the folders classes, private, and public are transferred into a single psm1 file.
 
-    .PARAMETER ParameterName
-        Parameter description
-
     .EXAMPLE
         Build-Module
 
@@ -30,7 +27,7 @@ function Build-Module {
         $sb = [System.Text.StringBuilder]::new()
 
         # Classes Folder
-        $files = Get-ChildItem -Path $data.ClassesDir -Filter *.ps1 -ErrorAction SilentlyContinue
+        $files = Get-ChildItem -Path $data.ClassesDir -Filter *.ps1 -ErrorAction SilentlyContinue | Sort-Object Name
         $files | ForEach-Object {
             Write-Verbose "Appending Class: $($_.Name)"
             $sb.AppendLine("# source: $($_.Name)") | Out-Null
@@ -39,7 +36,7 @@ function Build-Module {
         }
 
         # Private Folder
-        $files = Get-ChildItem -Path $data.PrivateDir -Filter *.ps1 -ErrorAction SilentlyContinue
+        $files = Get-ChildItem -Path $data.PrivateDir -Filter *.ps1 -ErrorAction SilentlyContinue | Sort-Object Name
         if ($files) {
             $files | ForEach-Object {
                 Write-Verbose "Appending Private Function: $($_.Name)"
@@ -50,7 +47,7 @@ function Build-Module {
         }
 
         # Public Folder
-        $files = Get-ChildItem -Path $data.PublicDir -Filter *.ps1
+        $files = Get-ChildItem -Path $data.PublicDir -Filter *.ps1 | Sort-Object Name
         $files | ForEach-Object {
             Write-Verbose "Appending Public Function: $($_.Name)"
             $sb.AppendLine("# source: $($_.Name)") | Out-Null
@@ -59,13 +56,11 @@ function Build-Module {
         }
 
         try {
-            Set-Content -Path $data.ModuleFilePSM1 -Value $sb.ToString() -Encoding 'UTF8' -ErrorAction Stop
+            Set-Content -Path $data.ModuleFilePSM1 -Value $sb.ToString() -Encoding 'utf8NoBOM' -ErrorAction Stop
         } catch {
             Write-Error 'Failed to create psm1 file' -ErrorAction Stop
         }
-    }
 
-    end {
         Write-Verbose 'COMPLETE: Building Module.'
     }
 }

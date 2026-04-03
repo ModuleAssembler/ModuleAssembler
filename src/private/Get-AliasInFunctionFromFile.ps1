@@ -4,7 +4,7 @@ function Get-AliasInFunctionFromFile {
         Get any alias names for functions so they can be added to the module manifest.
 
     .DESCRIPTION
-        Gather alias information from the Comment Based Help ALIAS section if present, so the alias information can be added to the module manifest.
+        Gather alias information from the Alias CmdletBinding definition if present, so the alias information can be added to the module manifest.
 
     .PARAMETER Path
         Path to the function ps1 file.
@@ -30,10 +30,6 @@ function Get-AliasInFunctionFromFile {
         [string] $Path
     )
 
-    begin {
-        # Initialization code
-    }
-
     process {
         try {
             $ast = [System.Management.Automation.Language.Parser]::ParseFile($Path, [ref]$null, [ref]$null)
@@ -43,6 +39,10 @@ function Get-AliasInFunctionFromFile {
                     $node -is [System.Management.Automation.Language.FunctionDefinitionAst]
                 }, $true)
 
+            if ($functionNodes.Count -eq 0) {
+                return ''
+            }
+
             $function = $functionNodes[0]
             $paramsAttributes = $function.Body.ParamBlock.Attributes
 
@@ -51,9 +51,5 @@ function Get-AliasInFunctionFromFile {
         } catch {
             return ''
         }
-    }
-
-    end {
-        # Cleanup code
     }
 }

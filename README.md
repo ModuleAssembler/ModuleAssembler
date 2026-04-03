@@ -13,7 +13,7 @@ The structure of the ModuleAssembler module is meticulously designed according t
 
 ## 📝 Requirement
 
-- This module requires PowerShell 7.4. Underlying modules created from this module can still support older versions of PowerShell, only the ModuleAssembler builder wont work on older version.
+- This module requires PowerShell 7.4. Underlying modules created from this module can still support older versions of PowerShell, only the ModuleAssembler builder won't work on older version.
 
 ## 📃 License
 

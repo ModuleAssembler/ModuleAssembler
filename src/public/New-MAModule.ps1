@@ -25,20 +25,22 @@ function New-MAModule {
     param (
         [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [string] $Path = (Get-Location).Path
+        [string] $Path = $PWD.Path
     )
 
     begin {
-        # Initialization code
+        $ErrorActionPreference = 'Stop'
+        $OriginalLocation = $PWD.Path
     }
 
     process {
-        $ErrorActionPreference = 'Stop'
-
-        Push-Location
         if (-not(Test-Path $Path)) {
-            Write-Error 'Not a valid path.'
+            Write-Error 'Not a valid path.' -ErrorAction Stop
         }
+        Set-Location -Path $Path
+
+        $supportedPowerShellVersions = @('5.1', '7.4', '7.6')
+        $defaultPowerShellVersion = '7.4'
 
         $Questions = [ordered]@{
             ProjectName       = @{
@@ -73,9 +75,9 @@ function New-MAModule {
             }
             PowerShellVersion = @{
                 Caption = 'Supported PowerShell Version'
-                Message = 'What is the minimum supported version of PowerShell for this module?  Valid values are 5.1 or 7.4. (Default: 7.4)'
+                Message = "What is the minimum supported version of PowerShell for this module? Valid values are $($supportedPowerShellVersions -join ', '). (Default: $defaultPowerShellVersion)"
                 Prompt  = 'Version'
-                Default = '7.4'
+                Default = $defaultPowerShellVersion
             }
             ProjectLicense    = @{
                 Caption = 'Project License'
@@ -128,16 +130,15 @@ function New-MAModule {
 
 
         if ($Answer.ProjectName -notmatch '^[A-Za-z][A-Za-z0-9_.]*$') {
-            Write-Error 'Module Name invalid. Module should be one word in PascalCase and contain only Letters, Numbers and optionally a period.'
+            Write-Error 'Module Name invalid. Module should be one word in PascalCase and contain only Letters, Numbers and optionally a period.' -ErrorAction Stop
         }
 
         if ($Answer.Version -notmatch '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)') {
-            Write-Error 'Version number is invalid. Please, follow Semantic Versioning (ex: 1.0.0).'
+            Write-Error 'Version number is invalid. Please, follow Semantic Versioning (ex: 1.0.0).' -ErrorAction Stop
         }
 
-        $supportedPowerShellVersions = @('5.1', '7.4')
         if ($Answer.PowerShellVersion -notin $supportedPowerShellVersions) {
-            Write-Error 'The specified minimum supported PowerShell Version is invalid.  Please, select a supported PowerShell version.'
+            Write-Error 'The specified minimum supported PowerShell Version is invalid.  Please, select a supported PowerShell LTS version or Windows PowerShell (5.1).' -ErrorAction Stop
         }
 
 
@@ -153,9 +154,9 @@ function New-MAModule {
         $ModuleProjectTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'ModuleProjectTemplate.json')
 
         if ((Test-Path $DirProject) -and -not ($null -eq (Get-ChildItem -LiteralPath $DirProject -Force -ErrorAction Ignore | Select-Object -First 1))) {
-            Write-Error 'Project already exists, aborting.' | Out-Null
+            Write-Error 'Project already exists, aborting.' -ErrorAction Stop
         } elseif (-not (Test-Path $DirProject)) {
-            Write-Verbose 'Path is not empty project folder, creating directory $($Answer.ProjectName).'
+            Write-Verbose "Path is not an empty project folder. Creating new project directory $($Answer.ProjectName)."
             New-Item -ItemType Directory -Path $DirProject | Out-Null
         }
 
@@ -193,11 +194,11 @@ function New-MAModule {
         }
         $licenseContent = $licenseContent -replace '<COPYRIGHT HOLDER>', $copyright
 
-        if ($Answer.License -eq 'GPL3') {
+        if ($Answer.ProjectLicense -eq 'GPL3') {
             $licenseContent = $licenseContent -replace '<PROGRAM>', $Answer.ProjectName
         }
 
-        Set-Content -Path $licensePath -Value $licenseContent | Out-Null
+        Set-Content -Path $licensePath -Value $licenseContent -Encoding 'utf8NoBOM' | Out-Null
 
 
         if ( $Answer.EnablePester -eq 'Yes') {
@@ -254,13 +255,13 @@ function New-MAModule {
             $JsonData.Remove('Pester')
         }
 
-        Write-Verbose $JsonData
-        $JsonData | ConvertTo-Json -Depth 5 | Out-File $ProjectJSONFile
+        Write-Verbose ($JsonData | ConvertTo-Json -Depth 5)
+        $JsonData | ConvertTo-Json -Depth 5 | Out-File $ProjectJSONFile -Encoding 'utf8NoBOM'
 
         'Module {0} scaffolding complete' -f $Answer.ProjectName | Write-Host -ForegroundColor Green
     }
 
     end {
-        # Cleanup code
+        Set-Location -Path $OriginalLocation
     }
 }

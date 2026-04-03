@@ -28,7 +28,9 @@ function Build-MAModuleDocumentation {
         } catch {
             throw "Import of the built module failed with message:  $($_.Exception.Message)"
         }
+    }
 
+    process {
         Write-Verbose 'Initialize docs directory.'
         if (Test-Path -Path $docsDir) {
             Remove-Item -Path $docsDir -Include '*.md' -Recurse -Force | Out-Null
@@ -39,10 +41,8 @@ function Build-MAModuleDocumentation {
         if (-not (Test-Path -Path $docsCommandsDir)) {
             New-Item -Path $docsCommandsDir -ItemType Directory -Force | Out-Null
         }
-    }
 
-    process {
-        $moduleCommands = Get-Command -Module $data.ProjectName
+        $moduleCommands = Get-Command -Module $data.ProjectName | Sort-Object Name
 
         # Module main page
         $fileMain = "# $($data.ProjectName)`n`n"
@@ -122,9 +122,9 @@ function Build-MAModuleDocumentation {
                     $nameParam = ($param.name | Out-String).Trim()
                     $fileContent += '### -' + $nameParam + "`n`n"
 
-                    $descriptionParm = ($param.description | Out-String).Trim()
-                    if (-not [string]::IsNullOrEmpty($descriptionParm)) {
-                        $fileContent += $descriptionParm + "`n`n"
+                    $descriptionParam = ($param.description | Out-String).Trim()
+                    if (-not [string]::IsNullOrEmpty($descriptionParam)) {
+                        $fileContent += $descriptionParam + "`n`n"
                     }
 
                     $fileContent += "| Property | Value |`n"
@@ -250,9 +250,7 @@ function Build-MAModuleDocumentation {
         Write-Verbose 'Generating documentation index.'
         $mdMainFilePath = Join-Path $docsDir -ChildPath 'index.md'
         $fileMain | Out-File -FilePath $mdMainFilePath -Encoding UTF8NoBOM -NoNewline
-    }
 
-    end {
         Write-Verbose 'COMPLETE: Generating documentation.'
     }
 }

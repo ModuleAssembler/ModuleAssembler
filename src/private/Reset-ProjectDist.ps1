@@ -34,14 +34,10 @@ function Reset-ProjectDist {
             }
 
             if ($PSCmdlet.ShouldProcess($data.OutputModuleDir)) {
-                New-Item -Path $data.OutputModuleDir -Type Directory -Force | Out-Null # Module Folder
+                New-Item -Path $data.OutputModuleDir -ItemType Directory -Force | Out-Null # Module Folder
             }
         } catch {
-            Write-Error 'Failed to reset Dist folder'
+            Write-Error "Failed to reset Dist folder: $_"
         }
-    }
-
-    end {
-        # Cleanup code
     }
 }

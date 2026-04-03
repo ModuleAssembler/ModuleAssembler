@@ -29,10 +29,6 @@ function Read-HostResponse {
         [pscustomobject] $Ask
     )
 
-    begin {
-        # Initialization code
-    }
-
     process {
         ## For standard questions
         if ($null -eq $Ask.Choice) {
@@ -58,9 +54,5 @@ function Read-HostResponse {
             $result = $Cs.Label[$response] -replace '&'
         }
         return $result
-    }
-
-    end {
-        # Cleanup code
     }
 }

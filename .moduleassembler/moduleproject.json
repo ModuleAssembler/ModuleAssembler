@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/ModuleAssembler/ModuleAssembler/refs/heads/main/src/resources/schema/v1.0.0/moduleassembler.schema.json",
+    "$schema": "https://raw.githubusercontent.com/ModuleAssembler/ModuleAssembler-Schema/refs/tags/v1.0.0/schema/moduleassembler.schema.json",
     "ProjectName": "ModuleAssembler",
     "Description": "ModuleAssembler is a versatile, standalone PowerShell module builder. Create anything from simple to robust modules with ease. Built for CICD and Automation.",
     "Version": "0.1.0",

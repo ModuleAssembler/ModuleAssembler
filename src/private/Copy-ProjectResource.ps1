@@ -18,7 +18,9 @@ function Copy-ProjectResource {
     begin {
         $data = Get-MAProjectInfo
         $resFolder = [System.IO.Path]::Combine($data.ProjectRoot, 'src', 'resources')
+    }
 
+    process {
         if (Test-Path $resFolder) {
             $items = Get-ChildItem -Path $resFolder -ErrorAction SilentlyContinue
             if ($items) {
@@ -31,9 +33,7 @@ function Copy-ProjectResource {
         } else {
             return
         }
-    }
 
-    process {
         if ($data.CopyResourcesToModuleRoot) {
             # Copy the resources folder content to the OutputModuleDir root
             foreach ($item in $items) {
@@ -42,14 +42,10 @@ function Copy-ProjectResource {
             }
         } else {
             # Copy the resources folder content to the OutputModuleDir resource folder
-            if (Get-ChildItem $resFolder -ErrorAction SilentlyContinue) {
-                Write-Verbose 'Copying resources folder.'
-                Copy-Item -Path $resFolder -Destination ($data.OutputModuleDir) -Recurse -Force -ErrorAction Stop
-            }
+            Write-Verbose 'Copying resources folder.'
+            Copy-Item -Path $items -Destination ($data.OutputModuleDir) -Recurse -Force -ErrorAction Stop
         }
-    }
 
-    end {
         Write-Verbose 'COMPLETE: Copying of Module Resources.'
     }
 }

@@ -1,6 +1,7 @@
-# Script to provide a method to perform manual testing, and to provid a method for ModuleAssembler to build itself.
+# Script to provide a method to perform manual testing, and to provide a method for ModuleAssembler to build itself.
 function Get-FunctionName {
     [CmdletBinding()]
+    [OutputType([string])]
     param (
         [Parameter(
             Mandatory = $true,
@@ -88,7 +89,11 @@ function Invoke-TestModuleBuild {
         $publicPath = [System.IO.Path]::Combine($PSScriptRoot, 'src', 'public')
 
         if (Test-Path $tempDir) {
-            Remove-Item $tempDir -Recurse -Force
+            try {
+                Remove-Item $tempDir -Recurse -Force -ErrorAction Stop
+            } catch {
+                throw "Failed to clean up temp directory '$tempDir': $($_.Exception.Message)"
+            }
         }
         New-Item -ItemType Directory -Path $tempDir | Out-Null
     }
@@ -99,7 +104,7 @@ function Invoke-TestModuleBuild {
 
         # Copy resources to temp location
         if (Test-Path $resourcesSourcePath) {
-            Write-Verbose "Copying resources from $resourcesPath to $tempDir"
+            Write-Verbose "Copying resources from $resourcesSourcePath to $tempDir"
             Copy-Item -Path $resourcesSourcePath -Destination $tempDir -Recurse -Force
             if (Test-Path (Join-Path $tempDir 'resources')) {
                 Write-Verbose 'Resources copied successfully'
@@ -149,15 +154,22 @@ function Invoke-TestModuleBuild {
 
 
         # Launch new PowerShell session and load the test module
-        $command = "Set-Location '$PSScriptRoot'; Import-Module -Name $manifestPath; Write-Host `"Manual testing module generated at: $tempDir`""
+        $scriptBlock = "Set-Location -LiteralPath '$PSScriptRoot'; Import-Module -Name '$manifestPath'; Write-Host 'Manual testing module generated at: $tempDir'"
+        $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($scriptBlock))
 
         Write-Host 'Launching new PowerShell session with imported test module ...' -ForegroundColor Green
-        Start-Process pwsh -ArgumentList '-NoExit', '-Command', $command -Wait
+        Start-Process pwsh -ArgumentList '-NoExit', '-EncodedCommand', $encoded -Wait
     }
 
     clean {
-        Write-Host 'Session closed. Cleaning up temp directory...' -ForegroundColor Yellow
-        Remove-Item $tempDir -Recurse -Force
+        Write-Host 'Session closed. Cleaning up temp directory...' -ForegroundColor Green
+        try {
+            Remove-Item $tempDir -Recurse -Force -ErrorAction Stop
+        } catch {
+            Write-Warning "Failed to clean up temp directory '$tempDir': $($_.Exception.Message)"
+        }
+
+        Write-Host 'Cleanup temp directory complete.' -ForegroundColor Green
     }
 }
 

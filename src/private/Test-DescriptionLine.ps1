@@ -26,13 +26,13 @@ function Test-DescriptionLine {
 
     begin {
         $trimLine = $Line.Trim()
-
-        if (-not $trimLine) {
-            return $false
-        }
     }
 
     process {
+        if (-not $trimLine) {
+            return $false
+        }
+
         # If it looks like a verb-noun cmdlet at start (Test-Cmdlet or Get-Item2) treat as code.
         if ($trimLine -match '^[A-Za-z]+-[A-Za-z0-9]') {
             return $false
@@ -79,9 +79,5 @@ function Test-DescriptionLine {
         }
 
         return $false
-    }
-
-    end {
-        # Cleanup code
     }
 }
