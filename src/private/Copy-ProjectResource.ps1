@@ -35,15 +35,15 @@ function Copy-ProjectResource {
         }
 
         if ($data.CopyResourcesToModuleRoot) {
-            # Copy the resources folder content to the OutputModuleDir root
+            # Copy the resources folder contents to the OutputModuleDir root
             foreach ($item in $items) {
                 Write-Verbose "Copying $($item.Name)"
                 Copy-Item -Path $item.FullName -Destination ($data.OutputModuleDir) -Recurse -Force -ErrorAction Stop
             }
         } else {
-            # Copy the resources folder content to the OutputModuleDir resource folder
+            # Copy the resources folder itself and its content to the OutputModuleDir resource folder
             Write-Verbose 'Copying resources folder.'
-            Copy-Item -Path $items -Destination ($data.OutputModuleDir) -Recurse -Force -ErrorAction Stop
+            Copy-Item -Path $resFolder -Destination ($data.OutputModuleDir) -Recurse -Force -ErrorAction Stop
         }
 
         Write-Verbose 'COMPLETE: Copying of Module Resources.'

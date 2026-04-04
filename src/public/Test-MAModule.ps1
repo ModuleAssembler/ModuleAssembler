@@ -19,9 +19,9 @@ function Test-MAModule {
         Execute all Pester tests.
 
     .EXAMPLE
-        Test-MAModule -TagFilter 'unit','integrate'
+        Test-MAModule -TagFilter 'unit','FunctionQA'
 
-        Execute only Pester tests with the tags unit or integrate.
+        Execute only Pester tests with the tags unit or FunctionQA.
 
     .EXAMPLE
         Test-MAModule -ExcludeTagFilter 'unit'

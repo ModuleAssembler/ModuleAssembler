@@ -18,8 +18,8 @@ function Build-MAModule {
 
     begin {
         $ErrorActionPreference = 'Stop'
-        $MABuildVersion = (Get-Command Build-MAModule).Version
-        Write-Verbose "Running ModuleAssembler Version: $MABuildVersion"
+        $MAVersion = (Get-Module -Name ModuleAssembler).Version
+        Write-Verbose "Running ModuleAssembler Version: $MAVersion"
     }
 
     process {

@@ -253,4 +253,8 @@ function Build-MAModuleDocumentation {
 
         Write-Verbose 'COMPLETE: Generating documentation.'
     }
+
+    end {
+        Remove-Module -Name $data.ProjectName -Force -ErrorAction SilentlyContinue
+    }
 }

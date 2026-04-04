@@ -1,5 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/ModuleAssembler/ModuleAssembler-Schema/refs/tags/v1.0.0/schema/moduleassembler.schema.json",
+    "$schema": "./schemas/moduleassembler.v1.0.0.schema.json",
     "ProjectName": "",
     "Description": "",
     "Version": "",

@@ -81,15 +81,5 @@
             "aligned_delimiter": false,
             "style": "compact"
         }
-    },
-    // JSON schema mapping for ModuleAssembler data file
-    "json.schemas": [
-        {
-            "fileMatch": [
-                "**/.moduleassembler/moduleproject.json"
-            ],
-            "url": "https://raw.githubusercontent.com/ModuleAssembler/ModuleAssembler-Schema/refs/tags/v1.0.0/schema/moduleassembler.schema.json"
-        }
-    ],
-    "json.schemaDownload.enable": true
+    }
 }

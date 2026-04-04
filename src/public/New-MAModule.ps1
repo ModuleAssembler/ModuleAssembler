@@ -30,14 +30,15 @@ function New-MAModule {
 
     begin {
         $ErrorActionPreference = 'Stop'
-        $OriginalLocation = $PWD.Path
+        $scaffoldingComplete = $false
+        $dirProjectCreatedHere = $false
     }
 
     process {
         if (-not(Test-Path $Path)) {
             Write-Error 'Not a valid path.' -ErrorAction Stop
         }
-        Set-Location -Path $Path
+        Push-Location -Path $Path -StackName 'MANew'
 
         $supportedPowerShellVersions = @('5.1', '7.4', '7.6')
         $defaultPowerShellVersion = '7.4'
@@ -133,7 +134,7 @@ function New-MAModule {
             Write-Error 'Module Name invalid. Module should be one word in PascalCase and contain only Letters, Numbers and optionally a period.' -ErrorAction Stop
         }
 
-        if ($Answer.Version -notmatch '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)') {
+        if ($Answer.Version -notmatch '^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$') {
             Write-Error 'Version number is invalid. Please, follow Semantic Versioning (ex: 1.0.0).' -ErrorAction Stop
         }
 
@@ -155,113 +156,132 @@ function New-MAModule {
 
         if ((Test-Path $DirProject) -and -not ($null -eq (Get-ChildItem -LiteralPath $DirProject -Force -ErrorAction Ignore | Select-Object -First 1))) {
             Write-Error 'Project already exists, aborting.' -ErrorAction Stop
-        } elseif (-not (Test-Path $DirProject)) {
-            Write-Verbose "Path is not an empty project folder. Creating new project directory $($Answer.ProjectName)."
-            New-Item -ItemType Directory -Path $DirProject | Out-Null
         }
 
-        # Setup Module
-        Write-Host "`nStarted Module Scaffolding" -ForegroundColor Green
-        Write-Host 'Setting up Directories'
-        ($ModuleAssemblerSettings, $DirSrc, $DirPrivate, $DirPublic, $DirResources, $DirClasses) | ForEach-Object {
-            'Creating Directory: {0}' -f $_ | Write-Verbose
-            New-Item -ItemType Directory -Path $_ | Out-Null
-        }
+        $dirProjectCreatedHere = -not (Test-Path $DirProject)
 
-        switch ($Answer.ProjectLicense) {
-            'Apache2' {
-                $licenseTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'LicenseTemplates', 'Apache_v2')
+        if ($PSCmdlet.ShouldProcess($DirProject, 'Create new module project')) {
+            if ($dirProjectCreatedHere) {
+                Write-Verbose "Path is not an empty project folder. Creating new project directory $($Answer.ProjectName)."
+                New-Item -ItemType Directory -Path $DirProject | Out-Null
             }
-            'BSD3' {
-                $licenseTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'LicenseTemplates', 'BSD_3-Clause')
+
+            # Setup Module
+            Write-Host "`nStarted Module Scaffolding" -ForegroundColor Green
+            Write-Host 'Setting up Directories'
+            ($ModuleAssemblerSettings, $DirSrc, $DirPrivate, $DirPublic, $DirResources, $DirClasses) | ForEach-Object {
+                'Creating Directory: {0}' -f $_ | Write-Verbose
+                New-Item -ItemType Directory -Path $_ | Out-Null
             }
-            'GPL3' {
-                $licenseTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'LicenseTemplates', 'GPLv3')
+
+            switch ($Answer.ProjectLicense) {
+                'Apache2' {
+                    $licenseTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'LicenseTemplates', 'Apache_v2')
+                }
+                'BSD3' {
+                    $licenseTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'LicenseTemplates', 'BSD_3-Clause')
+                }
+                'GPL3' {
+                    $licenseTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'LicenseTemplates', 'GPLv3')
+                }
+                default {
+                    $licenseTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'LicenseTemplates', 'MIT')
+                }
             }
-            default {
-                $licenseTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'LicenseTemplates', 'MIT')
+            Write-Host 'Setting Project License'
+            $licensePath = Join-Path -Path $DirProject -ChildPath 'LICENSE'
+            $licenseContent = Get-Content $licenseTemplate -Raw
+            $licenseContent = $licenseContent.Replace('<YEAR>', (Get-Date -Format yyyy))
+
+            if ($Answer.Company -ne '') {
+                $copyright = $Answer.Company
+            } else {
+                $copyright = $Answer.Author
             }
-        }
-        Write-Host 'Setting Project License'
-        $licensePath = Join-Path -Path $DirProject -ChildPath 'LICENSE'
-        $licenseContent = Get-Content $licenseTemplate -Raw
-        $licenseContent = $licenseContent -replace '<YEAR>', (Get-Date -Format yyyy)
+            $licenseContent = $licenseContent.Replace('<COPYRIGHT HOLDER>', $copyright)
 
-        if ($Answer.Company -ne '') {
-            $copyright = $Answer.Company
-        } else {
-            $copyright = $Answer.Author
-        }
-        $licenseContent = $licenseContent -replace '<COPYRIGHT HOLDER>', $copyright
-
-        if ($Answer.ProjectLicense -eq 'GPL3') {
-            $licenseContent = $licenseContent -replace '<PROGRAM>', $Answer.ProjectName
-        }
-
-        Set-Content -Path $licensePath -Value $licenseContent -Encoding 'utf8NoBOM' | Out-Null
-
-
-        if ( $Answer.EnablePester -eq 'Yes') {
-            Write-Host 'Include Pester Configs'
-            New-Item -ItemType Directory -Path $DirTests | Out-Null
-            $DirUnitTests = Join-Path -Path $DirTests -ChildPath 'Unit'
-            New-Item -ItemType Directory -Path $DirUnitTests | Out-Null
-            New-Item -ItemType Directory -Path $(Join-Path -Path $DirUnitTests -ChildPath 'classes') | Out-Null
-            New-Item -ItemType Directory -Path $(Join-Path -Path $DirUnitTests -ChildPath 'private') | Out-Null
-            New-Item -ItemType Directory -Path $(Join-Path -Path $DirUnitTests -ChildPath 'public') | Out-Null
-            $defaultTests = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'PesterTests', '*')
-            Copy-Item -Path $defaultTests -Destination $DirTests -Recurse -Force | Out-Null
-
-            $scriptAnalyzerSettings = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'PSScriptAnalyzerSettings.psd1')
-            if (!(Test-Path (Join-Path $DirProject -ChildPath 'PSScriptAnalyzerSettings.psd1'))) {
-                Copy-Item -Path $scriptAnalyzerSettings -Destination $DirProject -Force | Out-Null
+            if ($Answer.ProjectLicense -eq 'GPL3') {
+                $licenseContent = $licenseContent.Replace('<PROGRAM>', $Answer.ProjectName)
             }
-        }
+
+            Set-Content -Path $licensePath -Value $licenseContent -Encoding 'utf8NoBOM' | Out-Null
 
 
-        if ($Answer.EnableVSCode -eq 'Yes') {
-            Write-Host 'Include Visual Studio Code Configs'
-            $vsSource = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'vscode')
-            $vsDestination = Join-Path -Path $DirProject -ChildPath '.vscode'
-            Copy-Item -Path $vsSource -Destination $vsDestination -Recurse -Force | Out-Null
+            if ($Answer.EnablePester -eq 'Yes') {
+                Write-Host 'Include Pester Configs'
+                New-Item -ItemType Directory -Path $DirTests | Out-Null
+                $DirUnitTests = Join-Path -Path $DirTests -ChildPath 'Unit'
+                New-Item -ItemType Directory -Path $DirUnitTests | Out-Null
+                New-Item -ItemType Directory -Path $(Join-Path -Path $DirUnitTests -ChildPath 'classes') | Out-Null
+                New-Item -ItemType Directory -Path $(Join-Path -Path $DirUnitTests -ChildPath 'private') | Out-Null
+                New-Item -ItemType Directory -Path $(Join-Path -Path $DirUnitTests -ChildPath 'public') | Out-Null
+                $defaultTests = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'PesterTests', '*')
+                Copy-Item -Path $defaultTests -Destination $DirTests -Recurse -Force | Out-Null
 
-            $scriptAnalyzerSettings = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'PSScriptAnalyzerSettings.psd1')
-            if (!(Test-Path (Join-Path $DirProject -ChildPath 'PSScriptAnalyzerSettings.psd1'))) {
-                Copy-Item -Path $scriptAnalyzerSettings -Destination $DirProject -Force | Out-Null
+                $scriptAnalyzerSettings = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'PSScriptAnalyzerSettings.psd1')
+                if (!(Test-Path (Join-Path $DirProject -ChildPath 'PSScriptAnalyzerSettings.psd1'))) {
+                    Copy-Item -Path $scriptAnalyzerSettings -Destination $DirProject -Force | Out-Null
+                }
             }
+
+
+            if ($Answer.EnableVSCode -eq 'Yes') {
+                Write-Host 'Include Visual Studio Code Configs'
+                $vsSource = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'vscode')
+                $vsDestination = Join-Path -Path $DirProject -ChildPath '.vscode'
+                Copy-Item -Path $vsSource -Destination $vsDestination -Recurse -Force | Out-Null
+
+                $scriptAnalyzerSettings = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'PSScriptAnalyzerSettings.psd1')
+                if (!(Test-Path (Join-Path $DirProject -ChildPath 'PSScriptAnalyzerSettings.psd1'))) {
+                    Copy-Item -Path $scriptAnalyzerSettings -Destination $DirProject -Force | Out-Null
+                }
+            }
+
+
+            if ($Answer.EnableGit -eq 'Yes') {
+                Write-Host 'Initialize Git Repo'
+                Initialize-GitRepo -DirectoryPath $DirProject
+                $gitIgnoreSource = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'gitignore')
+                $gitIgnoreDestination = Join-Path -Path $DirProject -ChildPath '.gitignore'
+                Copy-Item -Path $gitIgnoreSource -Destination $gitIgnoreDestination -Force | Out-Null
+            }
+
+
+            ## Copy bundled schemas to .moduleassembler/schemas
+            $resourceSchemasSource = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'schemas')
+            if (Test-Path $resourceSchemasSource) {
+                $schemasDestination = Join-Path -Path $ModuleAssemblerSettings -ChildPath 'schemas'
+                Copy-Item -Path $resourceSchemasSource -Destination $schemasDestination -Recurse -Force | Out-Null
+                Write-Verbose "Copied bundled schemas to '$schemasDestination'."
+            }
+
+            ## Create ProjectJSON
+            $JsonData = Get-Content $ModuleProjectTemplate -Raw | ConvertFrom-Json -AsHashtable
+
+            $JsonData.ProjectName = $Answer.ProjectName
+            $JsonData.Description = $Answer.Description
+            $JsonData.Version = $Answer.Version
+            $JsonData.Manifest.Author = $Answer.Author
+            $JsonData.Manifest.CompanyName = $Answer.Company
+            $JsonData.Manifest.PowerShellVersion = $Answer.PowerShellVersion
+            $JsonData.Manifest.GUID = (New-Guid).GUID
+            if ($Answer.EnablePester -eq 'No') {
+                $JsonData.Remove('Pester')
+            }
+
+            Write-Verbose ($JsonData | ConvertTo-Json -Depth 10)
+            $JsonData | ConvertTo-Json -Depth 10 | Out-File $ProjectJSONFile -Encoding 'utf8NoBOM'
+
+            'Module {0} scaffolding complete' -f $Answer.ProjectName | Write-Host -ForegroundColor Green
+            $scaffoldingComplete = $true
         }
-
-
-        if ( $Answer.EnableGit -eq 'Yes') {
-            Write-Host 'Initialize Git Repo'
-            Initialize-GitRepo -DirectoryPath $DirProject
-            $gitIgnoreSource = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'gitignore')
-            $gitIgnoreDestination = Join-Path -Path $DirProject -ChildPath '.gitignore'
-            Copy-Item -Path $gitIgnoreSource -Destination $gitIgnoreDestination -Force | Out-Null
-        }
-
-
-        ## Create ProjectJSON
-        $JsonData = Get-Content $ModuleProjectTemplate -Raw | ConvertFrom-Json -AsHashtable
-
-        $JsonData.ProjectName = $Answer.ProjectName
-        $JsonData.Description = $Answer.Description
-        $JsonData.Version = $Answer.Version
-        $JsonData.Manifest.Author = $Answer.Author
-        $JsonData.Manifest.CompanyName = $Answer.Company
-        $JsonData.Manifest.PowerShellVersion = $Answer.PowerShellVersion
-        $JsonData.Manifest.GUID = (New-Guid).GUID
-        if ($Answer.EnablePester -eq 'No') {
-            $JsonData.Remove('Pester')
-        }
-
-        Write-Verbose ($JsonData | ConvertTo-Json -Depth 5)
-        $JsonData | ConvertTo-Json -Depth 5 | Out-File $ProjectJSONFile -Encoding 'utf8NoBOM'
-
-        'Module {0} scaffolding complete' -f $Answer.ProjectName | Write-Host -ForegroundColor Green
     }
 
     end {
-        Set-Location -Path $OriginalLocation
+        if (-not $scaffoldingComplete -and $dirProjectCreatedHere -and (Test-Path $DirProject)) {
+            Write-Verbose "Scaffolding failed. Removing partially created project directory '$DirProject'."
+            Remove-Item -Path $DirProject -Recurse -Force -ErrorAction SilentlyContinue
+        }
+        Pop-Location -StackName 'MANew' -ErrorAction SilentlyContinue
     }
 }

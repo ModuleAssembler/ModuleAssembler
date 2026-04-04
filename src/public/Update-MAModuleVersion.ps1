@@ -17,7 +17,17 @@ function Update-MAModuleVersion {
     .EXAMPLE
         Update-MAModuleVersion -Label Major
 
-        Updates the Major version part of the module. Version 2.1.3 will become 3.1.3.
+        Updates the Major version part of the module. Version 2.1.3 will become 3.0.0.
+
+    .EXAMPLE
+        Update-MAModuleVersion -Label Minor
+
+        Updates the Minor version part of the module. Version 2.1.3 will become 2.2.0.
+
+    .EXAMPLE
+        Update-MAModuleVersion -Label Patch
+
+        Updates the Patch version part of the module. Version 2.1.3 will become 2.1.4.
 
     .EXAMPLE
         Update-MAModuleVersion
@@ -28,11 +38,7 @@ function Update-MAModuleVersion {
         Update-MAModuleVersion -PreReleaseType preview
 
         Adds a specified PreReleaseLabel to the module version. Version 1.0.0 will become 1.0.0-preview01.
-
-    .EXAMPLE
-        Update-MAModuleVersion -PreReleaseType preview
-
-        Increment a pre-existing PreReleaseLabel. Version 1.0.0-preview01 will become 1.0.0-preview02.
+        If the same PreReleaseType was previously used, it will increment the number. Version 1.0.0-preview01 will become 1.0.0-preview02.
 
     .EXAMPLE
         Update-MAModuleVersion -Label Major -PreReleaseType rc
@@ -86,10 +92,9 @@ function Update-MAModuleVersion {
         }
 
         if ($PrereleaseType) {
-            $CurrentVersion.PreReleaseLabel -imatch '^((?:alpha|beta|preview|rc))(\d+)?$' | Out-Null
-            try {
-                $currentPreReleaseType = $matches[1]
-            } catch {
+            if ($CurrentVersion.PreReleaseLabel -imatch '^((?:alpha|beta|preview|rc))(\d+)?$') {
+                $currentPreReleaseType = $Matches[1]
+            } else {
                 $currentPreReleaseType = $null
             }
 
@@ -104,13 +109,13 @@ function Update-MAModuleVersion {
 
         $newVersion = [semver]::new($Major, $Minor, $Patch, $ReleaseType, $null)
 
-        if ($PSCmdlet.ShouldProcess("Setting module version in JSON from $CurrentVersion to $newVersion", $data.ProjectJSON, 'Version Update')) {
+        if ($PSCmdlet.ShouldProcess($data.ProjectJSON, "Update version from $CurrentVersion to $newVersion")) {
             # Update the version in the JSON object
             $jsonContent.Version = $newVersion.ToString()
             Write-Host "Version updated $CurrentVersion -> $newVersion"
 
             # Convert the JSON object back to JSON format
-            $newJsonContent = $jsonContent | ConvertTo-Json -Depth 5
+            $newJsonContent = $jsonContent | ConvertTo-Json -Depth 10
 
             # Write the updated JSON back to the file
             $newJsonContent | Set-Content -Path $data.ProjectJSON -Encoding 'utf8NoBOM'

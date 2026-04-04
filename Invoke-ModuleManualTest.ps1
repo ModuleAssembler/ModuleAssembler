@@ -11,8 +11,7 @@ function Get-FunctionName {
     )
 
     try {
-        $moduleContent = Get-Content -Path $Path -Raw
-        $ast = [System.Management.Automation.Language.Parser]::ParseInput($moduleContent, [ref]$null, [ref]$null)
+        $ast = [System.Management.Automation.Language.Parser]::ParseFile($Path, [ref]$null, [ref]$null)
         $functionName = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false) | ForEach-Object { $_.Name }
         return $functionName
     } catch {
@@ -38,36 +37,36 @@ function Build-ModuleManualTest {
     $sb = [System.Text.StringBuilder]::new()
     Write-Verbose 'Processing classes and functions into psm1 file ...'
     # Classes Folder
-    $files = Get-ChildItem -Path $classesPath -Filter *.ps1 -ErrorAction SilentlyContinue
+    $files = Get-ChildItem -Path $classesPath -Filter *.ps1 -ErrorAction SilentlyContinue | Sort-Object Name
     $files | ForEach-Object {
         Write-Verbose "   Appending Class: $($_.Name)"
         $sb.AppendLine("# source: $($_.Name)") | Out-Null
-        $sb.AppendLine([IO.File]::ReadAllText($_.FullName)) | Out-Null
+        $sb.AppendLine([IO.File]::ReadAllText($_.FullName, [System.Text.Encoding]::UTF8)) | Out-Null
         $sb.AppendLine('') | Out-Null
     }
 
     # Private Folder
-    $files = Get-ChildItem -Path $privatePath -Filter *.ps1 -ErrorAction SilentlyContinue
+    $files = Get-ChildItem -Path $privatePath -Filter *.ps1 -ErrorAction SilentlyContinue | Sort-Object Name
     if ($files) {
         $files | ForEach-Object {
             Write-Verbose "   Appending Private Function: $($_.Name)"
             $sb.AppendLine("# source: $($_.Name)") | Out-Null
-            $sb.AppendLine([IO.File]::ReadAllText($_.FullName)) | Out-Null
+            $sb.AppendLine([IO.File]::ReadAllText($_.FullName, [System.Text.Encoding]::UTF8)) | Out-Null
             $sb.AppendLine('') | Out-Null
         }
     }
 
     # Public Folder
-    $files = Get-ChildItem -Path $publicPath -Filter *.ps1
+    $files = Get-ChildItem -Path $publicPath -Filter *.ps1 | Sort-Object Name
     $files | ForEach-Object {
         Write-Verbose "   Appending Public Function: $($_.Name)"
         $sb.AppendLine("# source: $($_.Name)") | Out-Null
-        $sb.AppendLine([IO.File]::ReadAllText($_.FullName)) | Out-Null
+        $sb.AppendLine([IO.File]::ReadAllText($_.FullName, [System.Text.Encoding]::UTF8)) | Out-Null
         $sb.AppendLine('') | Out-Null
     }
 
     try {
-        Set-Content -Path $moduleFilePath -Value $sb.ToString() -Encoding 'UTF8' -ErrorAction Stop
+        Set-Content -Path $moduleFilePath -Value $sb.ToString() -Encoding 'utf8NoBOM' -ErrorAction Stop
         Write-Verbose 'Processing of classes and functions complete.'
     } catch {
         Write-Error 'Failed to create psm1 file' -ErrorAction Stop
@@ -112,7 +111,7 @@ function Invoke-TestModuleBuild {
                 Write-Warning 'Failed to copy resources'
             }
         } else {
-            Write-Verbose "Resources path not found: $resourcesPath"
+            Write-Verbose "Resources path not found: $resourcesSourcePath"
         }
 
         # # Copy module assembler setting folder
@@ -153,12 +152,70 @@ function Invoke-TestModuleBuild {
         }
 
 
-        # Launch new PowerShell session and load the test module
-        $scriptBlock = "Set-Location -LiteralPath '$PSScriptRoot'; Import-Module -Name '$manifestPath'; Write-Host 'Manual testing module generated at: $tempDir'"
-        $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($scriptBlock))
+        # Write a startup script to the temp directory to initialise the test session.
+        # Using a script file rather than -EncodedCommand keeps initialisation readable,
+        # avoids the Base64 size limit, and allows defining stateful helper functions.
+        $safeRoot = [System.Management.Automation.Language.CodeGeneration]::EscapeSingleQuotedStringContent($PSScriptRoot)
+        $safeManifestPath = [System.Management.Automation.Language.CodeGeneration]::EscapeSingleQuotedStringContent($manifestPath)
+        $startupScriptPath = Join-Path $tempDir -ChildPath 'Start-MATestSession.ps1'
+
+        $startupScript = @"
+Set-Location -LiteralPath '$safeRoot'
+
+`$env:MA_PROJECT_ROOT    = '$safeRoot'
+`$env:MA_MODULE_MANIFEST = '$safeManifestPath'
+
+function Restore-MASession {
+    # Re-import the test module unconditionally to guarantee a clean scope.
+    # This is necessary because several operations corrupt session state:
+    #   - Test-TestMAModule  : Test-ModuleManifest imports and releases the dist
+    #                          module, which removes Get-MAProjectInfo from global scope
+    #                          and may disturb module-internal function resolution.
+    #   - Build-TestMAModuleDocumentation : imports the dist module with -Force,
+    #                          then its end block removes it, wiping Get-MAProjectInfo.
+    # Re-importing with -Force ensures both the module's internal scope and all
+    # exported bindings are in a known-good state before the next command runs.
+    Remove-Module -Name 'ModuleAssemblerTest' -Force -ErrorAction SilentlyContinue
+    Import-Module -Name `$env:MA_MODULE_MANIFEST -Force -ErrorAction Stop
+    Set-Location -LiteralPath `$env:MA_PROJECT_ROOT
+}
+
+function Reset-MARoot {
+    <#
+    .SYNOPSIS
+        Forcibly restores the working directory and module bindings for the ModuleAssembler test session.
+    .DESCRIPTION
+        The prompt function automatically calls Restore-MASession after every command,
+        so manual invocation of Reset-MARoot is not normally required. Use it if the
+        prompt auto-restore itself encountered an error, or to force a known-clean state.
+    #>
+    Restore-MASession
+    Write-Host 'Session forcibly restored: module reloaded and location reset.' -ForegroundColor Cyan
+}
+
+function prompt {
+    Restore-MASession
+    "PS `$(Get-Location)> "
+}
+
+Write-Host ''
+Write-Host 'ModuleAssembler test session ready.' -ForegroundColor Green
+Write-Host "Project root : `$env:MA_PROJECT_ROOT" -ForegroundColor Cyan
+Write-Host ''
+Write-Host 'Recommended command order:' -ForegroundColor Cyan
+Write-Host '  1. Build-TestMAModule                  - Build the module' -ForegroundColor Cyan
+Write-Host '  2. Test-TestMAModule                   - Run Pester tests' -ForegroundColor Cyan
+Write-Host '  3. Build-TestMAModuleDocumentation     - Generate documentation' -ForegroundColor Cyan
+Write-Host ''
+Write-Host 'NOTE: The module is automatically reloaded after each command.' -ForegroundColor Cyan
+Write-Host '  Run Reset-MARoot to force a manual reload if needed.' -ForegroundColor Cyan
+Write-Host ''
+"@
+
+        Set-Content -Path $startupScriptPath -Value $startupScript -Encoding utf8NoBOM
 
         Write-Host 'Launching new PowerShell session with imported test module ...' -ForegroundColor Green
-        Start-Process pwsh -ArgumentList '-NoExit', '-EncodedCommand', $encoded -Wait
+        Start-Process pwsh -ArgumentList '-NoExit', '-File', $startupScriptPath -Wait
     }
 
     clean {

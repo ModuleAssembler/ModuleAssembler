@@ -1,0 +1,200 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://raw.githubusercontent.com/ModuleAssembler/ModuleAssembler-Schema/refs/tags/v1.0.0/schema/moduleassembler.schema.json",
+    "title": "ModuleAssemblerSchema",
+    "description": "ModuleAssembler data utilized when building a module.",
+    "type": "object",
+    "properties": {
+        "ProjectName": {
+            "description": "Name of the module project.",
+            "type": "string"
+        },
+        "Description": {
+            "description": "Description of the functionality provided by this module.",
+            "type": "string"
+        },
+        "Version": {
+            "description": "Version number of this module, use Semantic Versioning.",
+            "type": "string"
+        },
+        "CopyResourcesToModuleRoot": {
+            "description": "Specifies if resource files will be placed in the built module's root directory, instead of in a resources subfolder.",
+            "type": "boolean",
+            "default": false
+        },
+        "Manifest": {
+            "description": "PowerShell Module Manifest Configuration Items.",
+            "type": "object",
+            "properties": {
+                "Author": {
+                    "description": "Author of this module.",
+                    "type": "string"
+                },
+                "CompanyName": {
+                    "description": "Company or vendor of this module.",
+                    "type": "string"
+                },
+                "PowerShellVersion": {
+                    "description": "Minimum version of the PowerShell engine required by this module.",
+                    "type": "string"
+                },
+                "GUID": {
+                    "description": "ID used to uniquely identify this module.",
+                    "type": "string"
+                },
+                "Tags": {
+                    "description": "Tags applied to this module. These help with module discovery in online galleries.",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "ProjectUri": {
+                    "description": "A URL to the main website for this project.",
+                    "type": "string"
+                },
+                "LicenseUri": {
+                    "description": "A URL to the license for this project.",
+                    "type": "string"
+                },
+                "IconUri": {
+                    "description": "A URL to an icon representing this module.",
+                    "type": "string"
+                },
+                "RequiredModules": {
+                    "description": "Modules that must be imported into the global environment.",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ModuleName": {
+                                "description": "The required module name.",
+                                "type": "string"
+                            },
+                            "GUID": {
+                                "description": "GUID of the required module.",
+                                "type": "string"
+                            },
+                            "ModuleVersion": {
+                                "description": "Minimum acceptable version of the required module.",
+                                "type": "string"
+                            },
+                            "MaximumVersion": {
+                                "description": "Maximum acceptable version of the required module.",
+                                "type": "string"
+                            },
+                            "RequiredVersion": {
+                                "description": "Exact version of the required module. If specified then ModuleVersion and MaximumVersion can't be used.",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "ModuleName"
+                        ],
+                        "if": {
+                            "required": [
+                                "RequiredVersion"
+                            ]
+                        },
+                        "then": {
+                            "not": {
+                                "anyOf": [
+                                    {
+                                        "required": [
+                                            "ModuleVersion"
+                                        ]
+                                    },
+                                    {
+                                        "required": [
+                                            "MaximumVersion"
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            "required": [
+                "Author",
+                "PowerShellVersion",
+                "GUID"
+            ]
+        },
+        "Pester": {
+            "description": "Pester Configuration Items.",
+            "type": "object",
+            "properties": {
+                "CodeCoverage": {
+                    "description": "Code Coverage Configuration.",
+                    "type": "object",
+                    "properties": {
+                        "Enabled": {
+                            "description": "Enable Code Coverage.",
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "OutputFormat": {
+                            "description": "Format to use for code coverage report. Valid options are JaCoCo, CoverageGutters, Cobertura.",
+                            "type": "string",
+                            "pattern": "^(JaCoCo|CoverageGutters|Cobertura)$",
+                            "default": "JaCoCo"
+                        },
+                        "CoveragePercentTarget": {
+                            "description": "Target percent of code coverage that you want to achieve.",
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 100,
+                            "default": 75
+                        }
+                    },
+                    "required": [
+                        "Enabled"
+                    ]
+                },
+                "TestResult": {
+                    "description": "Test Result Configuration.",
+                    "type": "object",
+                    "properties": {
+                        "Enabled": {
+                            "description": "Enable Test Results.",
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "OutputFormat": {
+                            "description": "Format to use for test result report. Valid values NUnitXml, NUnit2.5, NUnit3 or JUnitXml.",
+                            "type": "string",
+                            "pattern": "^(NUnitXml|NUnit2\\.5|NUnit3|JUnitXml)$",
+                            "default": "JUnitXml"
+                        }
+                    },
+                    "required": [
+                        "Enabled"
+                    ]
+                },
+                "Output": {
+                    "description": "Output Configuration.",
+                    "type": "object",
+                    "properties": {
+                        "Verbosity": {
+                            "description": "The verbosity of output. Valid options are None, Normal, Detailed or Diagnostic.",
+                            "type": "string",
+                            "pattern": "^(None|Normal|Detailed|Diagnostic)$",
+                            "default": "Detailed"
+                        }
+                    },
+                    "required": [
+                        "Verbosity"
+                    ]
+                }
+            }
+        }
+    },
+    "required": [
+        "ProjectName",
+        "Description",
+        "Version",
+        "Manifest"
+    ]
+}
+

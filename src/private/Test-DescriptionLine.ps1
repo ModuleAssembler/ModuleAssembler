@@ -53,7 +53,7 @@ function Test-DescriptionLine {
         }
 
         # Type definition as used in the Output or Input sections of comment-based help.
-        if ($trimLine -match '/\b\w+(?:\.\w+)+\b') {
+        if ($trimLine -match '\b\w+(?:\.\w+)+\b') {
             return $false
         }
 

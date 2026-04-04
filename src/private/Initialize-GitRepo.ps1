@@ -36,13 +36,13 @@ function Initialize-GitRepo {
 
             if (!(Test-Path -Path '.git')) {
                 if ($PSCmdlet.ShouldProcess($DirectoryPath, "Initializing git on $DirectoryPath")) {
-                    try {
-                        git init | Out-Null
-                    } catch {
-                        Write-Error 'Failed to initialize Git repo.'
+                    $gitOutput = git init 2>&1
+                    if ($LASTEXITCODE -ne 0) {
+                        Write-Error "Failed to initialize Git repo in '$DirectoryPath' (exit code $LASTEXITCODE): $($gitOutput -join ' ')"
+                    } else {
+                        Write-Verbose 'Git initialized successfully.'
                     }
                 }
-                Write-Verbose 'Git initialized successfully.'
             } else {
                 Write-Warning 'A Git repository already exists in this directory. Skipping git init.'
             }

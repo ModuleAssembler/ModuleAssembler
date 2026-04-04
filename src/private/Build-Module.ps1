@@ -31,7 +31,7 @@ function Build-Module {
         $files | ForEach-Object {
             Write-Verbose "Appending Class: $($_.Name)"
             $sb.AppendLine("# source: $($_.Name)") | Out-Null
-            $sb.AppendLine([IO.File]::ReadAllText($_.FullName)) | Out-Null
+            $sb.AppendLine([IO.File]::ReadAllText($_.FullName, [System.Text.Encoding]::UTF8)) | Out-Null
             $sb.AppendLine('') | Out-Null
         }
 
@@ -41,7 +41,7 @@ function Build-Module {
             $files | ForEach-Object {
                 Write-Verbose "Appending Private Function: $($_.Name)"
                 $sb.AppendLine("# source: $($_.Name)") | Out-Null
-                $sb.AppendLine([IO.File]::ReadAllText($_.FullName)) | Out-Null
+                $sb.AppendLine([IO.File]::ReadAllText($_.FullName, [System.Text.Encoding]::UTF8)) | Out-Null
                 $sb.AppendLine('') | Out-Null
             }
         }
@@ -51,7 +51,7 @@ function Build-Module {
         $files | ForEach-Object {
             Write-Verbose "Appending Public Function: $($_.Name)"
             $sb.AppendLine("# source: $($_.Name)") | Out-Null
-            $sb.AppendLine([IO.File]::ReadAllText($_.FullName)) | Out-Null
+            $sb.AppendLine([IO.File]::ReadAllText($_.FullName, [System.Text.Encoding]::UTF8)) | Out-Null
             $sb.AppendLine('') | Out-Null
         }
 

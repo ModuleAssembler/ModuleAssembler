@@ -26,7 +26,7 @@ function Read-HostResponse {
         [Parameter(
             Mandatory = $true,
             Position = 0)]
-        [pscustomobject] $Ask
+        [hashtable] $Ask
     )
 
     process {
