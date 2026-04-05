@@ -8,18 +8,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-### Added
-
-- Added JSON schema.
-
-### Changed
-
-- Moved json data for ModuleAssembler to .moduleassembler directory.
-- Refactor of all private and public functions.
-
-## [0.0.1] - 2025-11-22
+## [<VERSION>] - <DATE>
 
 ### Added
 
-- Initialize Fork from [ModuleTools](https://github.com/belibug/ModuleTools).
-- Added vscode settings.
+- Initial release.

@@ -206,6 +206,14 @@ function New-MAModule {
 
             Set-Content -Path $licensePath -Value $licenseContent -Encoding 'utf8NoBOM' | Out-Null
 
+            Write-Host 'Adding CHANGELOG'
+            $changelogTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'CHANGELOG.md')
+            $changelogContent = Get-Content -Path $changelogTemplate -Raw
+            $changelogContent = $changelogContent.Replace('<VERSION>', $Answer.Version)
+            $changelogContent = $changelogContent.Replace('<DATE>', (Get-Date -Format 'yyyy-MM-dd'))
+            $changelogPath = Join-Path -Path $DirProject -ChildPath 'CHANGELOG.md'
+            Set-Content -Path $changelogPath -Value $changelogContent -Encoding 'utf8NoBOM' -NoNewline
+
 
             if ($Answer.EnablePester -eq 'Yes') {
                 Write-Host 'Include Pester Configs'
