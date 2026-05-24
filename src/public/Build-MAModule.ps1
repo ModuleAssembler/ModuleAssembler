@@ -13,6 +13,7 @@ function Build-MAModule {
     #>
 
     [CmdletBinding()]
+    [OutputType([void])]
     [Alias('MABuild')]
     param ()
 

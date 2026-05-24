@@ -14,12 +14,13 @@ function Get-MAProjectInfo {
         Get a hashtable output of all module project metadata.
 
     .OUTPUTS
-        MAProjectInfo
+        System.Management.Automation.PSCustomObject
 
         A PSCustomObject with the custom type name MAProjectInfo containing the module project metadata.
     #>
 
     [CmdletBinding()]
+    [OutputType([pscustomobject])]
     [Alias('MAInfo')]
     param ()
 

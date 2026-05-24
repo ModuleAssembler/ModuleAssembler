@@ -13,6 +13,7 @@ function Build-MAModuleDocumentation {
     #>
 
     [CmdletBinding()]
+    [OutputType([void])]
     [Alias('MADocs')]
     param ()
 

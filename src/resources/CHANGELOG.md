@@ -8,8 +8,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## [<VERSION>] - <DATE>
-
 ### Added
 
-- Initial release.
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security

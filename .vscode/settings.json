@@ -28,7 +28,7 @@
     "powershell.codeFormatting.addWhitespaceAroundPipe": true,
     "powershell.codeFormatting.alignPropertyValuePairs": true,
     "powershell.codeFormatting.autoCorrectAliases": true,
-    "powershell.codeFormatting.ignoreOneLineBlock": false,
+    "powershell.codeFormatting.ignoreOneLineBlock": true,
     "powershell.codeFormatting.newLineAfterCloseBrace": false,
     "powershell.codeFormatting.newLineAfterOpenBrace": true,
     "powershell.codeFormatting.openBraceOnSameLine": true,
@@ -81,5 +81,6 @@
             "aligned_delimiter": false,
             "style": "compact"
         }
-    }
+    },
+    "git.addAICoAuthor": "off"
 }

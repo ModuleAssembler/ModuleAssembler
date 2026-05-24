@@ -1,11 +1,11 @@
 function Update-MAModuleVersion {
     <#
     .SYNOPSIS
-        Updates the version number of a module in project.json file. Uses [semver] object type.
+        Updates the version number of a module in moduleproject.json file. Uses [semver] object type.
 
     .DESCRIPTION
-        This function updates the version number of the PowerShell module by modifying the project.json file, which gets written into module manifest file (.psd1). [semver] is supported only for PowerShell 7 and above.
-        It increments the version number based on the specified version part (Major, Minor, Patch). Can also attach preview/stable to Release property.
+        This function updates the version number of the PowerShell module by modifying the moduleproject.json file, which gets written into module manifest file (.psd1). [semver] is supported only for PowerShell 7 and above.
+        It increments the version number based on the specified version part (Major, Minor, Patch). Allows for pre-release labels of (alpha, beta, preview, rc).
 
     .PARAMETER Label
         The part of the version number to increment (Major, Minor, Patch). Default is Patch.
@@ -50,6 +50,7 @@ function Update-MAModuleVersion {
     #>
 
     [CmdletBinding(SupportsShouldProcess = $true)]
+    [OutputType([void])]
     [Alias('MAVersion')]
     param (
         [Parameter(
@@ -112,7 +113,7 @@ function Update-MAModuleVersion {
         if ($PSCmdlet.ShouldProcess($data.ProjectJSON, "Update version from $CurrentVersion to $newVersion")) {
             # Update the version in the JSON object
             $jsonContent.Version = $newVersion.ToString()
-            Write-Host "Version updated $CurrentVersion -> $newVersion"
+            Write-Verbose -Message "Version updated $CurrentVersion -> $newVersion"
 
             # Convert the JSON object back to JSON format
             $newJsonContent = $jsonContent | ConvertTo-Json -Depth 10

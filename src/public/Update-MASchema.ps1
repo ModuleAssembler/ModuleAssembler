@@ -45,6 +45,7 @@ function Update-MASchema {
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
+    [OutputType([void])]
     [Alias('MASchema')]
     param (
         [Parameter(

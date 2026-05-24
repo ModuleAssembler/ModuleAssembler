@@ -31,6 +31,7 @@ function Test-MAModule {
     #>
 
     [CmdletBinding(PositionalBinding = $false)]
+    [OutputType([void])]
     [Alias('MATest')]
     param (
         [Parameter(Mandatory = $false)]

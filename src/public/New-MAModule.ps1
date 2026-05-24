@@ -21,6 +21,7 @@ function New-MAModule {
     #>
 
     [CmdletBinding(SupportsShouldProcess = $true)]
+    [OutputType([void])]
     [Alias('MANew')]
     param (
         [Parameter(Mandatory = $false)]
@@ -209,8 +210,6 @@ function New-MAModule {
             Write-Host 'Adding CHANGELOG'
             $changelogTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'CHANGELOG.md')
             $changelogContent = Get-Content -Path $changelogTemplate -Raw
-            $changelogContent = $changelogContent.Replace('<VERSION>', $Answer.Version)
-            $changelogContent = $changelogContent.Replace('<DATE>', (Get-Date -Format 'yyyy-MM-dd'))
             $changelogPath = Join-Path -Path $DirProject -ChildPath 'CHANGELOG.md'
             Set-Content -Path $changelogPath -Value $changelogContent -Encoding 'utf8NoBOM' -NoNewline
 
