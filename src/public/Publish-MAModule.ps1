@@ -10,9 +10,10 @@ function Publish-MAModule {
 
         Credentials are accepted as parameters for manual use or resolved from masked pipeline environment variables
         for pipeline execution:
-          - PSGallery:  $env:PSGALLERY_API_KEY
-          - NuGetFeed:  $env:NUGET_API_KEY
-          - FileShare:  $env:FILESHARE_USERNAME and $env:FILESHARE_PASSWORD
+
+        - PSGallery: $env:PSGALLERY_API_KEY
+        - NuGetFeed: $env:NUGET_API_KEY
+        - FileShare: $env:FILESHARE_USERNAME and $env:FILESHARE_PASSWORD
 
         SECURITY NOTE: Environment variable secrets are plain-text and readable by any process
         running in the same user context. For interactive or developer use, prefer passing

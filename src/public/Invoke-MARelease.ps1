@@ -5,15 +5,16 @@ function Invoke-MARelease {
 
     .DESCRIPTION
         Runs the complete release pipeline in sequence as a local convenience wrapper:
-          1. Test-MAModule -TagFilter 'FunctionQA'  - source quality and comment-based help
-                    2. (Optional) Update-MAModuleVersion       - updates project version before build
-                    3. Build-MAModule                          - compiles module artifact
-                    4. Test-MAModule -TagFilter 'ModuleQA'    - artifact integrity and manifest
-                    5. Test-MAModule -TagFilter 'Unit'         - behavioural unit tests
-                    6. Build-MAModuleDocumentation             - generates Markdown documentation
-                    7. (Optional) Update-MAChangelogRelease    - promotes [Unreleased] into a versioned section
-                    8. Test-MAModule -TagFilter 'ChangeLog','License' - project compliance
-                    9. Publish-MAModule                        - pre-publish validation and publish
+
+        1. Test-MAModule -TagFilter 'FunctionQA'
+        2. (Optional) Update-MAModuleVersion
+        3. Build-MAModule
+        4. Test-MAModule -TagFilter 'ModuleQA'
+        5. Test-MAModule -TagFilter 'Unit'
+        6. Build-MAModuleDocumentation
+        7. (Optional) Update-MAChangelogRelease
+        8. Test-MAModule -TagFilter 'ChangeLog','License'
+        9. Publish-MAModule
 
         Any step failure halts the release immediately. This function is intended for manual
         local releases. For automated pipeline releases, invoke each step as a discrete
