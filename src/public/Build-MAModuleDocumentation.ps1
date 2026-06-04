@@ -243,14 +243,14 @@ function Build-MAModuleDocumentation {
 
             # Export to Markdown
             $mdFilePath = Join-Path $docsCommandsDir -ChildPath "$($command).md"
-            $fileContent | Out-File -FilePath $mdFilePath -Encoding UTF8NoBOM -NoNewline
+            $fileContent | Out-File -FilePath $mdFilePath -Encoding utf8NoBOM -NoNewline
 
             $fileMain += "- [$($command)](Commands/$($command).md)`n"
         }
 
         Write-Verbose 'Generating documentation index.'
         $mdMainFilePath = Join-Path $docsDir -ChildPath 'index.md'
-        $fileMain | Out-File -FilePath $mdMainFilePath -Encoding UTF8NoBOM -NoNewline
+        $fileMain | Out-File -FilePath $mdMainFilePath -Encoding utf8NoBOM -NoNewline
 
         Write-Verbose 'COMPLETE: Generating documentation.'
     }

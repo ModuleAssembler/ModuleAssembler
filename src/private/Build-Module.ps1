@@ -56,7 +56,7 @@ function Build-Module {
         }
 
         try {
-            Set-Content -Path $data.ModuleFilePSM1 -Value $sb.ToString() -Encoding 'utf8NoBOM' -ErrorAction Stop
+            Set-Content -Path $data.ModuleFilePSM1 -Value $sb.ToString() -Encoding 'utf8' -ErrorAction Stop
         } catch {
             Write-Error 'Failed to create psm1 file' -ErrorAction Stop
         }

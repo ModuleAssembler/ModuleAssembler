@@ -11,6 +11,9 @@ function Invoke-PrePublishValidation {
           3. Verifies the current version has not already been published to the target repository
              using Find-PSResource.
 
+    .PARAMETER Repository
+        Name of the registered PowerShell repository to validate before publishing.
+
     .EXAMPLE
         Invoke-PrePublishValidation -Repository 'PSGallery'
 

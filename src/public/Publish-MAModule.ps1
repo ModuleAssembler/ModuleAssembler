@@ -213,9 +213,6 @@ function Publish-MAModule {
                 if ($PSCmdlet.ParameterSetName -ne 'FileShare') {
                     # Publish-PSResource requires a plain-text [string] for -ApiKey; no SecureString overload exists.
                     # SecureStringToBSTR copies the secret into an unmanaged BSTR; ZeroFreeBSTR destroys that copy.
-                    # PtrToStringAuto also creates a managed System.String on the heap — managed strings are immutable
-                    # and cannot be zeroed. That copy persists until the garbage collector collects it, which is an unavoidable
-                    # limitation of the Publish-PSResource API.
                     $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($resolvedApiKey)
                     try {
                         Publish-PSResource @publishParams -ApiKey ([System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr))
