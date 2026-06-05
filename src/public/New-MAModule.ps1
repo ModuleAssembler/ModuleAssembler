@@ -59,9 +59,9 @@ function New-MAModule {
             }
             Version           = @{
                 Caption = 'Semantic Version'
-                Message = 'Starting Version of the module (Default: 0.0.1)'
+                Message = 'Starting Version of the module (Default: 0.1.0)'
                 Prompt  = 'Version'
-                Default = '0.0.1'
+                Default = '0.1.0'
             }
             Author            = @{
                 Caption = 'Module Author'
