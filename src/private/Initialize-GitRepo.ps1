@@ -26,7 +26,7 @@ function Initialize-GitRepo {
 
     process {
         if (!(Get-Command git -ErrorAction SilentlyContinue)) {
-            Write-Warning 'Git is not installed. Please install Git and initialize repo manually.'
+            Write-Warning 'Git command was not found in PATH for the current session. Ensure Git is installed and available on PATH (for example, C:\Program Files\Git\cmd), then restart your terminal and initialize the repo manually if needed.'
             return
         }
 

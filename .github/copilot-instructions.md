@@ -62,9 +62,10 @@ The Module Assembler module is used to develop, test, and build itself (bootstra
   - When modifying a shared private function, review and update existing tests of all public functions that call it to ensure coverage of the changed behavior.
 
 - **Change Log**
-  - When adding or modifying functionality, add an entry under the [Unreleased] section of CHANGELOG.md following keepachangelog format. Categorize entries as Added, Changed, Deprecated, Removed, Fixed, or Security.
-  - When removing a public function, add a Removed entry to CHANGELOG.md.
-  - CHANGELOG entries are required for all user-facing changes. Internal refactors (private functions, classes) only need entries if they change observable behavior of public functions.
+  - Add CHANGELOG.md entries only for changes to files under src/.
+  - When adding or modifying functionality in src/, add an entry under the [Unreleased] section of CHANGELOG.md following keepachangelog format. Categorize entries as Added, Changed, Deprecated, Removed, Fixed, or Security.
+  - When removing a public function (src/public/), add a Removed entry to CHANGELOG.md.
+  - For src/ changes, CHANGELOG entries are required for all user-facing changes. Internal refactors (private functions, classes) only need entries if they change observable behavior of public functions.
   - Each distinct change gets its own bullet entry. Do not combine unrelated changes into a single entry.
   - Changes to templates in src/resources/ require a CHANGELOG entry under Changed or Fixed if they affect generated output.
 

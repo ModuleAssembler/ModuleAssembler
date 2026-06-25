@@ -40,6 +40,12 @@ function Publish-MAModule {
         PSCredential for authenticating to the file share. If omitted, falls back to
         $env:FILESHARE_USERNAME and $env:FILESHARE_PASSWORD.
 
+    .PARAMETER SkipDependenciesCheck
+        Skips the repository dependency availability check performed by Publish-PSResource.
+        Useful when publishing to a file share or private feed that does not host the module's
+        dependencies (e.g. Pester, PSScriptAnalyzer). Consumers are responsible for satisfying
+        dependencies when they install the module.
+
     .PARAMETER SkipPrePublishValidation
         Skips changelog state and version uniqueness checks. Not recommended for production use.
 
@@ -109,6 +115,9 @@ function Publish-MAModule {
         [PSCredential] $FileShareCredential,
 
         # --- Common ---
+        [Parameter(Mandatory = $false)]
+        [switch] $SkipDependenciesCheck,
+
         [Parameter(Mandatory = $false)]
         [switch] $SkipPrePublishValidation
     )
@@ -210,6 +219,10 @@ function Publish-MAModule {
                 }
 
                 Write-Verbose "Publishing $($data.ProjectName) v$($data.Version) to '$repositoryName'."
+
+                if ($SkipDependenciesCheck.IsPresent) {
+                    $publishParams['SkipDependenciesCheck'] = $true
+                }
 
                 if ($PSCmdlet.ParameterSetName -ne 'FileShare') {
                     # Publish-PSResource requires a plain-text [string] for -ApiKey; no SecureString overload exists.

@@ -78,6 +78,15 @@ function Build-Manifest {
             'Failed to create Manifest: {0}' -f $_.Exception.Message | Write-Error -ErrorAction Stop
         }
 
+        # New-ModuleManifest produces inconsistent indentation and trailing whitespace on
+        # array continuation lines. Format then strip trailing whitespace so the output
+        # is clean for PSScriptAnalyzer and editors.
+        $manifestContent = Get-Content -Path $data.ManifestFilePSD1 -Raw
+        $formattedContent = Invoke-Formatter -ScriptDefinition $manifestContent
+        $cleanedLines = $formattedContent -split '\r?\n' | ForEach-Object { $_.TrimEnd() }
+        $cleanedContent = $cleanedLines -join [System.Environment]::NewLine
+        Set-Content -Path $data.ManifestFilePSD1 -Value $cleanedContent -Encoding utf8NoBOM -NoNewline
+
         Write-Verbose 'COMPLETE: Building Module Manifest.'
     }
 }
