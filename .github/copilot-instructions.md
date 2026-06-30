@@ -66,6 +66,10 @@ The Module Assembler module is used to develop, test, and build itself (bootstra
   - When adding or modifying functionality in src/, add an entry under the [Unreleased] section of CHANGELOG.md following keepachangelog format. Categorize entries as Added, Changed, Deprecated, Removed, Fixed, or Security.
   - When removing a public function (src/public/), add a Removed entry to CHANGELOG.md.
   - For src/ changes, CHANGELOG entries are required for all user-facing changes. Internal refactors (private functions, classes) only need entries if they change observable behavior of public functions.
+  - Summarize notable, user-facing changes only; do not paste git log output or commit-by-commit history.
+  - Explain the reason, impact, or user benefit in each entry so readers understand why the change matters.
+  - Mark breaking changes clearly in the entry text (for example, prefix with **BREAKING**).
+  - Remove low-value noise and any entry that is not worth reading for users.
   - Each distinct change gets its own bullet entry. Do not combine unrelated changes into a single entry.
   - Changes to templates in src/resources/ require a CHANGELOG entry under Changed or Fixed if they affect generated output.
 

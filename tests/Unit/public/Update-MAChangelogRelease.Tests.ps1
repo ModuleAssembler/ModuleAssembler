@@ -17,7 +17,7 @@ Describe 'Update-MAChangelogRelease' -Tag 'Unit' {
         }
     }
 
-    It 'promotes [Unreleased] content and recreates placeholders' {
+    It 'promotes [Unreleased] content and recreates an empty Unreleased section' {
         @(
             '# Changelog',
             '',
@@ -57,12 +57,7 @@ Describe 'Update-MAChangelogRelease' -Tag 'Unit' {
         $releaseStart | Should -BeLessThan $previousReleaseStart
 
         $unreleasedBlock = $updated.Substring($unreleasedStart, $releaseStart - $unreleasedStart)
-        $unreleasedBlock | Should -Match '### Added'
-        $unreleasedBlock | Should -Match '### Changed'
-        $unreleasedBlock | Should -Match '### Deprecated'
-        $unreleasedBlock | Should -Match '### Removed'
-        $unreleasedBlock | Should -Match '### Fixed'
-        $unreleasedBlock | Should -Match '### Security'
+        $unreleasedBlock | Should -Not -Match '(?m)^### '
         $unreleasedBlock | Should -Not -Match 'New capability'
 
         $promotedBlock = $updated.Substring($releaseStart, $previousReleaseStart - $releaseStart)

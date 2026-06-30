@@ -5,8 +5,7 @@ function Update-MAChangelogRelease {
 
     .DESCRIPTION
         Reads CHANGELOG.md from the current module project root, moves the current [Unreleased]
-        section content into a new versioned section, and recreates a fresh [Unreleased] section
-        with standard placeholder headings.
+        section content into a new versioned section, and recreates a fresh [Unreleased] section.
 
         The target version defaults to the current project version from Get-MAProjectInfo when
         -Version is not specified.
@@ -102,18 +101,6 @@ function Update-MAChangelogRelease {
 
         $newLines += @(
             '## [Unreleased]',
-            '',
-            '### Added',
-            '',
-            '### Changed',
-            '',
-            '### Deprecated',
-            '',
-            '### Removed',
-            '',
-            '### Fixed',
-            '',
-            '### Security',
             '',
             $releaseHeader,
             ''
