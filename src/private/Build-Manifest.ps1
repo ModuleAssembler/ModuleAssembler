@@ -56,9 +56,16 @@ function Build-Manifest {
             FormatsToProcess  = $FormatsToProcess
         }
 
-        ## Release label
+        # Release label
         if ($sv.PreReleaseLabel) {
             $ParmsManifest['Prerelease'] = $sv.PreReleaseLabel
+        }
+
+        # Copyright
+        if ([string]::IsNullOrEmpty($data.Manifest.CompanyName)) {
+            $ParmsManifest['Copyright'] = "(c) $($data.Manifest.Author). All rights reserved."
+        } else {
+            $ParmsManifest['Copyright'] = "(c) $($data.Manifest.CompanyName). All rights reserved."
         }
 
         # Accept only valid Manifest Parameters
