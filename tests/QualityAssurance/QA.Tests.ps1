@@ -74,6 +74,31 @@ Describe 'File: <_.BaseName>' -ForEach $files -Tag 'FunctionQA' {
             $functionHelp.Examples[0] | Should -Match ([regex]::Escape($_.BaseName))
         }
 
+        It 'has comment-based help examples with a blank line between code and description' {
+            $content = Get-Content -Path $_.FullName -Raw
+            $ast = [System.Management.Automation.Language.Parser]::ParseInput($content, [ref]$null, [ref]$null)
+            $functionDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false)
+            $functionHelp = $functionDefs.GetHelpContent()
+
+            foreach ($example in $functionHelp.Examples) {
+                $exampleSections = @(
+                    $example -split '\r?\n\s*\r?\n' |
+                        ForEach-Object { $_.Trim() } |
+                        Where-Object { $_ -ne '' }
+                )
+
+                $exampleSections.Count | Should -BeGreaterOrEqual 2 -Because ('the example in {0} must contain code, then a blank line, then a description paragraph' -f $_.BaseName)
+
+                $descriptionLines = @(
+                    $exampleSections[1] -split '\r?\n' |
+                        ForEach-Object { $_.Trim() } |
+                        Where-Object { $_ -ne '' }
+                )
+
+                $descriptionLines.Count | Should -BeGreaterThan 0 -Because ('the example description in {0} must not be empty' -f $_.BaseName)
+            }
+        }
+
         It 'has comment-based help with .PARAMETER for each declared parameter' {
             $content = Get-Content -Path $_.FullName -Raw
             $ast = [System.Management.Automation.Language.Parser]::ParseInput($content, [ref]$null, [ref]$null)

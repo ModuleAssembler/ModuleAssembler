@@ -57,6 +57,7 @@ function Build-MAModuleDocumentation {
             Write-Verbose "Generating documentation for function $command."
             $helpContent = Get-Help $command -Full
             $commandContent = Get-Command -Name $command
+            $rawHelpExamples = @($commandContent.ScriptBlock.Ast.GetHelpContent().Examples)
 
             $fileContent = "# $($command)`n`n"
 
@@ -103,7 +104,35 @@ function Build-MAModuleDocumentation {
             # Examples Section
             $fileContent += "`n## Examples`n"
 
-            foreach ($example in $helpContent.examples.example) {
+            $parsedExamples = @($helpContent.examples.example)
+
+            if ($rawHelpExamples.Count -lt $parsedExamples.Count) {
+                throw "The Comment-based Help for $($command) could not be validated because the raw .EXAMPLE blocks did not match the parsed Get-Help examples."
+            }
+
+            for ($exampleIndex = 0; $exampleIndex -lt $parsedExamples.Count; $exampleIndex++) {
+                $example = $parsedExamples[$exampleIndex]
+                $rawExample = $rawHelpExamples[$exampleIndex]
+                $exampleSections = @(
+                    $rawExample -split '\r?\n\s*\r?\n' |
+                        ForEach-Object { $_.Trim() } |
+                        Where-Object { $_ -ne '' }
+                )
+
+                if ($exampleSections.Count -lt 2) {
+                    throw "An example for $($command) must contain the example code followed by a blank line and then the description so Markdown output is formatted correctly."
+                }
+
+                $descriptionLines = @(
+                    $exampleSections[1] -split '\r?\n' |
+                        ForEach-Object { $_.Trim() } |
+                        Where-Object { $_ -ne '' }
+                )
+
+                if ($descriptionLines.Count -eq 0) {
+                    throw "An example for $($command) must contain a non-empty description after the blank line so Markdown output is formatted correctly."
+                }
+
                 if (Test-DescriptionLine $example.code) {
                     throw "An example for $($command) has the description before the code, which does not follow the order required by Get-Help. Place the example code followed by the description on a new line, optionally with an empty line between the two."
                 }

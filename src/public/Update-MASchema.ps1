@@ -40,8 +40,8 @@ function Update-MASchema {
     .EXAMPLE
         Update-MASchema -UpdateSource
 
-        Downloads the latest ModuleAssembler schema, saves it locally, saves it
-        to src/resources/schemas/, and updates the $schema references in moduleproject.json and ModuleProjectTemplate.json.
+        Downloads the latest ModuleAssembler schema then saves it to .moduleasssembler/schema and src/resources/schemas/.
+        Updates the $schema references in moduleproject.json and ModuleProjectTemplate.json.
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
