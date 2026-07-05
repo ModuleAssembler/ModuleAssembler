@@ -164,6 +164,13 @@ function Publish-MAModule {
                 }
 
                 $resolvedApiKey = Resolve-ApiKey @apiKeyParams
+
+                # GitLab group endpoints are typically read-only for package consumption and
+                # cannot be used as a publish target with Publish-PSResource.
+                if ($NuGetFeedUrl -match '/api/v4/groups/.+/(?:-/)?packages/nuget/index\.json/?$') {
+                    throw "GitLab group NuGet feed URLs are not supported as publish targets: '$NuGetFeedUrl'. Use a GitLab project feed URL instead, for example: https://<gitlab>/api/v4/projects/<project-id>/packages/nuget/index.json"
+                }
+
                 $tempRepositoryUri = $NuGetFeedUrl
                 $tempRepositoryPrefix = 'NuGetFeed'
             }
