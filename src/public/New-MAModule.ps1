@@ -146,10 +146,10 @@ function New-MAModule {
 
         $DirProject = Join-Path -Path $Path -ChildPath $Answer.ProjectName
         $DirSrc = Join-Path -Path $DirProject -ChildPath 'src'
+        $DirClasses = Join-Path -Path $DirSrc -ChildPath 'classes'
         $DirPrivate = Join-Path -Path $DirSrc -ChildPath 'private'
         $DirPublic = Join-Path -Path $DirSrc -ChildPath 'public'
         $DirResources = Join-Path -Path $DirSrc -ChildPath 'resources'
-        $DirClasses = Join-Path -Path $DirSrc -ChildPath 'classes'
         $DirTests = Join-Path -Path $DirProject -ChildPath 'tests'
         $ModuleAssemblerSettings = Join-Path -Path $DirProject -ChildPath '.moduleassembler'
         $ProjectJSONFile = Join-Path $ModuleAssemblerSettings -ChildPath 'moduleproject.json'
@@ -170,9 +170,12 @@ function New-MAModule {
             # Setup Module
             Write-Host "`nStarted Module Scaffolding" -ForegroundColor Green
             Write-Host 'Setting up Directories'
-            ($ModuleAssemblerSettings, $DirSrc, $DirPrivate, $DirPublic, $DirResources, $DirClasses) | ForEach-Object {
+            ($ModuleAssemblerSettings, $DirSrc, $DirClasses, $DirPrivate, $DirPublic, $DirResources) | ForEach-Object {
                 'Creating Directory: {0}' -f $_ | Write-Verbose
                 New-Item -ItemType Directory -Path $_ | Out-Null
+                if ($_ -ne $DirSrc) {
+                    New-Item -ItemType File -Path $_ -Name '.gitkeep' | Out-Null
+                }
             }
 
             switch ($Answer.ProjectLicense) {
@@ -219,9 +222,12 @@ function New-MAModule {
                 New-Item -ItemType Directory -Path $DirTests | Out-Null
                 $DirUnitTests = Join-Path -Path $DirTests -ChildPath 'Unit'
                 New-Item -ItemType Directory -Path $DirUnitTests | Out-Null
-                New-Item -ItemType Directory -Path $(Join-Path -Path $DirUnitTests -ChildPath 'classes') | Out-Null
-                New-Item -ItemType Directory -Path $(Join-Path -Path $DirUnitTests -ChildPath 'private') | Out-Null
-                New-Item -ItemType Directory -Path $(Join-Path -Path $DirUnitTests -ChildPath 'public') | Out-Null
+                @('classes', 'private', 'public') | ForEach-Object {
+                    $folderPath = Join-Path -Path $DirUnitTests -ChildPath $_
+                    New-Item -ItemType Directory -Path $folderPath | Out-Null
+                    New-Item -ItemType File -Path $folderPath -Name '.gitkeep' | Out-Null
+                }
+
                 $defaultTests = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'PesterTests', '*')
                 Copy-Item -Path $defaultTests -Destination $DirTests -Recurse -Force | Out-Null
 
