@@ -83,13 +83,12 @@ function New-MAModule {
             }
             ProjectLicense    = @{
                 Caption = 'Project License'
-                Message = 'What Open Source License will the project use? Choices are Apache 2.0, BSD 3-Clause, GPLv3, MIT. (Default: MIT)'
+                Message = 'What Open Source License will the project use? Choices are Apache 2.0, BSD 3-Clause, MIT. (Default: MIT)'
                 Prompt  = 'License'
                 Default = 'MIT'
                 Choice  = @{
                     Apache2 = 'Apache 2.0'
                     BSD3    = 'BSD 3-Clause'
-                    GPL3    = 'GPLv3'
                     MIT     = 'MIT'
                 }
             }
@@ -185,9 +184,6 @@ function New-MAModule {
                 'BSD3' {
                     $licenseTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'LicenseTemplates', 'BSD_3-Clause')
                 }
-                'GPL3' {
-                    $licenseTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'LicenseTemplates', 'GPLv3')
-                }
                 default {
                     $licenseTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'LicenseTemplates', 'MIT')
                 }
@@ -203,10 +199,6 @@ function New-MAModule {
                 $copyright = $Answer.Author
             }
             $licenseContent = $licenseContent.Replace('<COPYRIGHT HOLDER>', $copyright)
-
-            if ($Answer.ProjectLicense -eq 'GPL3') {
-                $licenseContent = $licenseContent.Replace('<PROGRAM>', $Answer.ProjectName)
-            }
 
             Set-Content -Path $licensePath -Value $licenseContent -Encoding 'utf8NoBOM' | Out-Null
 

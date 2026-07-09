@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+Types of changes, as level 3 headings:
+
+- `Added` for new features.
+- `Changed` for changes in existing functionality.
+- `Deprecated` for soon-to-be removed features.
+- `Removed` for now removed features.
+- `Fixed` for bug fixes.
+- `Security` for vulnerabilities.
+
 > This ChangeLog format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 >
 > This module project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -11,8 +20,8 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Added VSCode extensions, settings, and code snippet files.
-- Added JSON schema.
-- Added License templates.
+- Added JSON schema for improved validation and manual editing.
+- Added Project License templates for Apache v2, BSD 3-Clause, MIT.
 - Added `Build-MAModuleDocumentation` to automatically generate Markdown based documentation, with function comment-based help as the source of truth.
 - Added default QA Pester tests, to help ensure function and module quality.
 - Added PSScriptAnalyzerSettings.
