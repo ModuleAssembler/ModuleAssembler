@@ -107,9 +107,16 @@ function Update-MAChangelogRelease {
         )
 
         if ($unreleasedContent.Count -gt 0) {
-            $newLines += $unreleasedContent
-            if (-not [string]::IsNullOrWhiteSpace($newLines[$newLines.Count - 1])) {
-                $newLines += ''
+            $leadingBlanks = 0
+            while ($leadingBlanks -lt $unreleasedContent.Count -and [string]::IsNullOrWhiteSpace($unreleasedContent[$leadingBlanks])) {
+                $leadingBlanks++
+            }
+            if ($leadingBlanks -lt $unreleasedContent.Count) {
+                $unreleasedContent = $unreleasedContent[$leadingBlanks..($unreleasedContent.Count - 1)]
+                $newLines += $unreleasedContent
+                if (-not [string]::IsNullOrWhiteSpace($newLines[$newLines.Count - 1])) {
+                    $newLines += ''
+                }
             }
         }
 
