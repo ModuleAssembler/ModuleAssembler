@@ -1,20 +1,22 @@
-<div align="center" width="100%">
-    <h1>ModuleAssembler</h1>
-    <p>Fast, Versatile, standalone PowerShell module builder. Built for CICD and Automation.</p>
-</div>
+# ModuleAssembler
 
-> NOTE:  This project is currently a Work in Progress, so is not yet Stable.
+> [ModuleAssembler Commands](docs/ModuleAssembler/index.md)
 
-## 💬 Description
+## Description
 
-Whether you're creating simple or robust modules, ModuleAssembler streamlines the process, making it perfect for CI/CD and automation environments. With comprehensive features included, you can start building PowerShell modules in less than 30 seconds. Let ModuleAssembler handle the build logic, so you can focus on developing the core functionality of your module.
+ModuleAssembler is a PowerShell module that provides scaffolding, build, test, documentation, versioning, and publishing utilities for PowerShell module development. It is suited for both interactive development workflows and CI/CD pipelines.
 
-The structure of the ModuleAssembler module is meticulously designed according to PowerShell best practices for module development. While some design decisions may seem unconventional, they are made to ensure that ModuleAssembler and the process of building modules remain straightforward and easy to manage.
+Key capabilities:
 
-## 📝 Requirement
+- Scaffold new modules with a standardised source layout, license templates, and VS Code configuration.
+- Build distribution-ready modules from source.
+- Run Pester unit and quality assurance tests with configurable output formats.
+- Generate Markdown documentation from comment-based help.
+- Manage semantic versioning, including pre-release labels.
+- Promote `CHANGELOG.md` entries from `[Unreleased]` to versioned releases.
+- Publish modules to registries such as PowerShell Gallery.
+- Execute a complete release sequence with a single command.
 
-- This module requires PowerShell 7.4. Underlying modules created from this module can still support older versions of PowerShell, only the ModuleAssembler builder won't work on older version.
+## Requirements
 
-## 📃 License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
+ModuleAssembler requires PowerShell 7.4 or later. Modules scaffolded and built with ModuleAssembler can still target older PowerShell versions; the requirement applies only to the ModuleAssembler tooling itself.

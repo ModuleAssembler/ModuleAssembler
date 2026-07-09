@@ -1,8 +1,5 @@
 # Module Build Output
 dist/
 
-# Documentation Output
-docs/
-
 # Self-publish orchestrator artifacts (logs, test results, run summaries)
 artifacts/
