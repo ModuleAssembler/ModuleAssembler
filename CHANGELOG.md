@@ -10,14 +10,25 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
+- Added VSCode extensions, settings, and code snippet files.
 - Added JSON schema.
+- Added License templates.
 - Added `Build-MAModuleDocumentation` to automatically generate Markdown based documentation, with function comment-based help as the source of truth.
+- Added default QA Pester tests, to help ensure function and module quality.
+- Added PSScriptAnalyzerSettings.
+- Added ChangeLog template.
+- Added `Update-MASchema` to provide a means to update the ModuleAssember schema for existing projects.
 - Added `Update-MAChangelogRelease` to promote CHANGELOG.md [Unreleased] content into a versioned release section and recreate a fresh [Unreleased] section.
+- Added `Publish-MAModule` to publish modules to a registry such as PowerShell Gallery.
+- Added `Invoke-MARelease` for manually executing a full release sequence.
 
 ### Changed
 
-- Moved json data for ModuleAssembler to `.moduleassembler` directory.
 - Refactor of all private and public functions, to conform with ModuleAssembler naming and coding standards.
+- Updates to `Update-MAModuleVersion` to support pre-release versions.
+- Updates to `New-MAModule` for additional options such as Company Name, Project License, Visual Studio Code standards, and scaffolding improvements.
+- Expansion of items in JSON schema (ex: RequiredModules).
+- Moved json data for ModuleAssembler to `.moduleassembler` directory.
 
 ## [0.1.0] - 2025-11-22
 
