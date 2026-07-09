@@ -39,6 +39,11 @@ function Invoke-MARelease {
         PSCredential for authenticating to the file share. If omitted, falls back to
         $env:FILESHARE_USERNAME and $env:FILESHARE_PASSWORD.
 
+    .PARAMETER SkipDependenciesCheck
+        Skips the repository dependency availability check during publish. Passed through to
+        Publish-MAModule. Useful when publishing to a feed that does not host the module's
+        dependencies.
+
     .PARAMETER SkipPrePublishValidation
         Skips changelog state and version uniqueness checks during publish.
 
@@ -118,6 +123,9 @@ function Invoke-MARelease {
         [PSCredential] $FileShareCredential,
 
         # --- Common ---
+        [Parameter(Mandatory = $false)]
+        [switch] $SkipDependenciesCheck,
+
         [Parameter(Mandatory = $false)]
         [switch] $SkipPrePublishValidation,
 
@@ -251,6 +259,10 @@ function Invoke-MARelease {
                     $publishParams['FileShareCredential'] = $FileShareCredential
                 }
             }
+        }
+
+        if ($SkipDependenciesCheck.IsPresent) {
+            $publishParams['SkipDependenciesCheck'] = $true
         }
 
         if ($SkipPrePublishValidation.IsPresent) {
