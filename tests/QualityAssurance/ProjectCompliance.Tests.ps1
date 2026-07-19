@@ -272,16 +272,14 @@ Describe 'LICENSE' -Tag 'License' {
             $script:licenseContent | Should -Not -BeNullOrEmpty
         }
 
-        It 'matches a recognised open-source license (MIT, Apache 2.0, BSD 3-Clause, or GPLv3)' {
+        It 'matches a recognised open-source license (MIT, Apache 2.0, or BSD 3-Clause)' {
             $isMIT = $script:licenseContent -match '(?i)\bMIT License\b'
             $isApache = ($script:licenseContent -match '(?i)Apache License') -and
             ($script:licenseContent -match 'Version 2\.0')
             $isBSD3 = $script:licenseContent -match '(?i)BSD 3-Clause License'
-            $isGPL3 = ($script:licenseContent -match '(?i)GNU GENERAL PUBLIC LICENSE') -and
-            ($script:licenseContent -match 'Version 3')
 
-            ($isMIT -or $isApache -or $isBSD3 -or $isGPL3) | Should -BeTrue `
-                -Because 'LICENSE must contain one of the four supported types: MIT, Apache 2.0, BSD 3-Clause, or GPLv3'
+            ($isMIT -or $isApache -or $isBSD3) | Should -BeTrue `
+                -Because 'LICENSE must contain one of the three supported types: MIT, Apache 2.0, or BSD 3-Clause'
         }
     }
 }
