@@ -42,7 +42,7 @@ function New-MAModule {
         Push-Location -Path $Path -StackName 'MANew'
 
         $supportedPowerShellVersions = @('5.1', '7.4', '7.6')
-        $defaultPowerShellVersion = '7.4'
+        $defaultPowerShellVersion = '7.6'
 
         $Questions = [ordered]@{
             ProjectName       = @{
