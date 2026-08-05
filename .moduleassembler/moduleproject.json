@@ -27,8 +27,8 @@
             },
             {
                 "ModuleName": "Pester",
-                "ModuleVersion": "5.7.1",
-                "MaximumVersion": "5.99.99"
+                "ModuleVersion": "6.0.0",
+                "MaximumVersion": "6.99.99"
             }
         ]
     },

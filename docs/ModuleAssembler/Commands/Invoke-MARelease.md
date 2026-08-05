@@ -9,6 +9,7 @@ Executes the full release cycle for a ModuleAssembler module project.
 ```powershell
 Invoke-MARelease
     [-PowerShellGalleryApiKey <securestring>]
+    [-SkipDependenciesCheck]
     [-SkipPrePublishValidation]
     [-UpdateVersion]
     [-VersionLabel <string>]
@@ -21,6 +22,7 @@ Invoke-MARelease
 
 Invoke-MARelease -NuGetFeedUrl <string>
     [-NuGetApiKey <securestring>]
+    [-SkipDependenciesCheck]
     [-SkipPrePublishValidation]
     [-UpdateVersion]
     [-VersionLabel <string>]
@@ -33,6 +35,7 @@ Invoke-MARelease -NuGetFeedUrl <string>
 
 Invoke-MARelease -FileSharePath <string>
     [-FileShareCredential <pscredential>]
+    [-SkipDependenciesCheck]
     [-SkipPrePublishValidation]
     [-UpdateVersion]
     [-VersionLabel <string>]
@@ -179,6 +182,21 @@ $env:FILESHARE_USERNAME and $env:FILESHARE_PASSWORD.
 | --- | --- |
 | Type | PSCredential |
 | Required | false |
+| Accept Pipeline Input | false |
+| Accept Wildcards | false |
+| Position | named |
+
+### -SkipDependenciesCheck
+
+Skips the repository dependency availability check during publish. Passed through to
+Publish-MAModule. Useful when publishing to a feed that does not host the module's
+dependencies.
+
+| Property | Value |
+| --- | --- |
+| Type | SwitchParameter |
+| Required | false |
+| Default Value | False |
 | Accept Pipeline Input | false |
 | Accept Wildcards | false |
 | Position | named |

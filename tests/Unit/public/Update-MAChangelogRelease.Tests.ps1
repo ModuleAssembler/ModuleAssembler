@@ -50,18 +50,18 @@ Describe 'Update-MAChangelogRelease' -Tag 'Unit' {
         $releaseStart = $updated.IndexOf('## [1.2.3] - 2026-05-24')
         $previousReleaseStart = $updated.IndexOf('## [1.2.2] - 2026-05-01')
 
-        $unreleasedStart | Should -BeGreaterThan -1
-        $releaseStart | Should -BeGreaterThan -1
-        $previousReleaseStart | Should -BeGreaterThan -1
-        $unreleasedStart | Should -BeLessThan $releaseStart
-        $releaseStart | Should -BeLessThan $previousReleaseStart
+        $unreleasedStart | Should-BeGreaterThan -1
+        $releaseStart | Should-BeGreaterThan -1
+        $previousReleaseStart | Should-BeGreaterThan -1
+        $unreleasedStart | Should-BeLessThan $releaseStart
+        $releaseStart | Should-BeLessThan $previousReleaseStart
 
         $unreleasedBlock = $updated.Substring($unreleasedStart, $releaseStart - $unreleasedStart)
-        $unreleasedBlock | Should -Not -Match '(?m)^### '
-        $unreleasedBlock | Should -Not -Match 'New capability'
+        $unreleasedBlock | Should-NotMatchString '(?m)^### '
+        $unreleasedBlock | Should-NotMatchString 'New capability'
 
         $promotedBlock = $updated.Substring($releaseStart, $previousReleaseStart - $releaseStart)
-        $promotedBlock | Should -Match 'New capability'
+        $promotedBlock | Should-MatchString 'New capability'
     }
 
     It 'throws when the target version already exists' {
@@ -88,7 +88,7 @@ Describe 'Update-MAChangelogRelease' -Tag 'Unit' {
             }
         }
 
-        { Update-MAChangelogRelease -Confirm:$false } | Should -Throw '*already contains an entry for version*'
+        { Update-MAChangelogRelease -Confirm:$false } | Should-Throw -ExceptionMessage '*already contains an entry for version*'
     }
 
     It 'does not modify the file when run with -WhatIf' {
@@ -113,6 +113,6 @@ Describe 'Update-MAChangelogRelease' -Tag 'Unit' {
         Update-MAChangelogRelease -WhatIf
         $after = Get-Content -Path $script:changelogPath -Raw
 
-        $after | Should -BeExactly $before
+        $after | Should-BeString $before -CaseSensitive
     }
 }

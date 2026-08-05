@@ -16,34 +16,34 @@ BeforeAll {
     $script:privateFunctions = Get-ChildItem -Path $script:data.PrivateDir -Filter '*.ps1'
 }
 
-Describe 'Class File: <_.BaseName>' -ForEach $classFiles -Tag 'FunctionQA' {
+Describe 'Class File: <_.BaseName>' -ForEach $classFiles -AllowNullOrEmptyForEach -Tag 'FunctionQA' {
     Context 'Code Quality Check' {
         It 'is valid PowerShell Code' {
             $psFile = Get-Content -Path $_ -ErrorAction Stop
             $errors = $null
             $null = [System.Management.Automation.PSParser]::Tokenize($psFile, [ref]$errors)
-            $errors.Count | Should -Be 0
+            $errors.Count | Should-Be 0
         }
 
         It 'passes ScriptAnalyzer' {
             $saResults = Invoke-ScriptAnalyzer -Path $_ -Settings $ScriptAnalyzerSettings
-            $saResults | Should -BeNullOrEmpty -Because $($saResults.Message -join ';')
+            @($saResults).Count | Should-Be 0 -Because $($saResults.Message -join ';')
         }
     }
 }
 
-Describe 'File: <_.BaseName>' -ForEach $files -Tag 'FunctionQA' {
+Describe 'File: <_.BaseName>' -ForEach $files -AllowNullOrEmptyForEach -Tag 'FunctionQA' {
     Context 'Code Quality Check' {
         It 'is valid PowerShell Code' {
             $psFile = Get-Content -Path $_ -ErrorAction Stop
             $errors = $null
             $null = [System.Management.Automation.PSParser]::Tokenize($psFile, [ref]$errors)
-            $errors.Count | Should -Be 0
+            $errors.Count | Should-Be 0
         }
 
         It 'passes ScriptAnalyzer' {
             $saResults = Invoke-ScriptAnalyzer -Path $_ -Settings $ScriptAnalyzerSettings
-            $saResults | Should -BeNullOrEmpty -Because $($saResults.Message -join ';')
+            @($saResults).Count | Should-Be 0 -Because $($saResults.Message -join ';')
         }
 
         It 'has comment-based help .SYNOPSIS' {
@@ -52,7 +52,7 @@ Describe 'File: <_.BaseName>' -ForEach $files -Tag 'FunctionQA' {
             $functionDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false)
             $functionHelp = $functionDefs.GetHelpContent()
 
-            $functionHelp.Synopsis | Should -Not -BeNullOrEmpty
+            $functionHelp.Synopsis | Should-NotBeWhiteSpaceString
         }
 
         It 'has comment-based help .DESCRIPTION' {
@@ -61,7 +61,7 @@ Describe 'File: <_.BaseName>' -ForEach $files -Tag 'FunctionQA' {
             $functionDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false)
             $functionHelp = $functionDefs.GetHelpContent()
 
-            $functionHelp.Description | Should -Not -BeNullOrEmpty
+            $functionHelp.Description | Should-NotBeWhiteSpaceString
         }
 
         It 'has comment-based help with at least one .EXAMPLE' {
@@ -70,8 +70,8 @@ Describe 'File: <_.BaseName>' -ForEach $files -Tag 'FunctionQA' {
             $functionDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false)
             $functionHelp = $functionDefs.GetHelpContent()
 
-            $functionHelp.Examples.Count | Should -BeGreaterThan 0
-            $functionHelp.Examples[0] | Should -Match ([regex]::Escape($_.BaseName))
+            $functionHelp.Examples.Count | Should-BeGreaterThan 0
+            $functionHelp.Examples[0] | Should-MatchString ([regex]::Escape($_.BaseName))
         }
 
         It 'has comment-based help examples with a blank line between code and description' {
@@ -87,7 +87,7 @@ Describe 'File: <_.BaseName>' -ForEach $files -Tag 'FunctionQA' {
                         Where-Object { $_ -ne '' }
                 )
 
-                $exampleSections.Count | Should -BeGreaterOrEqual 2 -Because ('the example in {0} must contain code, then a blank line, then a description paragraph' -f $_.BaseName)
+                $exampleSections.Count | Should-BeGreaterThanOrEqual 2 -Because ('the example in {0} must contain code, then a blank line, then a description paragraph' -f $_.BaseName)
 
                 $descriptionLines = @(
                     $exampleSections[1] -split '\r?\n' |
@@ -95,7 +95,7 @@ Describe 'File: <_.BaseName>' -ForEach $files -Tag 'FunctionQA' {
                         Where-Object { $_ -ne '' }
                 )
 
-                $descriptionLines.Count | Should -BeGreaterThan 0 -Because ('the example description in {0} must not be empty' -f $_.BaseName)
+                $descriptionLines.Count | Should-BeGreaterThan 0 -Because ('the example description in {0} must not be empty' -f $_.BaseName)
             }
         }
 
@@ -108,7 +108,7 @@ Describe 'File: <_.BaseName>' -ForEach $files -Tag 'FunctionQA' {
             $parameters = $functionDefs.Body.ParamBlock.Parameters.Name.VariablePath.ForEach({ $_.ToString() })
 
             foreach ($parameter in $parameters) {
-                $functionHelp.Parameters.($parameter.ToUpper()) | Should -Not -BeNullOrEmpty -Because ('the parameter {0} must have a .PARAMETER definition' -f $parameter)
+                $functionHelp.Parameters.($parameter.ToUpper()) | Should-NotBeWhiteSpaceString -Because ('the parameter {0} must have a .PARAMETER definition' -f $parameter)
             }
         }
     }
@@ -144,7 +144,7 @@ Describe 'Function and File Name Consistency' -Tag 'FunctionQA' {
                 }
             }
 
-            $results.Count | Should -Be 0 -Because ($results -join '; ')
+            $results.Count | Should-Be 0 -Because ($results -join '; ')
         }
     }
 
@@ -177,7 +177,7 @@ Describe 'Function and File Name Consistency' -Tag 'FunctionQA' {
                 }
             }
 
-            $results.Count | Should -Be 0 -Because ($results -join '; ')
+            $results.Count | Should-Be 0 -Because ($results -join '; ')
         }
     }
 }
@@ -190,7 +190,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
                 return
             }
 
-            $script:psmPresent | Should -BeTrue
+            $script:psmPresent | Should-BeTrue
         }
 
         It "$($data.ProjectName).psd1 should exist" {
@@ -199,7 +199,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
                 return
             }
 
-            $script:psdPresent | Should -BeTrue
+            $script:psdPresent | Should-BeTrue
         }
     }
 
@@ -213,7 +213,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
             $psFile = Get-Content -Path $data.ModuleFilePSM1 -ErrorAction Stop
             $errors = $null
             $null = [System.Management.Automation.PSParser]::Tokenize($psFile, [ref]$errors)
-            $errors.Count | Should -Be 0
+            $errors.Count | Should-Be 0
         }
 
         It 'passes ScriptAnalyzer' {
@@ -223,7 +223,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
             }
 
             $saResults = Invoke-ScriptAnalyzer -Path $data.ModuleFilePSM1 -Settings $ScriptAnalyzerSettings
-            $saResults | Should -BeNullOrEmpty -Because $($saResults.Message -join ';')
+            @($saResults).Count | Should-Be 0 -Because $($saResults.Message -join ';')
         }
     }
 
@@ -240,7 +240,13 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
                 return
             }
 
-            { Test-ModuleManifest -Path $data.ManifestFilePSD1 -ErrorAction Stop } | Should -Not -Throw
+            $caughtError = $null
+            try {
+                Test-ModuleManifest -Path $data.ManifestFilePSD1 -ErrorAction Stop | Out-Null
+            } catch {
+                $caughtError = $_
+            }
+            $caughtError | Should-BeNull
         }
 
         It 'is RootModule correct' {
@@ -249,7 +255,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
                 return
             }
 
-            "$($data.ProjectName).psm1" | Should -Be $script:manifest.RootModule
+            "$($data.ProjectName).psm1" | Should-Be $script:manifest.RootModule
         }
 
         It 'should have ModuleVersion matching moduleproject.json' {
@@ -259,7 +265,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
             }
 
             [version]$sv = [semver]$data.Version
-            $sv | Should -Be $script:manifest.ModuleVersion
+            $sv | Should-Be $script:manifest.ModuleVersion
         }
 
         It 'should have Prerelease matching moduleproject.json' {
@@ -269,7 +275,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
             }
 
             $sv = [semver]$data.Version
-            $sv.PreReleaseLabel | Should -Be $script:manifest.PrivateData.PSData.Prerelease
+            $sv.PreReleaseLabel | Should-Be $script:manifest.PrivateData.PSData.Prerelease
         }
 
         It 'should have GUID matching moduleproject.json' {
@@ -278,7 +284,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
                 return
             }
 
-            $data.Manifest.GUID | Should -Be $script:manifest.GUID
+            $data.Manifest.GUID | Should-Be $script:manifest.GUID
         }
 
         It 'should have Author matching moduleproject.json' {
@@ -287,7 +293,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
                 return
             }
 
-            $data.Manifest.Author | Should -Be $script:manifest.Author
+            $data.Manifest.Author | Should-Be $script:manifest.Author
         }
 
         It 'should have CompanyName matching moduleproject.json' {
@@ -302,7 +308,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
                 $company = $data.Manifest.CompanyName
             }
 
-            $company | Should -Be $script:manifest.CompanyName
+            $company | Should-Be $script:manifest.CompanyName
         }
 
         It 'should have Copyright matching moduleproject.json' {
@@ -317,7 +323,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
                 $copyright = "(c) $($data.Manifest.CompanyName). All rights reserved."
             }
 
-            $copyright -eq $script:manifest.Copyright | Should -BeTrue
+            ($copyright -eq $script:manifest.Copyright) | Should-BeTrue
         }
 
         It 'should have PowerShellVersion matching moduleproject.json' {
@@ -326,7 +332,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
                 return
             }
 
-            $data.Manifest.PowerShellVersion | Should -Be $script:manifest.PowerShellVersion
+            $data.Manifest.PowerShellVersion | Should-Be $script:manifest.PowerShellVersion
         }
 
         It 'should have RequiredModules matching moduleproject.json' {
@@ -338,7 +344,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
             $manifestModules = @($script:manifest.RequiredModules)
             $projectModules = @($data.Manifest.RequiredModules)
 
-            $manifestModules.Count | Should -Be $projectModules.Count -Because 'manifest should have same number of required modules as moduleassember.json'
+            $manifestModules.Count | Should-Be $projectModules.Count -Because 'manifest should have same number of required modules as moduleassember.json'
 
             if ($projectModules.Count -gt 0) {
                 foreach ($i in 0..($projectModules.Count - 1)) {
@@ -350,22 +356,22 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
                     } else {
                         $manifestModule.ModuleName
                     }
-                    $manifestName | Should -Be $projectModule.ModuleName
+                    $manifestName | Should-Be $projectModule.ModuleName
 
                     if ($projectModule.ModuleVersion) {
-                        $manifestModule.ModuleVersion | Should -Be $projectModule.ModuleVersion
+                        $manifestModule.ModuleVersion | Should-Be $projectModule.ModuleVersion
                     }
 
                     if ($projectModule.MaximumVersion) {
-                        $manifestModule.MaximumVersion | Should -Be $projectModule.MaximumVersion
+                        $manifestModule.MaximumVersion | Should-Be $projectModule.MaximumVersion
                     }
 
                     if ($projectModule.RequiredVersion) {
-                        $manifestModule.RequiredVersion | Should -Be $projectModule.RequiredVersion
+                        $manifestModule.RequiredVersion | Should-Be $projectModule.RequiredVersion
                     }
 
                     if ($projectModule.GUID) {
-                        $manifestModule.GUID | Should -Be $projectModule.GUID
+                        $manifestModule.GUID | Should-Be $projectModule.GUID
                     }
                 }
             }
@@ -380,11 +386,11 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
             $expectedFunctions = $script:publicFunctions.BaseName | Sort-Object
             $exportedFunctions = @($script:manifest.FunctionsToExport) | Sort-Object
 
-            $exportedFunctions | Should -Not -Contain '*' -Because 'wildcard FunctionsToExport harms module load performance'
-            $exportedFunctions.Count | Should -Be $expectedFunctions.Count -Because 'manifest FunctionsToExport count should match public function count'
+            $exportedFunctions | Should-NotContainCollection '*' -Because 'wildcard FunctionsToExport harms module load performance'
+            $exportedFunctions.Count | Should-Be $expectedFunctions.Count -Because 'manifest FunctionsToExport count should match public function count'
 
             if ($expectedFunctions.Count -gt 0) {
-                $exportedFunctions | Should -Be $expectedFunctions
+                Should-BeCollection -Actual $exportedFunctions -Expected $expectedFunctions
             }
         }
 
@@ -411,10 +417,10 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
 
                 $rawAliasesToExport = @($script:manifest.AliasesToExport) | Sort-Object
 
-                $rawAliasesToExport | Should -Not -Contain '*' -Because 'wildcard AliasesToExport harms module load performance'
-                $rawAliasesToExport.Count | Should -Be $expectedAliases.Count -Because 'manifest AliasesToExport count should match aliases defined in public functions'
+                $rawAliasesToExport | Should-NotContainCollection '*' -Because 'wildcard AliasesToExport harms module load performance'
+                $rawAliasesToExport.Count | Should-Be $expectedAliases.Count -Because 'manifest AliasesToExport count should match aliases defined in public functions'
                 if ($expectedAliases.Count -gt 0) {
-                    $rawAliasesToExport | Should -Be $expectedAliases
+                    Should-BeCollection -Actual $rawAliasesToExport -Expected $expectedAliases
                 }
             }
         }
@@ -427,8 +433,15 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
                 return
             }
 
-            { Import-Module -Name $data.OutputModuleDir -Force -ErrorAction Stop } | Should -Not -Throw
-            Get-Module -Name $data.ProjectName | Should -Not -BeNullOrEmpty
+            $caughtError = $null
+            try {
+                Import-Module -Name $data.OutputModuleDir -Force -ErrorAction Stop
+            } catch {
+                $caughtError = $_
+            }
+
+            $caughtError | Should-BeNull
+            Get-Module -Name $data.ProjectName | Should-NotBeNull
         }
 
         It 'should remove without error' {
@@ -437,7 +450,18 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
                 return
             }
 
-            { Remove-Module -Name $data.ProjectName -ErrorAction Stop } | Should -Not -Throw
-            Get-Module $data.ProjectName | Should -BeNullOrEmpty
+            if (-not (Get-Module -Name $data.ProjectName)) {
+                Import-Module -Name $data.OutputModuleDir -Force -ErrorAction Stop
+            }
+
+            $caughtError = $null
+            try {
+                Remove-Module -Name $data.ProjectName -ErrorAction Stop
+            } catch {
+                $caughtError = $_
+            }
+
+            $caughtError | Should-BeNull
+            Get-Module $data.ProjectName | Should-BeNull
         }
     }
