@@ -48,7 +48,7 @@ Describe 'CHANGELOG.md' -Tag 'ChangeLog' {
     Context 'File' {
 
         It 'exists at the project root' {
-            $script:changeLogExists | Should -BeTrue
+            $script:changeLogExists | Should-BeTrue
         }
     }
 
@@ -56,30 +56,30 @@ Describe 'CHANGELOG.md' -Tag 'ChangeLog' {
 
         It 'has "# Changelog" as the first H1 heading' {
             $firstH1 = $script:lines | Where-Object { $_ -match '^# \S' } | Select-Object -First 1
-            $firstH1 | Should -Be '# Changelog'
+            $firstH1 | Should-Be '# Changelog'
         }
 
         It 'states that all notable changes are documented' {
-            $script:content | Should -Match '(?i)notable\s+changes'
+            $script:content | Should-MatchString '(?i)notable\s+changes'
         }
 
         It 'references the Keep a Changelog specification' {
-            $script:content | Should -Match 'https://keepachangelog\.com/en/1\.1\.0/'
+            $script:content | Should-MatchString 'https://keepachangelog\.com/en/1\.1\.0/'
         }
 
         It 'states adherence to Semantic Versioning' {
-            $script:content | Should -Match 'https://semver\.org'
+            $script:content | Should-MatchString 'https://semver\.org'
         }
 
         It 'contains at least one version entry' {
-            @($script:lines | Where-Object { $_ -match '^## \[' }).Count | Should -BeGreaterThan 0
+            @($script:lines | Where-Object { $_ -match '^## \[' }).Count | Should-BeGreaterThan 0
         }
 
         It 'places [Unreleased] as the first version entry when present' {
             $versionLines = @($script:lines | Where-Object { $_ -match '^## \[' })
             $hasUnreleased = $versionLines | Where-Object { $_ -match '(?i)unreleased' }
             if ($hasUnreleased) {
-                $versionLines[0] | Should -Match '^## \[Unreleased\]'
+                $versionLines[0] | Should-MatchString '^## \[Unreleased\]'
             }
         }
     }
@@ -94,10 +94,10 @@ Describe 'CHANGELOG.md' -Tag 'ChangeLog' {
 
         It 'has a valid Keep a Changelog header format' {
             if ($script:isUnreleased) {
-                $script:header | Should -Match '^## \[Unreleased\]$'
+                $script:header | Should-MatchString '^## \[Unreleased\]$'
             } else {
                 # ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD  or  ## [x.y.z] - YYYY-MM-DD [YANKED]
-                $script:header | Should -Match (
+                $script:header | Should-MatchString (
                     '^## \[[0-9]+\.[0-9]+\.[0-9][^\]]*\] - ' +
                     '\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\d|3[01])' +
                     '(?:\s+\[YANKED\])?$'
@@ -108,21 +108,25 @@ Describe 'CHANGELOG.md' -Tag 'ChangeLog' {
         It 'has a parseable ISO 8601 release date' {
             if (-not $script:isUnreleased) {
                 $dateMatch = [regex]::Match($script:header, '(\d{4}-\d{2}-\d{2})')
-                $dateMatch.Success | Should -BeTrue -Because 'every released version requires a date'
-                {
+                $dateMatch.Success | Should-BeTrue -Because 'every released version requires a date'
+                $caughtError = $null
+                try {
                     [datetime]::ParseExact(
                         $dateMatch.Groups[1].Value,
                         'yyyy-MM-dd',
                         [System.Globalization.CultureInfo]::InvariantCulture
-                    )
-                } | Should -Not -Throw -Because "$($dateMatch.Groups[1].Value) must be a valid calendar date"
+                    ) | Out-Null
+                } catch {
+                    $caughtError = $_
+                }
+                $caughtError | Should-BeNull -Because "$($dateMatch.Groups[1].Value) must be a valid calendar date"
             }
         }
 
         It 'contains at least one change-type section (### Added, Changed, etc.)' {
             if (-not $script:isUnreleased) {
                 $sectionLines = @($script:blockLines | Where-Object { $_ -match '^### ' })
-                $sectionLines.Count | Should -BeGreaterThan 0 `
+                $sectionLines.Count | Should-BeGreaterThan 0 `
                     -Because 'released versions must group changes under at least one ### <type> heading per Keep a Changelog 1.1.0'
             }
         }
@@ -145,7 +149,7 @@ Describe 'CHANGELOG.md' -Tag 'ChangeLog' {
             }
             for ($i = 1; $i -lt $limit; $i++) {
                 [string]::IsNullOrWhiteSpace($script:blockLines[$i]) |
-                    Should -BeTrue `
+                    Should-BeTrue `
                         -Because "'$($script:blockLines[$i])' must be grouped under a '### <type>' heading per Keep a Changelog 1.1.0"
             }
         }
@@ -154,8 +158,7 @@ Describe 'CHANGELOG.md' -Tag 'ChangeLog' {
             $validTypes = @('Added', 'Changed', 'Deprecated', 'Removed', 'Fixed', 'Security')
             $sectionLines = @($script:blockLines | Where-Object { $_ -match '^### ' })
             foreach ($sectionLine in $sectionLines) {
-                ($sectionLine -replace '^### ').Trim() |
-                    Should -BeIn $validTypes -Because "'$sectionLine' is not a valid Keep a Changelog change type"
+                Should-ContainCollection -Actual $validTypes -Expected (($sectionLine -replace '^### ').Trim()) -Because "'$sectionLine' is not a valid Keep a Changelog change type"
             }
         }
 
@@ -168,7 +171,7 @@ Describe 'CHANGELOG.md' -Tag 'ChangeLog' {
                         $next++
                     }
                     ($next -ge $count -or $script:blockLines[$next] -match '^#') |
-                        Should -BeFalse -Because "'$($script:blockLines[$i])' must not be an empty section"
+                        Should-BeFalse -Because "'$($script:blockLines[$i])' must not be an empty section"
                 }
             }
         }
@@ -182,7 +185,7 @@ Describe 'CHANGELOG.md' -Tag 'ChangeLog' {
                         $next++
                     }
                     if ($next -lt $count -and $script:blockLines[$next] -notmatch '^#') {
-                        $script:blockLines[$next] | Should -Match '^[-*] ' `
+                        $script:blockLines[$next] | Should-MatchString '^[-*] ' `
                             -Because "entries under '$($script:blockLines[$i])' must be markdown list items"
                     }
                 }
@@ -206,7 +209,7 @@ Describe 'CHANGELOG.md' -Tag 'ChangeLog' {
                     }
             )
             if ($dates.Count -gt 1) {
-                $dates | Should -Be ($dates | Sort-Object -Descending) `
+                Should-BeCollection -Actual $dates -Expected ($dates | Sort-Object -Descending) `
                     -Because 'versions must be listed newest-first per the Keep a Changelog spec'
             }
         }
@@ -218,7 +221,7 @@ Describe 'CHANGELOG.md' -Tag 'ChangeLog' {
                     Where-Object { $_ -match $versionPattern } |
                     ForEach-Object { [regex]::Match($_, $versionPattern).Groups[1].Value }
             )
-            $versions.Count | Should -Be ($versions | Select-Object -Unique).Count `
+            $versions.Count | Should-Be ($versions | Select-Object -Unique).Count `
                 -Because 'each version label must appear exactly once'
         }
     }
@@ -241,7 +244,7 @@ Describe 'CHANGELOG.md' -Tag 'ChangeLog' {
                         ForEach-Object { [regex]::Match($_, $versionPattern).Groups[1].Value }
                 )
                 foreach ($version in $versions) {
-                    $version | Should -BeIn $definedLinks `
+                    Should-ContainCollection -Actual $definedLinks -Expected $version `
                         -Because "[$version] requires a reference link at the bottom of the file"
                 }
             }
@@ -262,26 +265,24 @@ Describe 'LICENSE' -Tag 'License' {
     Context 'File' {
 
         It 'exists at the project root' {
-            $script:licenseExists | Should -BeTrue
+            $script:licenseExists | Should-BeTrue
         }
     }
 
     Context 'Content' {
 
         It 'is not empty' {
-            $script:licenseContent | Should -Not -BeNullOrEmpty
+            $script:licenseContent | Should-NotBeWhiteSpaceString
         }
 
-        It 'matches a recognised open-source license (MIT, Apache 2.0, BSD 3-Clause, or GPLv3)' {
+        It 'matches a recognised open-source license (MIT, Apache 2.0, or BSD 3-Clause)' {
             $isMIT = $script:licenseContent -match '(?i)\bMIT License\b'
             $isApache = ($script:licenseContent -match '(?i)Apache License') -and
             ($script:licenseContent -match 'Version 2\.0')
             $isBSD3 = $script:licenseContent -match '(?i)BSD 3-Clause License'
-            $isGPL3 = ($script:licenseContent -match '(?i)GNU GENERAL PUBLIC LICENSE') -and
-            ($script:licenseContent -match 'Version 3')
 
-            ($isMIT -or $isApache -or $isBSD3 -or $isGPL3) | Should -BeTrue `
-                -Because 'LICENSE must contain one of the four supported types: MIT, Apache 2.0, BSD 3-Clause, or GPLv3'
+            ($isMIT -or $isApache -or $isBSD3) | Should-BeTrue `
+                -Because 'LICENSE must contain one of the three supported types: MIT, Apache 2.0, or BSD 3-Clause'
         }
     }
 }
