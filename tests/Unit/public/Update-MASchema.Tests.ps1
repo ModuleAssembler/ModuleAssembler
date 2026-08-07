@@ -62,6 +62,137 @@ Describe 'Update-MASchema' -Tag 'Unit' {
         $projectContent.EndsWith([System.Environment]::NewLine + [System.Environment]::NewLine) | Should-BeFalse
     }
 
+    It 'adds missing schema defaults to moduleproject.json and preserves existing non-default values' {
+        $moduleAssemblerDir = Join-Path -Path $script:testRoot -ChildPath '.moduleassembler'
+        New-Item -Path $moduleAssemblerDir -ItemType Directory -Force | Out-Null
+
+        $projectJsonPath = Join-Path -Path $moduleAssemblerDir -ChildPath 'moduleproject.json'
+        $projectSeed = [ordered]@{
+            '$schema'   = './schemas/original.schema.json'
+            ProjectName = 'Demo'
+            Pester      = [ordered]@{
+                Output = [ordered]@{
+                    Verbosity = 'Diagnostic'
+                }
+            }
+        }
+        $projectSeed | ConvertTo-Json -Depth 10 | Set-Content -Path $projectJsonPath -Encoding 'utf8NoBOM'
+
+        $schemaWithDefaultsObject = [ordered]@{
+            type       = 'object'
+            properties = [ordered]@{
+                Pester = [ordered]@{
+                    type       = 'object'
+                    properties = [ordered]@{
+                        Output = [ordered]@{
+                            type       = 'object'
+                            properties = [ordered]@{
+                                Verbosity = [ordered]@{
+                                    type    = 'string'
+                                    default = 'Detailed'
+                                }
+                            }
+                        }
+                        Should = [ordered]@{
+                            type       = 'object'
+                            properties = [ordered]@{
+                                DisableV5 = [ordered]@{
+                                    type    = 'boolean'
+                                    default = $true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        $schemaWithDefaults = $schemaWithDefaultsObject | ConvertTo-Json -Depth 20
+
+        Mock Invoke-SchemaDownload { $schemaWithDefaults }
+
+        $warnings = @()
+        Update-MASchema -Force -ApplyNewSchemaDefaults -Confirm:$false -WarningVariable warnings
+
+        $updatedProject = Get-Content -Path $projectJsonPath -Raw | ConvertFrom-Json
+        $updatedProject.Pester.Should.DisableV5 | Should-BeTrue
+        $updatedProject.Pester.Output.Verbosity | Should-Be 'Diagnostic'
+        $warningText = $warnings -join [System.Environment]::NewLine
+        $warningText.Contains('Pester.Output.Verbosity') | Should-BeTrue
+    }
+
+    It 'updates template defaults when used with -UpdateSource and -ApplyNewSchemaDefaults' {
+        $moduleAssemblerDir = Join-Path -Path $script:testRoot -ChildPath '.moduleassembler'
+        $resourceDir = Join-Path -Path $script:testRoot -ChildPath 'src/resources'
+        New-Item -Path $moduleAssemblerDir -ItemType Directory -Force | Out-Null
+        New-Item -Path $resourceDir -ItemType Directory -Force | Out-Null
+
+        $projectJsonPath = Join-Path -Path $moduleAssemblerDir -ChildPath 'moduleproject.json'
+        $projectSeed = [ordered]@{
+            '$schema'   = './schemas/original.schema.json'
+            ProjectName = 'Demo'
+            Pester      = [ordered]@{
+                Output = [ordered]@{
+                    Verbosity = 'Normal'
+                }
+            }
+        }
+        $projectSeed | ConvertTo-Json -Depth 10 | Set-Content -Path $projectJsonPath -Encoding 'utf8NoBOM'
+
+        $templatePath = Join-Path -Path $resourceDir -ChildPath 'ModuleProjectTemplate.json'
+        $templateSeed = [ordered]@{
+            '$schema'   = './schemas/original.schema.json'
+            ProjectName = ''
+            Pester      = [ordered]@{
+                Output = [ordered]@{
+                    Verbosity = 'Normal'
+                }
+            }
+        }
+        $templateSeed | ConvertTo-Json -Depth 10 | Set-Content -Path $templatePath -Encoding 'utf8NoBOM'
+
+        $schemaWithDefaultsObject = [ordered]@{
+            type       = 'object'
+            properties = [ordered]@{
+                Pester = [ordered]@{
+                    type       = 'object'
+                    properties = [ordered]@{
+                        Output = [ordered]@{
+                            type       = 'object'
+                            properties = [ordered]@{
+                                Verbosity = [ordered]@{
+                                    type    = 'string'
+                                    default = 'Detailed'
+                                }
+                            }
+                        }
+                        Should = [ordered]@{
+                            type       = 'object'
+                            properties = [ordered]@{
+                                DisableV5 = [ordered]@{
+                                    type    = 'boolean'
+                                    default = $true
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        $schemaWithDefaults = $schemaWithDefaultsObject | ConvertTo-Json -Depth 20
+
+        Mock Invoke-SchemaDownload { $schemaWithDefaults }
+
+        Update-MASchema -Force -UpdateSource -ApplyNewSchemaDefaults -Confirm:$false
+
+        $updatedTemplate = Get-Content -Path $templatePath -Raw | ConvertFrom-Json
+        $updatedTemplate.Pester.Output.Verbosity | Should-Be 'Detailed'
+        $updatedTemplate.Pester.Should.DisableV5 | Should-BeTrue
+
+        $updatedProject = Get-Content -Path $projectJsonPath -Raw | ConvertFrom-Json
+        $updatedProject.Pester.Output.Verbosity | Should-Be 'Normal'
+        $updatedProject.Pester.Should.DisableV5 | Should-BeTrue
+    }
+
     It 'does not write schema files or update project JSON when run with -WhatIf' {
         $moduleAssemblerDir = Join-Path -Path $script:testRoot -ChildPath '.moduleassembler'
         New-Item -Path $moduleAssemblerDir -ItemType Directory -Force | Out-Null

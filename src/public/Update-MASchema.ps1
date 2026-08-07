@@ -23,6 +23,15 @@ function Update-MASchema {
         reference in ModuleProjectTemplate.json to the local relative path. This ensures new
         projects receive a bundled copy of the schema at creation time.
 
+    .PARAMETER ApplyNewSchemaDefaults
+        When specified, applies defaults from the active schema to project JSON files.
+        For moduleproject.json, only missing properties with schema defaults are added.
+        Existing properties are never overwritten. If an existing value differs from the
+        schema default, a warning is written and the existing value is preserved.
+        When used together with -UpdateSource, ModuleProjectTemplate.json also receives
+        missing defaulted properties and any existing defaulted properties are updated to
+        match the schema default values.
+
     .EXAMPLE
         Update-MASchema
 
@@ -43,6 +52,17 @@ function Update-MASchema {
 
         Downloads the latest ModuleAssembler schema then saves it to .moduleasssembler/schema and src/resources/schemas/.
         Updates the $schema references in moduleproject.json and ModuleProjectTemplate.json.
+
+    .EXAMPLE
+        Update-MASchema -ApplyNewSchemaDefaults
+
+        Updates the local $schema reference and adds any missing schema-defaulted properties to moduleproject.json.
+
+    .EXAMPLE
+        Update-MASchema -UpdateSource -ApplyNewSchemaDefaults
+
+        Updates local and source schema assets, adds missing defaults in moduleproject.json,
+        and synchronizes ModuleProjectTemplate.json defaults with the active schema.
     #>
 
     [CmdletBinding(SupportsShouldProcess)]
@@ -59,7 +79,10 @@ function Update-MASchema {
         [switch] $Force,
 
         [Parameter(Mandatory = $false)]
-        [switch] $UpdateSource
+        [switch] $UpdateSource,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $ApplyNewSchemaDefaults
     )
 
     begin {
@@ -126,11 +149,136 @@ function Update-MASchema {
             }
         }
 
+        $schemaDefaultEntries = @()
+        $schemaDefaultEntriesLoaded = $false
+
+        if ($ApplyNewSchemaDefaults.IsPresent) {
+            $schemaContentForDefaults = $schemaContent
+            if ($null -eq $schemaContentForDefaults) {
+                if (Test-Path $schemaFilePath) {
+                    $schemaContentForDefaults = Get-Content -Path $schemaFilePath -Raw
+                } else {
+                    throw "Cannot apply schema defaults because schema file '$schemaFilePath' is not available. Run Update-MASchema with -Force first."
+                }
+            }
+
+            $schemaRoot = $schemaContentForDefaults | ConvertFrom-Json -AsHashtable
+            $schemaTraversalStack = [System.Collections.Generic.Stack[hashtable]]::new()
+            $schemaTraversalStack.Push(@{
+                    Node = $schemaRoot
+                    Path = @()
+                })
+
+            while ($schemaTraversalStack.Count -gt 0) {
+                $currentSchemaNode = $schemaTraversalStack.Pop()
+                $schemaNode = $currentSchemaNode.Node
+                $schemaPath = [string[]]$currentSchemaNode.Path
+
+                if (-not ($schemaNode -is [System.Collections.IDictionary])) {
+                    continue
+                }
+
+                if (-not $schemaNode.Contains('properties')) {
+                    continue
+                }
+
+                $schemaProperties = $schemaNode['properties']
+                if (-not ($schemaProperties -is [System.Collections.IDictionary])) {
+                    continue
+                }
+
+                foreach ($propertyName in $schemaProperties.Keys) {
+                    $propertySchema = $schemaProperties[$propertyName]
+                    if (-not ($propertySchema -is [System.Collections.IDictionary])) {
+                        continue
+                    }
+
+                    $propertyPath = @($schemaPath + $propertyName)
+                    if ($propertySchema.Contains('default')) {
+                        $schemaDefaultEntries += [PSCustomObject]@{
+                            Path         = $propertyPath
+                            DefaultValue = $propertySchema['default']
+                        }
+                    }
+
+                    if ($propertySchema.Contains('properties')) {
+                        $schemaTraversalStack.Push(@{
+                                Node = $propertySchema
+                                Path = $propertyPath
+                            })
+                    }
+                }
+            }
+
+            $schemaDefaultEntriesLoaded = $true
+            Write-Verbose "Loaded $($schemaDefaultEntries.Count) schema default entries."
+        }
+
         # Update $schema reference in moduleproject.json to point to the local file
         $localSchemaRef = "./schemas/$schemaFileName"
         if ($PSCmdlet.ShouldProcess($projectJsonPath, "Update `$schema reference to '$localSchemaRef'")) {
-            $projectJsonObject = Get-Content -Path $projectJsonPath -Raw | ConvertFrom-Json
-            $projectJsonObject.'$schema' = $localSchemaRef
+            $projectJsonObject = Get-Content -Path $projectJsonPath -Raw | ConvertFrom-Json -AsHashtable
+            $projectJsonObject['$schema'] = $localSchemaRef
+
+            $projectDefaultsAdded = 0
+            $projectNonDefaultPaths = @()
+
+            if ($ApplyNewSchemaDefaults.IsPresent -and $schemaDefaultEntriesLoaded) {
+                foreach ($defaultEntry in $schemaDefaultEntries) {
+                    $pathSegments = [string[]]$defaultEntry.Path
+                    if ($pathSegments.Count -eq 0) {
+                        continue
+                    }
+
+                    $pathConflict = $false
+                    $targetNode = [System.Collections.IDictionary]$projectJsonObject
+                    for ($index = 0; $index -lt ($pathSegments.Count - 1); $index++) {
+                        $segment = $pathSegments[$index]
+                        if ($targetNode.Contains($segment)) {
+                            $nextNode = $targetNode[$segment]
+                            if (-not ($nextNode -is [System.Collections.IDictionary])) {
+                                $pathConflict = $true
+                                break
+                            }
+
+                            $targetNode = [System.Collections.IDictionary]$nextNode
+                        } else {
+                            $newNode = @{}
+                            $targetNode[$segment] = $newNode
+                            $targetNode = [System.Collections.IDictionary]$newNode
+                        }
+                    }
+
+                    if ($pathConflict) {
+                        Write-Verbose ("Skipping schema default path '{0}' because an intermediate value is not an object." -f ($pathSegments -join '.'))
+                        continue
+                    }
+
+                    $leafKey = $pathSegments[-1]
+                    if ($targetNode.Contains($leafKey)) {
+                        $existingValue = $targetNode[$leafKey]
+                        $existingJson = $existingValue | ConvertTo-Json -Depth 100 -Compress
+                        $defaultJson = $defaultEntry.DefaultValue | ConvertTo-Json -Depth 100 -Compress
+                        if ($existingJson -ne $defaultJson) {
+                            $projectNonDefaultPaths += ($pathSegments -join '.')
+                        }
+                    } else {
+                        $defaultValue = $defaultEntry.DefaultValue
+                        if (($defaultValue -is [System.Collections.IDictionary]) -or ($defaultValue -is [System.Collections.IList])) {
+                            $defaultValue = $defaultValue | ConvertTo-Json -Depth 100 -Compress | ConvertFrom-Json -AsHashtable
+                        }
+
+                        $targetNode[$leafKey] = $defaultValue
+                        $projectDefaultsAdded++
+                    }
+                }
+
+                Write-Verbose "Added $projectDefaultsAdded missing schema default properties to moduleproject.json."
+                if ($projectNonDefaultPaths.Count -gt 0) {
+                    Write-Warning ("moduleproject.json contains existing values that differ from schema defaults and were left unchanged: {0}" -f ($projectNonDefaultPaths -join ', '))
+                }
+            }
+
             $projectJsonJson = $projectJsonObject | ConvertTo-Json -Depth 10
             $normalizedProjectJson = $projectJsonJson.TrimEnd("`r", "`n") + [System.Environment]::NewLine
             [System.IO.File]::WriteAllText($projectJsonPath, $normalizedProjectJson, $utf8NoBomEncoding)
@@ -169,8 +317,64 @@ function Update-MASchema {
                 if (-not (Test-Path $templatePath)) {
                     Write-Warning "ModuleProjectTemplate.json not found at '$templatePath'. Skipping template update."
                 } elseif ($PSCmdlet.ShouldProcess($templatePath, "Update `$schema reference to '$localSchemaRef'")) {
-                    $templateJsonObject = Get-Content -Path $templatePath -Raw | ConvertFrom-Json
-                    $templateJsonObject.'$schema' = $localSchemaRef
+                    $templateJsonObject = Get-Content -Path $templatePath -Raw | ConvertFrom-Json -AsHashtable
+                    $templateJsonObject['$schema'] = $localSchemaRef
+
+                    $templateDefaultsAdded = 0
+                    $templateDefaultsUpdated = 0
+                    if ($ApplyNewSchemaDefaults.IsPresent -and $schemaDefaultEntriesLoaded) {
+                        foreach ($defaultEntry in $schemaDefaultEntries) {
+                            $pathSegments = [string[]]$defaultEntry.Path
+                            if ($pathSegments.Count -eq 0) {
+                                continue
+                            }
+
+                            $pathConflict = $false
+                            $targetNode = [System.Collections.IDictionary]$templateJsonObject
+                            for ($index = 0; $index -lt ($pathSegments.Count - 1); $index++) {
+                                $segment = $pathSegments[$index]
+                                if ($targetNode.Contains($segment)) {
+                                    $nextNode = $targetNode[$segment]
+                                    if (-not ($nextNode -is [System.Collections.IDictionary])) {
+                                        $pathConflict = $true
+                                        break
+                                    }
+
+                                    $targetNode = [System.Collections.IDictionary]$nextNode
+                                } else {
+                                    $newNode = @{}
+                                    $targetNode[$segment] = $newNode
+                                    $targetNode = [System.Collections.IDictionary]$newNode
+                                }
+                            }
+
+                            if ($pathConflict) {
+                                Write-Verbose ("Skipping template default path '{0}' because an intermediate value is not an object." -f ($pathSegments -join '.'))
+                                continue
+                            }
+
+                            $leafKey = $pathSegments[-1]
+                            $defaultValue = $defaultEntry.DefaultValue
+                            if (($defaultValue -is [System.Collections.IDictionary]) -or ($defaultValue -is [System.Collections.IList])) {
+                                $defaultValue = $defaultValue | ConvertTo-Json -Depth 100 -Compress | ConvertFrom-Json -AsHashtable
+                            }
+
+                            if ($targetNode.Contains($leafKey)) {
+                                $existingJson = $targetNode[$leafKey] | ConvertTo-Json -Depth 100 -Compress
+                                $defaultJson = $defaultValue | ConvertTo-Json -Depth 100 -Compress
+                                if ($existingJson -ne $defaultJson) {
+                                    $targetNode[$leafKey] = $defaultValue
+                                    $templateDefaultsUpdated++
+                                }
+                            } else {
+                                $targetNode[$leafKey] = $defaultValue
+                                $templateDefaultsAdded++
+                            }
+                        }
+
+                        Write-Verbose "Added $templateDefaultsAdded and updated $templateDefaultsUpdated schema default properties in ModuleProjectTemplate.json."
+                    }
+
                     $templateJsonJson = $templateJsonObject | ConvertTo-Json -Depth 10
                     $normalizedTemplateJson = $templateJsonJson.TrimEnd("`r", "`n") + [System.Environment]::NewLine
                     [System.IO.File]::WriteAllText($templatePath, $normalizedTemplateJson, $utf8NoBomEncoding)

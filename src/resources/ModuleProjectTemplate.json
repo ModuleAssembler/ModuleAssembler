@@ -26,6 +26,9 @@
     },
     "Output": {
       "Verbosity": "Detailed"
+    },
+    "Should": {
+      "DisableV5": true
     }
   }
 }
