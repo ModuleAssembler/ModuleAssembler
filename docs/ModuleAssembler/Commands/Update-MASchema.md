@@ -11,6 +11,7 @@ Update-MASchema
     [[-SchemaVersion] <string>]
     [-Force]
     [-UpdateSource]
+    [-ApplyNewSchemaDefaults]
     [-WhatIf]
     [-Confirm]
     [<CommonParameters>]
@@ -62,6 +63,23 @@ Update-MASchema -UpdateSource
 Downloads the latest ModuleAssembler schema then saves it to .moduleasssembler/schema and src/resources/schemas/.
 Updates the $schema references in moduleproject.json and ModuleProjectTemplate.json.
 
+### EXAMPLE 5
+
+```powershell
+Update-MASchema -ApplyNewSchemaDefaults
+```
+
+Updates the local $schema reference and adds any missing schema-defaulted properties to moduleproject.json.
+
+### EXAMPLE 6
+
+```powershell
+Update-MASchema -UpdateSource -ApplyNewSchemaDefaults
+```
+
+Updates local and source schema assets, adds missing defaults in moduleproject.json,
+and synchronizes ModuleProjectTemplate.json defaults with the active schema.
+
 ## Parameters
 
 ### -SchemaVersion
@@ -98,6 +116,25 @@ Intended for ModuleAssembler development use only, when updating the bundled res
 When specified, saves the schema to src/resources/schemas/ and updates the $schema
 reference in ModuleProjectTemplate.json to the local relative path. This ensures new
 projects receive a bundled copy of the schema at creation time.
+
+| Property | Value |
+| --- | --- |
+| Type | SwitchParameter |
+| Required | false |
+| Default Value | False |
+| Accept Pipeline Input | false |
+| Accept Wildcards | false |
+| Position | named |
+
+### -ApplyNewSchemaDefaults
+
+When specified, applies defaults from the active schema to project JSON files.
+For moduleproject.json, only missing properties with schema defaults are added.
+Existing properties are never overwritten. If an existing value differs from the
+schema default, a warning is written and the existing value is preserved.
+When used together with -UpdateSource, ModuleProjectTemplate.json also receives
+missing defaulted properties and any existing defaulted properties are updated to
+match the schema default values.
 
 | Property | Value |
 | --- | --- |

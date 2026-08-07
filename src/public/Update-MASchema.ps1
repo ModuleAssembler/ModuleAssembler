@@ -275,7 +275,7 @@ function Update-MASchema {
 
                 Write-Verbose "Added $projectDefaultsAdded missing schema default properties to moduleproject.json."
                 if ($projectNonDefaultPaths.Count -gt 0) {
-                    Write-Warning ("moduleproject.json contains existing values that differ from schema defaults and were left unchanged: {0}" -f ($projectNonDefaultPaths -join ', '))
+                    Write-Warning ('moduleproject.json contains existing values that differ from schema defaults and were left unchanged: {0}' -f ($projectNonDefaultPaths -join ', '))
                 }
             }
 
