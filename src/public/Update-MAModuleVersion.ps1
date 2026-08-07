@@ -14,6 +14,9 @@ function Update-MAModuleVersion {
         Specify the prerelease type to use (alpha, beta, preview, rc).
         If executed again with no Label and the same PrereleaseType type, the prerelease number will increment.
 
+    .PARAMETER PrereleaseRemove
+        Removes an existing prerelease type without incrementing the base module version.
+
     .EXAMPLE
         Update-MAModuleVersion -Label Major
 
@@ -45,25 +48,37 @@ function Update-MAModuleVersion {
 
         Sets a new version and specify it as a PreRelease. Version 0.1.0 will become 1.0.0-rc01.
 
+    .EXAMPLE
+        Update-MAModuleVersion -PreReleaseRemove
+
+        Removes the PreRelease from the version, without incrementing the base version. Version 1.0.0-rc01 will become 1.0.0.
+
     .NOTES
         Ensure you are in the project directory when running this command.
     #>
 
-    [CmdletBinding(SupportsShouldProcess = $true)]
+    [CmdletBinding(SupportsShouldProcess = $true, DefaultParameterSetName = 'VersionUpdate')]
     [OutputType([void])]
     [Alias('MAVersion')]
     param (
         [Parameter(
             Mandatory = $false,
-            Position = 0)]
+            Position = 0,
+            ParameterSetName = 'VersionUpdate')]
         [ValidateSet('Major', 'Minor', 'Patch')]
         [string] $Label,
 
         [Parameter(
             Mandatory = $false,
-            Position = 1)]
+            Position = 1,
+            ParameterSetName = 'VersionUpdate')]
         [ValidateSet('alpha', 'beta', 'preview', 'rc')]
-        [string] $PreReleaseType
+        [string] $PreReleaseType,
+
+        [Parameter(
+            Mandatory = $true,
+            ParameterSetName = 'PreReleaseRemove')]
+        [switch] $PreReleaseRemove
     )
 
     begin {
@@ -71,7 +86,7 @@ function Update-MAModuleVersion {
         $jsonContent = Get-Content -Path $data.ProjectJSON | ConvertFrom-Json
         [semver]$CurrentVersion = $jsonContent.Version
 
-        if (!($PreReleaseType) -and !($Label)) {
+        if ($PSCmdlet.ParameterSetName -eq 'VersionUpdate' -and !($PreReleaseType) -and !($Label)) {
             $Label = 'Patch'
         }
     }
@@ -81,28 +96,32 @@ function Update-MAModuleVersion {
         $Minor = $CurrentVersion.Minor
         $Patch = $CurrentVersion.Patch
 
-        if ($Label -eq 'Major') {
-            $Major = $CurrentVersion.Major + 1
-            $Minor = 0
-            $Patch = 0
-        } elseif ($Label -eq 'Minor') {
-            $Minor = $CurrentVersion.Minor + 1
-            $Patch = 0
-        } elseif ($Label -eq 'Patch') {
-            $Patch = $CurrentVersion.Patch + 1
-        }
-
-        if ($PrereleaseType) {
-            if ($CurrentVersion.PreReleaseLabel -imatch '^((?:alpha|beta|preview|rc))(\d+)?$') {
-                $currentPreReleaseType = $Matches[1]
-            } else {
-                $currentPreReleaseType = $null
+        if (-not $PreReleaseRemove) {
+            if ($Label -eq 'Major') {
+                $Major = $CurrentVersion.Major + 1
+                $Minor = 0
+                $Patch = 0
+            } elseif ($Label -eq 'Minor') {
+                $Minor = $CurrentVersion.Minor + 1
+                $Patch = 0
+            } elseif ($Label -eq 'Patch') {
+                $Patch = $CurrentVersion.Patch + 1
             }
 
-            if ($PreReleaseType -eq $currentPreReleaseType -and !($Label)) {
-                $ReleaseType = Get-PreReleaseIncrement -PreReleaseLabel $CurrentVersion.PreReleaseLabel
+            if ($PrereleaseType) {
+                if ($CurrentVersion.PreReleaseLabel -imatch '^((?:alpha|beta|preview|rc))(\d+)?$') {
+                    $currentPreReleaseType = $Matches[1]
+                } else {
+                    $currentPreReleaseType = $null
+                }
+
+                if ($PreReleaseType -eq $currentPreReleaseType -and !($Label)) {
+                    $ReleaseType = Get-PreReleaseIncrement -PreReleaseLabel $CurrentVersion.PreReleaseLabel
+                } else {
+                    $ReleaseType = Get-PreReleaseIncrement -PreReleaseLabel $PrereleaseType
+                }
             } else {
-                $ReleaseType = Get-PreReleaseIncrement -PreReleaseLabel $PrereleaseType
+                $ReleaseType = $null
             }
         } else {
             $ReleaseType = $null
