@@ -13,6 +13,11 @@ Update-MAModuleVersion
     [-WhatIf]
     [-Confirm]
     [<CommonParameters>]
+
+Update-MAModuleVersion -PreReleaseRemove
+    [-WhatIf]
+    [-Confirm]
+    [<CommonParameters>]
 ```
 
 ## Description
@@ -29,7 +34,7 @@ MAVersion
 ### EXAMPLE 1
 
 ```powershell
-PS > Update-MAModuleVersion -Label Major
+Update-MAModuleVersion -Label Major
 ```
 
 Updates the Major version part of the module. Version 2.1.3 will become 3.0.0.
@@ -37,7 +42,7 @@ Updates the Major version part of the module. Version 2.1.3 will become 3.0.0.
 ### EXAMPLE 2
 
 ```powershell
-PS > Update-MAModuleVersion -Label Minor
+Update-MAModuleVersion -Label Minor
 ```
 
 Updates the Minor version part of the module. Version 2.1.3 will become 2.2.0.
@@ -45,7 +50,7 @@ Updates the Minor version part of the module. Version 2.1.3 will become 2.2.0.
 ### EXAMPLE 3
 
 ```powershell
-PS > Update-MAModuleVersion -Label Patch
+Update-MAModuleVersion -Label Patch
 ```
 
 Updates the Patch version part of the module. Version 2.1.3 will become 2.1.4.
@@ -53,7 +58,7 @@ Updates the Patch version part of the module. Version 2.1.3 will become 2.1.4.
 ### EXAMPLE 4
 
 ```powershell
-PS > Update-MAModuleVersion
+Update-MAModuleVersion
 ```
 
 Updates the Patch version part of the module. Version 2.1.3 will become 2.1.4.
@@ -61,7 +66,7 @@ Updates the Patch version part of the module. Version 2.1.3 will become 2.1.4.
 ### EXAMPLE 5
 
 ```powershell
-PS > Update-MAModuleVersion -PreReleaseType preview
+Update-MAModuleVersion -PreReleaseType preview
 ```
 
 Adds a specified PreReleaseLabel to the module version. Version 1.0.0 will become 1.0.0-preview01.
@@ -70,10 +75,18 @@ If the same PreReleaseType was previously used, it will increment the number. Ve
 ### EXAMPLE 6
 
 ```powershell
-PS > Update-MAModuleVersion -Label Major -PreReleaseType rc
+Update-MAModuleVersion -Label Major -PreReleaseType rc
 ```
 
 Sets a new version and specify it as a PreRelease. Version 0.1.0 will become 1.0.0-rc01.
+
+### EXAMPLE 7
+
+```powershell
+Update-MAModuleVersion -PreReleaseRemove
+```
+
+Removes the PreRelease from the version, without incrementing the base version. Version 1.0.0-rc01 will become 1.0.0.
 
 ## Parameters
 
@@ -103,6 +116,19 @@ If executed again with no Label and the same PrereleaseType type, the prerelease
 | Accept Pipeline Input | false |
 | Accept Wildcards | false |
 | Position | 2 |
+
+### -PreReleaseRemove
+
+Removes an existing prerelease type without incrementing the base module version.
+
+| Property | Value |
+| --- | --- |
+| Type | SwitchParameter |
+| Required | true |
+| Default Value | False |
+| Accept Pipeline Input | false |
+| Accept Wildcards | false |
+| Position | named |
 
 ### -WhatIf
 

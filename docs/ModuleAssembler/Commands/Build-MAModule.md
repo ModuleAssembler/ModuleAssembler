@@ -24,7 +24,7 @@ MABuild
 ### EXAMPLE 1
 
 ```powershell
-PS > Build-MAModule
+Build-MAModule
 ```
 
 Execute a module build.

@@ -27,7 +27,7 @@ MANew
 ### EXAMPLE 1
 
 ```powershell
-PS > New-MAModule -Path 'C:\work'
+New-MAModule -Path 'C:\work'
 ```
 
 Creates module project inside c:\work folder.
@@ -35,7 +35,7 @@ Creates module project inside c:\work folder.
 ### EXAMPLE 2
 
 ```powershell
-PS > New-MAModule
+New-MAModule
 ```
 
 Creates module project in the current folder.

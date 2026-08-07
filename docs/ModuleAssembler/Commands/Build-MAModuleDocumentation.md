@@ -24,7 +24,7 @@ MADocs
 ### EXAMPLE 1
 
 ```powershell
-PS > Build-MAModuleDocumentation
+Build-MAModuleDocumentation
 ```
 
 Create module Markdown documentation.

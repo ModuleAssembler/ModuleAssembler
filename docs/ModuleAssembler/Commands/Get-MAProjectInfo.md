@@ -26,7 +26,7 @@ MAInfo
 ### EXAMPLE 1
 
 ```powershell
-PS > Get-MAProjectInfo
+Get-MAProjectInfo
 ```
 
 Get a hashtable output of all module project metadata.

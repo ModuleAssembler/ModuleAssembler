@@ -134,12 +134,12 @@ function Build-MAModuleDocumentation {
                 }
 
                 if (Test-DescriptionLine $example.code) {
-                    throw "An example for $($command) has the description before the code, which does not follow the order required by Get-Help. Place the example code followed by the description on a new line, optionally with an empty line between the two."
+                    throw "An example for $($command) has the description before the code, which does not follow the order required by Get-Help. Place the example code followed one empty line, then a description line."
                 }
 
                 $fileContent += "`n### " + (($example.title | Out-String).Replace('-', '')).Trim()
                 $fileContent += "`n`n``````powershell`n"
-                $fileContent += ($example.introduction | Out-String).Trim() + ' ' + ($example.code | Out-String).Trim()
+                $fileContent += ($example.code | Out-String).Trim()
                 $fileContent += "`n```````n`n"
                 $fileContent += ($example.remarks | Out-String).Trim() + "`n"
             }

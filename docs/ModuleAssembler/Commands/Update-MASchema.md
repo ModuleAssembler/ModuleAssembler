@@ -32,7 +32,7 @@ MASchema
 ### EXAMPLE 1
 
 ```powershell
-PS > Update-MASchema
+Update-MASchema
 ```
 
 Downloads the latest ModuleAssembler schema if the local copy is outdated or missing.
@@ -40,7 +40,7 @@ Downloads the latest ModuleAssembler schema if the local copy is outdated or mis
 ### EXAMPLE 2
 
 ```powershell
-PS > Update-MASchema -SchemaVersion 'v1.0.0'
+Update-MASchema -SchemaVersion 'v1.0.0'
 ```
 
 Downloads a specific version of the ModuleAssembler schema if the local copy is outdated or missing.
@@ -48,7 +48,7 @@ Downloads a specific version of the ModuleAssembler schema if the local copy is 
 ### EXAMPLE 3
 
 ```powershell
-PS > Update-MASchema -Force
+Update-MASchema -Force
 ```
 
 Downloads and overwrites the local schema regardless of whether it is already current.
@@ -56,7 +56,7 @@ Downloads and overwrites the local schema regardless of whether it is already cu
 ### EXAMPLE 4
 
 ```powershell
-PS > Update-MASchema -UpdateSource
+Update-MASchema -UpdateSource
 ```
 
 Downloads the latest ModuleAssembler schema then saves it to .moduleasssembler/schema and src/resources/schemas/.

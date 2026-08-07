@@ -32,7 +32,7 @@ MAChangelogRelease
 ### EXAMPLE 1
 
 ```powershell
-PS > Update-MAChangelogRelease
+Update-MAChangelogRelease
 ```
 
 Promotes [Unreleased] content into the current project version using today's date.
@@ -40,7 +40,7 @@ Promotes [Unreleased] content into the current project version using today's dat
 ### EXAMPLE 2
 
 ```powershell
-PS > Update-MAChangelogRelease -Version '1.4.0' -ReleaseDate (Get-Date '2026-05-24')
+Update-MAChangelogRelease -Version '1.4.0' -ReleaseDate (Get-Date '2026-05-24')
 ```
 
 Promotes [Unreleased] content into version 1.4.0 with the specified release date.

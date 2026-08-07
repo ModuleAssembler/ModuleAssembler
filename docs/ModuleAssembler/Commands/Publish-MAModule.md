@@ -59,7 +59,7 @@ MAPublish
 ### EXAMPLE 1
 
 ```powershell
-PS > Publish-MAModule
+Publish-MAModule
 ```
 
 Publishes to PowerShell Gallery using $env:PSGALLERY_API_KEY.
@@ -67,7 +67,7 @@ Publishes to PowerShell Gallery using $env:PSGALLERY_API_KEY.
 ### EXAMPLE 2
 
 ```powershell
-PS > Publish-MAModule -PowerShellGalleryApiKey (Read-Host -AsSecureString 'PSGallery API Key')
+Publish-MAModule -PowerShellGalleryApiKey (Read-Host -AsSecureString 'PSGallery API Key')
 ```
 
 Publishes to PowerShell Gallery using a provided API key.
@@ -75,7 +75,7 @@ Publishes to PowerShell Gallery using a provided API key.
 ### EXAMPLE 3
 
 ```powershell
-PS > Publish-MAModule -NuGetFeedUrl 'https://nuget.pkg.github.com/myorg/index.json'
+Publish-MAModule -NuGetFeedUrl 'https://nuget.pkg.github.com/myorg/index.json'
 ```
 
 Publishes to GitHub Packages using $env:NUGET_API_KEY.
@@ -83,7 +83,7 @@ Publishes to GitHub Packages using $env:NUGET_API_KEY.
 ### EXAMPLE 4
 
 ```powershell
-PS > Publish-MAModule -NuGetFeedUrl 'https://gitlab.com/api/v4/projects/12345678/packages/nuget/index.json'
+Publish-MAModule -NuGetFeedUrl 'https://gitlab.com/api/v4/projects/12345678/packages/nuget/index.json'
 ```
 
 Publishes to GitLab Packages using $env:NUGET_API_KEY.
@@ -91,7 +91,7 @@ Publishes to GitLab Packages using $env:NUGET_API_KEY.
 ### EXAMPLE 5
 
 ```powershell
-Publish-MAModule -NuGetFeedUrl 'https://forgejo.example.com/api/packages/<owner> /nuget/index.json'
+/nuget/index.json'
 ```
 
 Publishes to a Forgejo package registry using $env:NUGET_API_KEY.
@@ -99,7 +99,7 @@ Publishes to a Forgejo package registry using $env:NUGET_API_KEY.
 ### EXAMPLE 6
 
 ```powershell
-Publish-MAModule -NuGetFeedUrl 'https://pkgs.dev.azure.com/<organization> /<project>/_packaging/<feed>/nuget/v3/index.json'
+/<project>/_packaging/<feed>/nuget/v3/index.json'
 ```
 
 Publishes to an Azure Artifacts feed using $env:NUGET_API_KEY.
@@ -107,7 +107,7 @@ Publishes to an Azure Artifacts feed using $env:NUGET_API_KEY.
 ### EXAMPLE 7
 
 ```powershell
-PS > Publish-MAModule -FileSharePath '\\server\PSModules'
+Publish-MAModule -FileSharePath '\\server\PSModules'
 ```
 
 Publishes to a file share repository using $env:FILESHARE_USERNAME and $env:FILESHARE_PASSWORD.
@@ -115,7 +115,7 @@ Publishes to a file share repository using $env:FILESHARE_USERNAME and $env:FILE
 ### EXAMPLE 8
 
 ```powershell
-PS > Publish-MAModule -FileSharePath '\\server\PSModules' -FileShareCredential (Get-Credential)
+Publish-MAModule -FileSharePath '\\server\PSModules' -FileShareCredential (Get-Credential)
 ```
 
 Publishes to a file share repository using an explicit credential.

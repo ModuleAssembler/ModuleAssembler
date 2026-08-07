@@ -77,7 +77,7 @@ MARelease
 ### EXAMPLE 1
 
 ```powershell
-PS > Invoke-MARelease
+Invoke-MARelease
 ```
 
 Runs the full release cycle and publishes to PowerShell Gallery using $env:PSGALLERY_API_KEY.
@@ -85,7 +85,7 @@ Runs the full release cycle and publishes to PowerShell Gallery using $env:PSGAL
 ### EXAMPLE 2
 
 ```powershell
-PS > Invoke-MARelease -PowerShellGalleryApiKey (Read-Host -AsSecureString 'PSGallery API Key')
+Invoke-MARelease -PowerShellGalleryApiKey (Read-Host -AsSecureString 'PSGallery API Key')
 ```
 
 Runs the full release cycle and publishes to PowerShell Gallery using a provided API key.
@@ -93,7 +93,7 @@ Runs the full release cycle and publishes to PowerShell Gallery using a provided
 ### EXAMPLE 3
 
 ```powershell
-PS > Invoke-MARelease -NuGetFeedUrl 'https://nuget.pkg.github.com/myorg/index.json'
+Invoke-MARelease -NuGetFeedUrl 'https://nuget.pkg.github.com/myorg/index.json'
 ```
 
 Runs the full release cycle and publishes to a NuGet-compatible feed using $env:NUGET_API_KEY.
@@ -101,7 +101,7 @@ Runs the full release cycle and publishes to a NuGet-compatible feed using $env:
 ### EXAMPLE 4
 
 ```powershell
-PS > Invoke-MARelease -NuGetFeedUrl 'https://gitlab.com/api/v4/projects/12345678/packages/nuget/index.json'
+Invoke-MARelease -NuGetFeedUrl 'https://gitlab.com/api/v4/projects/12345678/packages/nuget/index.json'
 ```
 
 Runs the full release cycle and publishes to a GitLab package feed using $env:NUGET_API_KEY.
@@ -109,7 +109,7 @@ Runs the full release cycle and publishes to a GitLab package feed using $env:NU
 ### EXAMPLE 5
 
 ```powershell
-PS > Invoke-MARelease -FileSharePath '\\server\PSModules'
+Invoke-MARelease -FileSharePath '\\server\PSModules'
 ```
 
 Runs the full release cycle and publishes to a file share repository.
@@ -117,7 +117,7 @@ Runs the full release cycle and publishes to a file share repository.
 ### EXAMPLE 6
 
 ```powershell
-PS > Invoke-MARelease -UpdateVersion -VersionLabel Patch -PromoteChangelogRelease
+Invoke-MARelease -UpdateVersion -VersionLabel Patch -PromoteChangelogRelease
 ```
 
 Runs the full release cycle, increments the module version before build,

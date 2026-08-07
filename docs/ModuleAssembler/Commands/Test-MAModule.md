@@ -27,7 +27,7 @@ MATest
 ### EXAMPLE 1
 
 ```powershell
-PS > Test-MAModule
+Test-MAModule
 ```
 
 Execute all Pester tests.
@@ -35,7 +35,7 @@ Execute all Pester tests.
 ### EXAMPLE 2
 
 ```powershell
-PS > Test-MAModule -TagFilter 'unit','FunctionQA'
+Test-MAModule -TagFilter 'unit','FunctionQA'
 ```
 
 Execute only Pester tests with the tags unit or FunctionQA.
@@ -43,7 +43,7 @@ Execute only Pester tests with the tags unit or FunctionQA.
 ### EXAMPLE 3
 
 ```powershell
-PS > Test-MAModule -ExcludeTagFilter 'unit'
+Test-MAModule -ExcludeTagFilter 'unit'
 ```
 
 Runs the Pester tests, excludes any test with tag unit.
