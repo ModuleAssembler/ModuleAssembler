@@ -56,24 +56,13 @@
     // Markdown Language Settings
     "[markdown]": {
         "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
         "editor.wordWrap": "off",
         "editor.quickSuggestions": {
             "comments": "off",
             "strings": "off",
             "other": "off"
-        }
-    },
-    // Markdown Lint Settings
-    "markdownlint.config": {
-        "default": true,
-        "no-hard-tabs": true,
-        "MD024": {
-            "siblings_only": true
-        },
-        "MD033": false,
-        "MD060": {
-            "aligned_delimiter": false,
-            "style": "compact"
         }
     }
 }

@@ -15,7 +15,8 @@
         "Apache_v2": "plaintext",
         "BSD_3-Clause": "plaintext",
         "GPLv3": "plaintext",
-        "MIT": "plaintext"
+        "MIT": "plaintext",
+        "gitignore": "plaintext",
     },
     "files.insertFinalNewline": true,
     "files.trimFinalNewlines": true,
@@ -62,24 +63,13 @@
     // Markdown Language Settings
     "[markdown]": {
         "editor.tabSize": 2,
+        "editor.formatOnSave": true,
+        "editor.formatOnPaste": true,
         "editor.wordWrap": "off",
         "editor.quickSuggestions": {
             "comments": "off",
             "strings": "off",
             "other": "off"
-        }
-    },
-    // Markdown Lint Settings
-    "markdownlint.config": {
-        "default": true,
-        "no-hard-tabs": true,
-        "MD024": {
-            "siblings_only": true
-        },
-        "MD033": false,
-        "MD060": {
-            "aligned_delimiter": false,
-            "style": "compact"
         }
     },
     "git.addAICoAuthor": "off"

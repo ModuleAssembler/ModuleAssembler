@@ -240,6 +240,12 @@ function New-MAModule {
                 if (!(Test-Path (Join-Path $DirProject -ChildPath 'PSScriptAnalyzerSettings.psd1'))) {
                     Copy-Item -Path $scriptAnalyzerSettings -Destination $DirProject -Force | Out-Null
                 }
+
+                $markdownLintSettings = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'markdownlint.json')
+                if (!(Test-Path (Join-Path $DirProject -ChildPath '.markdownlint.json'))) {
+                    $markdownLintSettingsDestination = Join-Path -Path $DirProject -ChildPath '.markdownlint.json'
+                    Copy-Item -Path $markdownLintSettings -Destination $markdownLintSettingsDestination -Force | Out-Null
+                }
             }
 
 

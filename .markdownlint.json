@@ -1,0 +1,13 @@
+{
+    "default": true,
+    "no-hard-tabs": true,
+    "MD013": false,
+    "MD024": {
+        "siblings_only": true
+    },
+    "MD033": false,
+    "MD060": {
+        "aligned_delimiter": false,
+        "style": "compact"
+    }
+}
