@@ -418,6 +418,31 @@ function Remove-CacheFiles {
           Sort-Object -Property LastWriteTime |
           Select-Object -First 10
       ```
+
+## Static Analysis Gate (PSScriptAnalyzer)
+
+- Treat static analysis as a required quality gate for all PowerShell code
+  changes.
+- Always run `Invoke-ScriptAnalyzer` before considering changes complete.
+- Always use the repository settings file:
+  `PSScriptAnalyzerSettings.psd1`.
+- Validate changed files first for quick feedback, then run the broader scope
+  relevant to the task (for example the full `tests` folder when test files are
+  changed).
+- Do not consider work complete when analyzer emits warnings or errors.
+- If a rule must be suppressed, use a narrowly scoped suppression with a clear
+  justification comment. Do not use broad file-level suppression unless there is
+  no practical alternative.
+
+### Required Validation Pattern
+
+```powershell
+# Fast feedback on changed PowerShell files
+Invoke-ScriptAnalyzer -Path .\src, .\tests -Recurse -Settings .\PSScriptAnalyzerSettings.psd1
+```
+
+- For `*.Tests.ps1` files, follow additional test-specific validation gates in
+  [pester.instructions.md](./pester.instructions.md).
   - One-liner blocks are acceptable only for simple, single-statement operations with immediate clarity. Multi-line format is required for complex logic or nested structures.
   - Prefer single quotes for strings that do not require interpolation or variable expansion
     - Double quotes are only appropriate when the string contains variables (`"Hello, $Name"`)

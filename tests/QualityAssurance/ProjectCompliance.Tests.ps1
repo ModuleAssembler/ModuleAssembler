@@ -131,7 +131,7 @@ Describe 'CHANGELOG.md' -Tag 'ChangeLog' {
             }
         }
 
-        It 'groups all changes under a change-type heading (### <type>) — no ungrouped entries allowed' {
+        It 'groups all changes under a change-type heading (### <type>) - no ungrouped entries allowed' {
             # Every non-blank content line must appear after a ### heading, never directly under ## [version].
             $count = $script:blockLines.Count
             $firstSection = $null

@@ -345,6 +345,38 @@ Invoke-Pester -Path '.\Tests\Get-UserInfo.Tests.ps1'
 Invoke-Pester -Path '.\Tests'
 ```
 
+## Validation Gates For Test Changes
+
+- Treat test updates as complete only after both static analysis and execution
+    gates pass.
+- Run `Invoke-ScriptAnalyzer` for changed `*.Tests.ps1` files using the
+    repository settings file `PSScriptAnalyzerSettings.psd1`.
+- Use focused test runs while authoring, then run broader regression for the
+    affected scope.
+- Enforce Pester v6 native assertion style with strict mode by running with
+    `Should.DisableV5 = $true` during verification.
+
+### Required Validation Pattern
+
+```powershell
+# 1) Static analysis for tests
+Invoke-ScriptAnalyzer -Path .\tests, .\src\resources\PesterTests -Recurse -Settings .\PSScriptAnalyzerSettings.psd1
+
+# 2) Focused execution while authoring
+Invoke-Pester -Path .\tests\Unit\public\SomeFunction.Tests.ps1 -Output Detailed
+
+# 3) Strict Pester v6 execution gate
+$config = New-PesterConfiguration
+$config.Run.Path = '.\tests'
+$config.Run.Exit = $false
+$config.Output.Verbosity = 'Detailed'
+$config.Should.DisableV5 = $true
+Invoke-Pester -Configuration $config
+```
+
+- Do not suppress analyzer findings in tests unless there is a specific,
+    documented reason and the suppression scope is minimal.
+
 ### Filtered execution
 
 ```powershell
