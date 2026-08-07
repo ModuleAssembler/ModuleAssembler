@@ -61,6 +61,7 @@ function Test-MAModule {
         $pesterConfig.Filter.Tag = $TagFilter
         $pesterConfig.Filter.ExcludeTag = $ExcludeTagFilter
         $pesterConfig.TestResult.OutputPath = [System.IO.Path]::Combine('.', 'dist', 'PesterTestResults.xml')
+        $pesterConfig.CodeCoverage.OutputPath = [System.IO.Path]::Combine('.', 'dist', 'coverage.xml')
 
         $TestResult = Invoke-Pester -Configuration $pesterConfig
         if ($TestResult.Result -ne 'Passed') {

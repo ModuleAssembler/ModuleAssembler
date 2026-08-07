@@ -41,6 +41,7 @@ Describe 'Test-MAModule' -Tag 'Unit' {
         $script:capturedConfiguration.Filter.Tag.Value | Should-BeCollection -Expected @('Unit', 'ModuleQA')
         $script:capturedConfiguration.Filter.ExcludeTag.Value | Should-BeCollection -Expected @('Slow')
         $script:capturedConfiguration.TestResult.OutputPath.Value.Replace('\', '/') | Should-Be './dist/PesterTestResults.xml'
+        ($script:capturedConfiguration.CodeCoverage.OutputPath.Value -replace '\\', '/') | Should-Be './dist/coverage.xml'
     }
 
     It 'throws when any Pester test fails' {

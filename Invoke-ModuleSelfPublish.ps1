@@ -202,6 +202,26 @@ function Invoke-ModuleSelfPublish {
             }
         }
 
+        function Copy-CoverageArtifact {
+            [CmdletBinding()]
+            param (
+                [Parameter(Mandatory = $true)]
+                [ValidateNotNullOrEmpty()]
+                [string] $RootPath,
+
+                [Parameter(Mandatory = $true)]
+                [ValidateNotNullOrEmpty()]
+                [string] $DestinationFilePath
+            )
+
+            $defaultCoveragePath = Join-Path -Path $RootPath -ChildPath 'dist/coverage.xml'
+            if (Test-Path -Path $defaultCoveragePath) {
+                Copy-Item -Path $defaultCoveragePath -Destination $DestinationFilePath -Force
+            } else {
+                Write-Warning "Expected code coverage file not found at '$defaultCoveragePath'."
+            }
+        }
+
         function Invoke-IsolatedModuleStage {
             [CmdletBinding()]
             param (
@@ -227,6 +247,9 @@ function Invoke-ModuleSelfPublish {
                 [Parameter(Mandatory = $false)]
                 [string] $PesterResultDestinationFilePath,
 
+                [Parameter(Mandatory = $false)]
+                [string] $CoverageDestinationFilePath,
+
                 [Parameter(Mandatory = $true)]
                 [ValidateNotNullOrEmpty()]
                 [string] $TempPath
@@ -243,6 +266,7 @@ function Invoke-ModuleSelfPublish {
             $safeCommandName = [System.Management.Automation.Language.CodeGeneration]::EscapeSingleQuotedStringContent($CommandName)
             $safeParamsPath = [System.Management.Automation.Language.CodeGeneration]::EscapeSingleQuotedStringContent($paramsPath)
             $safePesterDestinationPath = [System.Management.Automation.Language.CodeGeneration]::EscapeSingleQuotedStringContent($PesterResultDestinationFilePath)
+            $safeCoverageDestinationPath = [System.Management.Automation.Language.CodeGeneration]::EscapeSingleQuotedStringContent($CoverageDestinationFilePath)
 
             $runnerScript = @"
 `$ErrorActionPreference = 'Stop'
@@ -259,6 +283,7 @@ Get-ChildItem -Path (Join-Path -Path '$safeRootPath' -ChildPath 'src/public') -F
 `$commandName = '$safeCommandName'
 `$paramsPath = '$safeParamsPath'
 `$pesterDestinationPath = '$safePesterDestinationPath'
+`$coverageDestinationPath = '$safeCoverageDestinationPath'
 
 `$commandParameters = @{}
 if (Test-Path -Path `$paramsPath) {
@@ -269,6 +294,10 @@ if (Test-Path -Path `$paramsPath) {
 
 if (`$pesterDestinationPath -and (Test-Path -Path './dist/PesterTestResults.xml')) {
     Copy-Item -Path './dist/PesterTestResults.xml' -Destination `$pesterDestinationPath -Force
+}
+
+if (`$coverageDestinationPath -and (Test-Path -Path './dist/coverage.xml')) {
+    Copy-Item -Path './dist/coverage.xml' -Destination `$coverageDestinationPath -Force
 }
 "@
 
@@ -329,6 +358,7 @@ if (`$pesterDestinationPath -and (Test-Path -Path './dist/PesterTestResults.xml'
                     'FunctionQA' {
                         Test-MAModule -TagFilter 'FunctionQA'
                         Copy-PesterResultArtifact -RootPath $projectRoot -DestinationFilePath (Join-Path -Path $testsArtifactPath -ChildPath 'FunctionQA.xml')
+                        Copy-CoverageArtifact -RootPath $projectRoot -DestinationFilePath (Join-Path -Path $testsArtifactPath -ChildPath 'FunctionQA.coverage.xml')
                     }
                     'Build' {
                         Build-MAModule
@@ -337,16 +367,16 @@ if (`$pesterDestinationPath -and (Test-Path -Path './dist/PesterTestResults.xml'
                         }
                     }
                     'ModuleQA' {
-                        Invoke-IsolatedModuleStage -StageName 'ModuleQA' -RootPath $projectRoot -CommandName 'Test-MAModule' -CommandParameters @{ TagFilter = @('ModuleQA') } -LogFilePath $stageLogPath -PesterResultDestinationFilePath (Join-Path -Path $testsArtifactPath -ChildPath 'ModuleQA.xml') -TempPath $tempArtifactPath
+                        Invoke-IsolatedModuleStage -StageName 'ModuleQA' -RootPath $projectRoot -CommandName 'Test-MAModule' -CommandParameters @{ TagFilter = @('ModuleQA') } -LogFilePath $stageLogPath -PesterResultDestinationFilePath (Join-Path -Path $testsArtifactPath -ChildPath 'ModuleQA.xml') -CoverageDestinationFilePath (Join-Path -Path $testsArtifactPath -ChildPath 'ModuleQA.coverage.xml') -TempPath $tempArtifactPath
                     }
                     'Unit' {
-                        Invoke-IsolatedModuleStage -StageName 'Unit' -RootPath $projectRoot -CommandName 'Test-MAModule' -CommandParameters @{ TagFilter = @('Unit') } -LogFilePath $stageLogPath -PesterResultDestinationFilePath (Join-Path -Path $testsArtifactPath -ChildPath 'Unit.xml') -TempPath $tempArtifactPath
+                        Invoke-IsolatedModuleStage -StageName 'Unit' -RootPath $projectRoot -CommandName 'Test-MAModule' -CommandParameters @{ TagFilter = @('Unit') } -LogFilePath $stageLogPath -PesterResultDestinationFilePath (Join-Path -Path $testsArtifactPath -ChildPath 'Unit.xml') -CoverageDestinationFilePath (Join-Path -Path $testsArtifactPath -ChildPath 'Unit.coverage.xml') -TempPath $tempArtifactPath
                     }
                     'Docs' {
                         Invoke-IsolatedModuleStage -StageName 'Docs' -RootPath $projectRoot -CommandName 'Build-MAModuleDocumentation' -CommandParameters @{} -LogFilePath $stageLogPath -TempPath $tempArtifactPath
                     }
                     'Compliance' {
-                        Invoke-IsolatedModuleStage -StageName 'Compliance' -RootPath $projectRoot -CommandName 'Test-MAModule' -CommandParameters @{ TagFilter = @('ChangeLog', 'License') } -LogFilePath $stageLogPath -PesterResultDestinationFilePath (Join-Path -Path $testsArtifactPath -ChildPath 'Compliance.xml') -TempPath $tempArtifactPath
+                        Invoke-IsolatedModuleStage -StageName 'Compliance' -RootPath $projectRoot -CommandName 'Test-MAModule' -CommandParameters @{ TagFilter = @('ChangeLog', 'License') } -LogFilePath $stageLogPath -PesterResultDestinationFilePath (Join-Path -Path $testsArtifactPath -ChildPath 'Compliance.xml') -CoverageDestinationFilePath (Join-Path -Path $testsArtifactPath -ChildPath 'Compliance.coverage.xml') -TempPath $tempArtifactPath
                     }
                     'Publish' {
                         $publishParameters = @{}

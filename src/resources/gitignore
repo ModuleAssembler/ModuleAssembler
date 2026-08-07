@@ -1,2 +1,5 @@
 # Module Build Output
 dist/
+
+# Self-publish orchestrator artifacts (logs, test results, run summaries)
+artifacts/
