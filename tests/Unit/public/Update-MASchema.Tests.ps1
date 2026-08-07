@@ -1,5 +1,6 @@
 BeforeAll {
     $script:projectRoot = Split-Path -Path (Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent) -Parent
+    . (Join-Path -Path $script:projectRoot -ChildPath 'src/private/Invoke-SchemaDownload.ps1')
     . (Join-Path -Path $script:projectRoot -ChildPath 'src/public/Update-MASchema.ps1')
 }
 
@@ -38,6 +39,27 @@ Describe 'Update-MASchema' -Tag 'Unit' {
 
         $updatedProject = Get-Content -Path $projectJsonPath -Raw | ConvertFrom-Json
         $updatedProject.'$schema' | Should-Be './schemas/moduleassembler.v1.0.0.schema.json'
+    }
+
+    It 'writes schema and project JSON files with a trailing blank line' {
+        $moduleAssemblerDir = Join-Path -Path $script:testRoot -ChildPath '.moduleassembler'
+        New-Item -Path $moduleAssemblerDir -ItemType Directory -Force | Out-Null
+
+        $projectJsonPath = Join-Path -Path $moduleAssemblerDir -ChildPath 'moduleproject.json'
+        '{"$schema":"./schemas/original.schema.json","ProjectName":"Demo"}' | Set-Content -Path $projectJsonPath -Encoding 'utf8NoBOM'
+
+        Mock Invoke-SchemaDownload { '{"type":"object"}' }
+
+        Update-MASchema -Force -Confirm:$false
+
+        $schemaFilePath = Join-Path -Path $moduleAssemblerDir -ChildPath 'schemas/moduleassembler.v1.0.0.schema.json'
+        $schemaContent = Get-Content -Path $schemaFilePath -Raw
+        $schemaContent.EndsWith([System.Environment]::NewLine) | Should-BeTrue
+        $schemaContent.EndsWith([System.Environment]::NewLine + [System.Environment]::NewLine) | Should-BeFalse
+
+        $projectContent = Get-Content -Path $projectJsonPath -Raw
+        $projectContent.EndsWith([System.Environment]::NewLine) | Should-BeTrue
+        $projectContent.EndsWith([System.Environment]::NewLine + [System.Environment]::NewLine) | Should-BeFalse
     }
 
     It 'does not write schema files or update project JSON when run with -WhatIf' {

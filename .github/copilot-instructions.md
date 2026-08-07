@@ -27,6 +27,9 @@ The Module Assembler module is used to develop, test, and build itself (bootstra
   - [Markdown instructions](instructions/markdown.instructions.md)
 - Prefer readable, straightforward implementations. Add complexity only when required for input validation, error handling, security, or reducing long-term maintenance burden (e.g., eliminating duplicated logic -- For instance, extracting a shared 3-line pattern into a helper is acceptable; introducing a factory pattern for a single use case is not). Avoid premature abstraction and unnecessary design patterns.
 - All public functions must use [CmdletBinding()] and validate all parameters using built-in validation attributes (e.g., [ValidateNotNullOrEmpty()], [ValidateSet()], [ValidatePattern()]) where applicable. Use custom validation logic only when validation depends on multiple parameters together, runtime state (e.g., file existence, service availability), or conditions that built-in attributes cannot express. Functions that modify state must support -WhatIf via SupportsShouldProcess.
+- Public and private function files must each define exactly one function, and the function name must match the file name.
+- Do not define local helper functions inside a public or private function file. If helper logic is needed, create a dedicated private function file under src/private.
+- Public and private functions must include comment-based help with at least .SYNOPSIS, .DESCRIPTION, .EXAMPLE, and .PARAMETER entries for all declared parameters.
 
   **SupportsShouldProcess Decision Table:**
 

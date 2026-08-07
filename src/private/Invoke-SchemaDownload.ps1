@@ -34,7 +34,7 @@ function Invoke-SchemaDownload {
         # Expected SHA-256 hashes of the UTF-8 encoded content served by the remote source.
         # Computed from: [System.Text.Encoding]::UTF8.GetBytes($content) after Invoke-WebRequest.
         $schemaHashTable = @{
-            'v1.0.0' = '0347F330077694DB6B060CF1C7CFBB7BE7BD37F50672C50C48C2E4E78FB3DE3A'
+            'v1.0.0' = '48F6868A3F7D81133FAFC0D7DAF645FD63F2FB61A11588FCD4D3603B228DAAD8'
         }
 
         if (-not $schemaUrlTable.ContainsKey($SchemaVersion)) {

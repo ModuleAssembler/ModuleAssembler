@@ -4,7 +4,12 @@
     "title": "ModuleAssemblerSchema",
     "description": "ModuleAssembler data utilized when building a module.",
     "type": "object",
+    "additionalProperties": false,
     "properties": {
+        "$schema": {
+            "description": "Relative path to the JSON schema used to validate this project file.",
+            "type": "string"
+        },
         "ProjectName": {
             "description": "Name of the module project.",
             "type": "string"
@@ -25,6 +30,7 @@
         "Manifest": {
             "description": "PowerShell Module Manifest Configuration Items.",
             "type": "object",
+            "additionalProperties": false,
             "properties": {
                 "Author": {
                     "description": "Author of this module.",
@@ -66,6 +72,7 @@
                     "type": "array",
                     "items": {
                         "type": "object",
+                        "additionalProperties": false,
                         "properties": {
                             "ModuleName": {
                                 "description": "The required module name.",
@@ -124,10 +131,12 @@
         "Pester": {
             "description": "Pester Configuration Items.",
             "type": "object",
+            "additionalProperties": false,
             "properties": {
                 "CodeCoverage": {
                     "description": "Code Coverage Configuration.",
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                         "Enabled": {
                             "description": "Enable Code Coverage.",
@@ -137,7 +146,7 @@
                         "OutputFormat": {
                             "description": "Format to use for code coverage report. Valid options are JaCoCo, CoverageGutters, Cobertura.",
                             "type": "string",
-                            "pattern": "^(JaCoCo|CoverageGutters|Cobertura)$",
+                            "pattern": "^(JaCoCo|Cobertura)$",
                             "default": "JaCoCo"
                         },
                         "CoveragePercentTarget": {
@@ -155,6 +164,7 @@
                 "TestResult": {
                     "description": "Test Result Configuration.",
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                         "Enabled": {
                             "description": "Enable Test Results.",
@@ -172,9 +182,25 @@
                         "Enabled"
                     ]
                 },
+                "Should": {
+                    "description": "Control behavior of Pester's Should assertions",
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "DisableV5": {
+                            "description": "Disables usage of Should -Be assertions, that are replaced by Should-Be in version 6.",
+                            "type": "boolean",
+                            "default": true
+                        }
+                    },
+                    "required": [
+                        "DisableV5"
+                    ]
+                },
                 "Output": {
                     "description": "Output Configuration.",
                     "type": "object",
+                    "additionalProperties": false,
                     "properties": {
                         "Verbosity": {
                             "description": "The verbosity of output. Valid options are None, Normal, Detailed or Diagnostic.",
@@ -191,10 +217,10 @@
         }
     },
     "required": [
+        "$schema",
         "ProjectName",
         "Description",
         "Version",
         "Manifest"
     ]
 }
-

@@ -1,31 +1,31 @@
 {
-    "$schema": "./schemas/moduleassembler.v1.0.0.schema.json",
-    "ProjectName": "",
-    "Description": "",
-    "Version": "",
-    "CopyResourcesToModuleRoot": false,
-    "Manifest": {
-        "Author": "",
-        "CompanyName": "",
-        "PowerShellVersion": "",
-        "GUID": "",
-        "Tags": [],
-        "ProjectUri": "",
-        "LicenseUri": "",
-        "IconUri": ""
+  "$schema": "./schemas/moduleassembler.v1.0.0.schema.json",
+  "ProjectName": "",
+  "Description": "",
+  "Version": "",
+  "CopyResourcesToModuleRoot": false,
+  "Manifest": {
+    "Author": "",
+    "CompanyName": "",
+    "PowerShellVersion": "",
+    "GUID": "",
+    "Tags": [],
+    "ProjectUri": "",
+    "LicenseUri": "",
+    "IconUri": ""
+  },
+  "Pester": {
+    "CodeCoverage": {
+      "Enabled": false,
+      "CoveragePercentTarget": 75,
+      "OutputFormat": "JaCoCo"
     },
-    "Pester": {
-        "CodeCoverage": {
-            "Enabled": false,
-            "CoveragePercentTarget": 75,
-            "OutputFormat": "JaCoCo"
-        },
-        "TestResult": {
-            "Enabled": true,
-            "OutputFormat": "JUnitXml"
-        },
-        "Output": {
-            "Verbosity": "Detailed"
-        }
+    "TestResult": {
+      "Enabled": true,
+      "OutputFormat": "JUnitXml"
+    },
+    "Output": {
+      "Verbosity": "Detailed"
     }
+  }
 }

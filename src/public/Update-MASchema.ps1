@@ -1,4 +1,5 @@
 function Update-MASchema {
+
     <#
     .SYNOPSIS
         Downloads and updates the local ModuleAssembler JSON schema.
@@ -65,6 +66,7 @@ function Update-MASchema {
         $projectRoot = Get-Location | Convert-Path
         $schemasDir = [System.IO.Path]::Combine($projectRoot, '.moduleassembler', 'schemas')
         $projectJsonPath = [System.IO.Path]::Combine($projectRoot, '.moduleassembler', 'moduleproject.json')
+        $utf8NoBomEncoding = [System.Text.UTF8Encoding]::new($false)
 
         if (-not (Test-Path $projectJsonPath)) {
             throw 'Not a Module Assembler project, moduleproject.json not found.'
@@ -118,7 +120,8 @@ function Update-MASchema {
                     Write-Verbose "Created schemas directory: $schemasDir"
                 }
 
-                Set-Content -Path $schemaFilePath -Value $schemaContent -Encoding utf8NoBOM -Force
+                $normalizedSchemaContent = $schemaContent.TrimEnd("`r", "`n") + [System.Environment]::NewLine
+                [System.IO.File]::WriteAllText($schemaFilePath, $normalizedSchemaContent, $utf8NoBomEncoding)
                 Write-Verbose "Schema saved to: $schemaFilePath"
             }
         }
@@ -128,7 +131,9 @@ function Update-MASchema {
         if ($PSCmdlet.ShouldProcess($projectJsonPath, "Update `$schema reference to '$localSchemaRef'")) {
             $projectJsonObject = Get-Content -Path $projectJsonPath -Raw | ConvertFrom-Json
             $projectJsonObject.'$schema' = $localSchemaRef
-            $projectJsonObject | ConvertTo-Json -Depth 10 | Set-Content -Path $projectJsonPath -Encoding utf8NoBOM -NoNewline
+            $projectJsonJson = $projectJsonObject | ConvertTo-Json -Depth 10
+            $normalizedProjectJson = $projectJsonJson.TrimEnd("`r", "`n") + [System.Environment]::NewLine
+            [System.IO.File]::WriteAllText($projectJsonPath, $normalizedProjectJson, $utf8NoBomEncoding)
             Write-Verbose "Updated `$schema in moduleproject.json to '$localSchemaRef'."
         }
 
@@ -156,7 +161,8 @@ function Update-MASchema {
                         Write-Verbose "Created resource schemas directory: $resourceSchemasDir"
                     }
 
-                    Set-Content -Path $resourceSchemaFilePath -Value $sourceContent -Encoding utf8NoBOM -Force
+                    $normalizedSourceContent = $sourceContent.TrimEnd("`r", "`n") + [System.Environment]::NewLine
+                    [System.IO.File]::WriteAllText($resourceSchemaFilePath, $normalizedSourceContent, $utf8NoBomEncoding)
                     Write-Verbose "Schema saved to module resources: $resourceSchemaFilePath"
                 }
 
@@ -165,7 +171,9 @@ function Update-MASchema {
                 } elseif ($PSCmdlet.ShouldProcess($templatePath, "Update `$schema reference to '$localSchemaRef'")) {
                     $templateJsonObject = Get-Content -Path $templatePath -Raw | ConvertFrom-Json
                     $templateJsonObject.'$schema' = $localSchemaRef
-                    $templateJsonObject | ConvertTo-Json -Depth 10 | Set-Content -Path $templatePath -Encoding utf8NoBOM -NoNewline
+                    $templateJsonJson = $templateJsonObject | ConvertTo-Json -Depth 10
+                    $normalizedTemplateJson = $templateJsonJson.TrimEnd("`r", "`n") + [System.Environment]::NewLine
+                    [System.IO.File]::WriteAllText($templatePath, $normalizedTemplateJson, $utf8NoBomEncoding)
                     Write-Verbose "Updated `$schema in ModuleProjectTemplate.json to '$localSchemaRef'."
                 }
             }
