@@ -111,7 +111,7 @@ Describe 'Update-MASchema' -Tag 'Unit' {
         Mock Invoke-SchemaDownload { $schemaWithDefaults }
 
         $warnings = @()
-        Update-MASchema -Force -ApplyNewSchemaDefaults -Confirm:$false -WarningVariable warnings
+        Update-MASchema -Force -ApplyNewSchemaDefaults -Confirm:$false -WarningVariable warnings -WarningAction SilentlyContinue
 
         $updatedProject = Get-Content -Path $projectJsonPath -Raw | ConvertFrom-Json
         $updatedProject.Pester.Should.DisableV5 | Should-BeTrue
@@ -182,7 +182,7 @@ Describe 'Update-MASchema' -Tag 'Unit' {
 
         Mock Invoke-SchemaDownload { $schemaWithDefaults }
 
-        Update-MASchema -Force -UpdateSource -ApplyNewSchemaDefaults -Confirm:$false
+        Update-MASchema -Force -UpdateSource -ApplyNewSchemaDefaults -Confirm:$false -WarningAction SilentlyContinue
 
         $updatedTemplate = Get-Content -Path $templatePath -Raw | ConvertFrom-Json
         $updatedTemplate.Pester.Output.Verbosity | Should-Be 'Detailed'

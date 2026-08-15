@@ -190,7 +190,7 @@ function Build-MAModuleDocumentation {
                 if ($commandContent.CmdletBinding) {
                     $fileContent += "### \<CommonParameters\>`n`n"
                     $fileContent += "This cmdlet supports the common parameters: Verbose, Debug, ErrorAction, ErrorVariable, WarningAction, WarningVariable, OutBuffer, PipelineVariable, and OutVariable.`n`n"
-                    $fileContent += "For more information, see about_CommonParameters [https://go.microsoft.com/fwlink/?LinkID=113216].`n"
+                    $fileContent += "For more information, see [about_CommonParameters](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_commonparameters).`n"
                 }
             }
 
