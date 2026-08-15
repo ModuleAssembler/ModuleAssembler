@@ -37,7 +37,24 @@ param (
     [switch] $SkipDependenciesCheck,
 
     [Parameter(Mandatory = $false)]
-    [switch] $SkipPrePublishValidation
+    [switch] $SkipPrePublishValidation,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $UpdateVersion,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('Major', 'Minor', 'Patch')]
+    [string] $VersionLabel,
+
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('alpha', 'beta', 'preview', 'rc')]
+    [string] $VersionPrereleaseType,
+
+    [Parameter(Mandatory = $false)]
+    [switch] $PromoteChangelogRelease,
+
+    [Parameter(Mandatory = $false)]
+    [datetime] $ChangelogReleaseDate
 )
 
 function Invoke-ModuleSelfPublish {
@@ -81,11 +98,36 @@ function Invoke-ModuleSelfPublish {
         [switch] $SkipDependenciesCheck,
 
         [Parameter(Mandatory = $false)]
-        [switch] $SkipPrePublishValidation
+        [switch] $SkipPrePublishValidation,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $UpdateVersion,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateSet('Major', 'Minor', 'Patch')]
+        [string] $VersionLabel,
+
+        [Parameter(Mandatory = $false)]
+        [ValidateSet('alpha', 'beta', 'preview', 'rc')]
+        [string] $VersionPrereleaseType,
+
+        [Parameter(Mandatory = $false)]
+        [switch] $PromoteChangelogRelease,
+
+        [Parameter(Mandatory = $false)]
+        [datetime] $ChangelogReleaseDate
     )
 
     begin {
         $ErrorActionPreference = 'Stop'
+
+        if (($PSBoundParameters.ContainsKey('VersionLabel') -or $PSBoundParameters.ContainsKey('VersionPrereleaseType')) -and -not $UpdateVersion.IsPresent) {
+            throw 'VersionLabel and VersionPrereleaseType require -UpdateVersion.'
+        }
+
+        if ($PSBoundParameters.ContainsKey('ChangelogReleaseDate') -and -not $PromoteChangelogRelease.IsPresent) {
+            throw 'ChangelogReleaseDate requires -PromoteChangelogRelease.'
+        }
 
         $stageOrder = @('FunctionQA', 'Build', 'ModuleQA', 'Unit', 'Docs', 'Compliance', 'Publish')
         $startIndex = [Array]::IndexOf($stageOrder, $StartStage)
@@ -98,7 +140,18 @@ function Invoke-ModuleSelfPublish {
         }
 
         $stagesToRun = $stageOrder[$startIndex..$endIndex]
+
+        if ($UpdateVersion.IsPresent -and -not ($stagesToRun -contains 'Build')) {
+            throw 'UpdateVersion requires the selected stage range to include Build.'
+        }
+
+        if ($PromoteChangelogRelease.IsPresent -and -not ($stagesToRun -contains 'Compliance')) {
+            throw 'PromoteChangelogRelease requires the selected stage range to include Compliance.'
+        }
+
         $projectRoot = $PSScriptRoot
+        $versionUpdated = $false
+        $changelogPromoted = $false
 
         $artifactsRootPath = $ArtifactsPath
         $previousRunsRootPath = Join-Path -Path $artifactsRootPath -ChildPath 'previous_runs'
@@ -361,6 +414,19 @@ if (`$coverageDestinationPath -and (Test-Path -Path './dist/coverage.xml')) {
                         Copy-CoverageArtifact -RootPath $projectRoot -DestinationFilePath (Join-Path -Path $testsArtifactPath -ChildPath 'FunctionQA.coverage.xml')
                     }
                     'Build' {
+                        if ($UpdateVersion.IsPresent -and -not $versionUpdated) {
+                            $updateVersionParams = @{}
+                            if ($PSBoundParameters.ContainsKey('VersionLabel')) {
+                                $updateVersionParams['Label'] = $VersionLabel
+                            }
+                            if ($PSBoundParameters.ContainsKey('VersionPrereleaseType')) {
+                                $updateVersionParams['PrereleaseType'] = $VersionPrereleaseType
+                            }
+
+                            Update-MAModuleVersion @updateVersionParams
+                            $versionUpdated = $true
+                        }
+
                         Build-MAModule
                         if (-not (Test-Path -Path $distManifestPath)) {
                             throw "Expected built manifest not found at '$distManifestPath'."
@@ -376,6 +442,16 @@ if (`$coverageDestinationPath -and (Test-Path -Path './dist/coverage.xml')) {
                         Invoke-IsolatedModuleStage -StageName 'Docs' -RootPath $projectRoot -CommandName 'Build-MAModuleDocumentation' -CommandParameters @{} -LogFilePath $stageLogPath -TempPath $tempArtifactPath
                     }
                     'Compliance' {
+                        if ($PromoteChangelogRelease.IsPresent -and -not $changelogPromoted) {
+                            $updateChangelogParams = @{}
+                            if ($PSBoundParameters.ContainsKey('ChangelogReleaseDate')) {
+                                $updateChangelogParams['ReleaseDate'] = $ChangelogReleaseDate
+                            }
+
+                            Update-MAChangelogRelease @updateChangelogParams
+                            $changelogPromoted = $true
+                        }
+
                         Invoke-IsolatedModuleStage -StageName 'Compliance' -RootPath $projectRoot -CommandName 'Test-MAModule' -CommandParameters @{ TagFilter = @('ChangeLog', 'License') } -LogFilePath $stageLogPath -PesterResultDestinationFilePath (Join-Path -Path $testsArtifactPath -ChildPath 'Compliance.xml') -CoverageDestinationFilePath (Join-Path -Path $testsArtifactPath -ChildPath 'Compliance.coverage.xml') -TempPath $tempArtifactPath
                     }
                     'Publish' {
@@ -448,16 +524,21 @@ if (`$coverageDestinationPath -and (Test-Path -Path './dist/coverage.xml')) {
             'Passed'
         }
         $summaryObject = [PSCustomObject]@{
-            RunStartedUtc     = $runStartedUtc
-            RunEndedUtc       = $runEndedUtc
-            DurationSeconds   = [math]::Round($runDuration.TotalSeconds, 2)
-            Result            = $runResult
-            StartStage        = $StartStage
-            EndStage          = $EndStage
-            ParameterSetName  = $PSCmdlet.ParameterSetName
-            ArtifactsPath     = $latestArtifactsPath
-            ArtifactsRootPath = $artifactsRootPath
-            Stages            = $stageResults
+            RunStartedUtc           = $runStartedUtc
+            RunEndedUtc             = $runEndedUtc
+            DurationSeconds         = [math]::Round($runDuration.TotalSeconds, 2)
+            Result                  = $runResult
+            StartStage              = $StartStage
+            EndStage                = $EndStage
+            ParameterSetName        = $PSCmdlet.ParameterSetName
+            ArtifactsPath           = $latestArtifactsPath
+            ArtifactsRootPath       = $artifactsRootPath
+            UpdateVersion           = $UpdateVersion.IsPresent
+            VersionLabel            = if ($PSBoundParameters.ContainsKey('VersionLabel')) { $VersionLabel } else { $null }
+            VersionPrereleaseType   = if ($PSBoundParameters.ContainsKey('VersionPrereleaseType')) { $VersionPrereleaseType } else { $null }
+            PromoteChangelogRelease = $PromoteChangelogRelease.IsPresent
+            ChangelogReleaseDate    = if ($PSBoundParameters.ContainsKey('ChangelogReleaseDate')) { $ChangelogReleaseDate } else { $null }
+            Stages                  = $stageResults
         }
 
         $summaryPath = Join-Path -Path $bootstrapArtifactPath -ChildPath 'run-summary.json'
