@@ -69,3 +69,7 @@ Creates a minimal PowerShell advanced function with basic help and error handlin
 ### psfunction
 
 Creates a PowerShell function following best practices with OTBS formatting, comprehensive help, and proper CmdletBinding.
+
+## Module Metadata
+
+All Metadata for your module is stored in `/.moduleassember/moduleproject.json`, any manual edits requred on your module properties may be done there.
