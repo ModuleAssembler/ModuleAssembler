@@ -17,6 +17,8 @@ Types of changes, as level 3 headings:
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-16
+
 ### Added
 
 - Added VSCode extensions, settings, and code snippet files.
@@ -30,6 +32,7 @@ Types of changes, as level 3 headings:
 - Added `Update-MAChangelogRelease` to promote CHANGELOG.md [Unreleased] content into a versioned release section and recreate a fresh [Unreleased] section.
 - Added `Publish-MAModule` to publish modules to a registry such as PowerShell Gallery.
 - Added `Invoke-MARelease` for manually executing a full release sequence.
+- Added markdownlint settings.
 
 ### Changed
 
