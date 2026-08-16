@@ -1,51 +1,51 @@
 {
-    "$schema": "./schemas/moduleassembler.v1.0.0.schema.json",
-    "ProjectName": "ModuleAssembler",
-    "Description": "ModuleAssembler is a PowerShell module that provides scaffolding, build, test, documentation, versioning, and publishing utilities for PowerShell module development. It is suited for both interactive development workflows and CI/CD pipelines.",
-    "Version": "0.2.0",
-    "CopyResourcesToModuleRoot": false,
-    "Manifest": {
-        "Author": "TrisBits",
-        "CompanyName": "",
-        "PowerShellVersion": "7.4",
-        "GUID": "a11215d2-0401-4d80-8447-5bbd5dd8c3f3",
-        "Tags": [
-            "PSEdition_Core",
-            "Windows",
-            "Linux",
-            "MacOS"
-        ],
-        "ProjectUri": "https://github.com/ModuleAssembler/ModuleAssembler",
-        "LicenseUri": "https://github.com/ModuleAssembler/ModuleAssembler/blob/main/LICENSE",
-        "IconUri": "https://github.com/ModuleAssembler/ModuleAssembler/blob/main/assets/ModuleAssember.jpg?raw=true",
-        "RequiredModules": [
-            {
-                "ModuleName": "PSScriptAnalyzer",
-                "ModuleVersion": "1.25.0",
-                "MaximumVersion": "1.99.99"
-            },
-            {
-                "ModuleName": "Pester",
-                "ModuleVersion": "6.0.0",
-                "MaximumVersion": "6.99.99"
-            }
-        ]
+  "$schema": "./schemas/moduleassembler.v1.0.0.schema.json",
+  "ProjectName": "ModuleAssembler",
+  "Description": "ModuleAssembler is a PowerShell module that provides scaffolding, build, test, documentation, versioning, and publishing utilities for PowerShell module development. It is suited for both interactive development workflows and CI/CD pipelines.",
+  "Version": "0.3.0",
+  "CopyResourcesToModuleRoot": false,
+  "Manifest": {
+    "Author": "TrisBits",
+    "CompanyName": "",
+    "PowerShellVersion": "7.4",
+    "GUID": "a11215d2-0401-4d80-8447-5bbd5dd8c3f3",
+    "Tags": [
+      "PSEdition_Core",
+      "Windows",
+      "Linux",
+      "MacOS"
+    ],
+    "ProjectUri": "https://github.com/ModuleAssembler/ModuleAssembler",
+    "LicenseUri": "https://github.com/ModuleAssembler/ModuleAssembler/blob/main/LICENSE",
+    "IconUri": "https://github.com/ModuleAssembler/ModuleAssembler/blob/main/assets/ModuleAssember.jpg?raw=true",
+    "RequiredModules": [
+      {
+        "ModuleName": "PSScriptAnalyzer",
+        "ModuleVersion": "1.25.0",
+        "MaximumVersion": "1.99.99"
+      },
+      {
+        "ModuleName": "Pester",
+        "ModuleVersion": "6.0.0",
+        "MaximumVersion": "6.99.99"
+      }
+    ]
+  },
+  "Pester": {
+    "CodeCoverage": {
+      "Enabled": false,
+      "CoveragePercentTarget": 75,
+      "OutputFormat": "JaCoCo"
     },
-    "Pester": {
-        "CodeCoverage": {
-            "Enabled": false,
-            "CoveragePercentTarget": 75,
-            "OutputFormat": "JaCoCo"
-        },
-        "TestResult": {
-            "Enabled": true,
-            "OutputFormat": "JUnitXml"
-        },
-        "Output": {
-            "Verbosity": "Detailed"
-        },
-        "Should": {
-            "DisableV5": true
-        }
+    "TestResult": {
+      "Enabled": true,
+      "OutputFormat": "JUnitXml"
+    },
+    "Output": {
+      "Verbosity": "Detailed"
+    },
+    "Should": {
+      "DisableV5": true
     }
+  }
 }
