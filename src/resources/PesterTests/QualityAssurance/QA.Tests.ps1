@@ -423,6 +423,30 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
                     Should-BeCollection -Actual $rawAliasesToExport -Expected $expectedAliases
                 }
             }
+
+            It 'should have Tags without blank spaces' {
+                if (-not $script:psdPresent) {
+                    Set-ItResult -Skip
+                    return
+                }
+
+                $tags = @($script:manifest.PrivateData.PSData.Tags)
+                $invalidTags = @($tags | Where-Object { $_ -match '\s' })
+
+                $invalidTags.Count | Should-Be 0 -Because ('PowerShell Gallery tags cannot contain spaces: {0}' -f ($invalidTags -join ', '))
+            }
+
+            It 'should have a combined Tags length of less than 4000 characters' {
+                if (-not $script:psdPresent) {
+                    Set-ItResult -Skip
+                    return
+                }
+
+                $tags = @($script:manifest.PrivateData.PSData.Tags)
+                $combinedLength = ($tags -join '').Length
+
+                $combinedLength | Should-BeLessThan 4000 -Because 'PowerShell Gallery limits the combined length of all tags to 4000 characters'
+            }
         }
     }
 

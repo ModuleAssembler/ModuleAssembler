@@ -17,6 +17,12 @@ Types of changes, as level 3 headings:
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-16
+
+### Added
+
+- Added QA Tests to ensure module Tags conform to PowerShell Gallery requirements of **No Blank Spaces" and "Combined Tags less then 4000 characters".
+
 ## [0.2.0] - 2026-08-16
 
 ### Added
