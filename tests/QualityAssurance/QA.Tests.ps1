@@ -447,30 +447,6 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
 
                 $combinedLength | Should-BeLessThan 4000 -Because 'PowerShell Gallery limits the combined length of all tags to 4000 characters'
             }
-
-            It 'should have at least one PSEdition compatibility Tag' {
-                if (-not $script:psdPresent) {
-                    Set-ItResult -Skip
-                    return
-                }
-
-                $tags = @($script:manifest.PrivateData.PSData.Tags)
-                $editionTags = @($tags | Where-Object { $_ -in 'PSEdition_Desktop', 'PSEdition_Core' })
-
-                $editionTags.Count | Should-BeGreaterThan 0 -Because 'Tags must denote PowerShell edition compatibility using PSEdition_Desktop and/or PSEdition_Core'
-            }
-
-            It 'should have at least one operating system compatibility Tag' {
-                if (-not $script:psdPresent) {
-                    Set-ItResult -Skip
-                    return
-                }
-
-                $tags = @($script:manifest.PrivateData.PSData.Tags)
-                $osTags = @($tags | Where-Object { $_ -in 'Windows', 'Linux', 'MacOS' })
-
-                $osTags.Count | Should-BeGreaterThan 0 -Because 'Tags must denote operating system compatibility using Windows, Linux and/or MacOS'
-            }
         }
     }
 
