@@ -4,8 +4,10 @@ function Update-MAModuleVersion {
         Updates the version number of a module in moduleproject.json file. Uses [semver] object type.
 
     .DESCRIPTION
-        This function updates the version number of the PowerShell module by modifying the moduleproject.json file, which gets written into module manifest file (.psd1). [semver] is supported only for PowerShell 7 and above.
-        It increments the version number based on the specified version part (Major, Minor, Patch). Allows for pre-release labels of (alpha, beta, preview, rc).
+        This function updates the version number of the PowerShell module by modifying the moduleproject.json
+        file, which gets written into module manifest file (.psd1). [semver] is supported only for PowerShell 7 and above.
+        It increments the version number based on the specified version part (Major, Minor, Patch).
+        Allows for pre-release labels of (alpha, beta, preview, rc).
 
     .PARAMETER Label
         The part of the version number to increment (Major, Minor, Patch). Default is Patch.

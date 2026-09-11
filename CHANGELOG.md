@@ -17,6 +17,17 @@ Types of changes, as level 3 headings:
 
 ## [Unreleased]
 
+### Changed
+
+- Improved `New-MAModule` description and parameter descriptions.
+- Improved `Build-MAModule` description, explaining its build stages and required working directory.
+- Improved `Get-MAProjectInfo` description and parameter descriptions.
+
+### Fixed
+
+- `New-MAModule` will now consider directory containing a .git directory and/or README.md, as the valid module sub-directory in which to template the module.
+- `Test-MAModule` will now produce an informative error when executed from a Visual Studio Code PowerShell Extension terminal. As it is unable to reliably execute Invoke-ScriptAnalyzer called in Pester tests.
+
 ## [0.3.0] - 2026-08-16
 
 ### Added
