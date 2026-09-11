@@ -52,7 +52,7 @@ function Test-MAModule {
     )
 
     begin {
-        if ($Host.Name -eq 'Visual Studio Code Host') {
+        if ((Get-Host).Name -eq 'Visual Studio Code Host') {
             throw 'Test-MAModule must be run from a pwsh terminal, not the PowerShell Extension''s integrated console, which cannot reliably resolve some binary module commands (e.g. Invoke-ScriptAnalyzer).'
         }
 

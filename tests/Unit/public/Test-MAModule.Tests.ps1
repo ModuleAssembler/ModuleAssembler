@@ -1,10 +1,17 @@
 BeforeAll {
     $script:projectRoot = Split-Path -Path (Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent) -Parent
+    . (Join-Path -Path $script:projectRoot -ChildPath 'src/private/Test-JsonSchema.ps1')
     . (Join-Path -Path $script:projectRoot -ChildPath 'src/public/Get-MAProjectInfo.ps1')
     . (Join-Path -Path $script:projectRoot -ChildPath 'src/public/Test-MAModule.ps1')
 }
 
 Describe 'Test-MAModule' -Tag 'Unit' {
+    It 'throws when run from the Visual Studio Code PowerShell host' {
+        Mock Get-Host { [pscustomobject]@{ Name = 'Visual Studio Code Host' } }
+
+        { Test-MAModule } | Should-Throw -ExceptionMessage '*must be run from a pwsh terminal*'
+    }
+
     It 'throws when moduleproject schema validation fails' {
         Mock Test-JsonSchema { $false }
 
