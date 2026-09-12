@@ -17,6 +17,8 @@ Types of changes, as level 3 headings:
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-09-12
+
 ### Changed
 
 - Improved `New-MAModule` description and parameter descriptions.

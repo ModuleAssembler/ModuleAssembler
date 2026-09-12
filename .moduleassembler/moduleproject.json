@@ -2,7 +2,7 @@
   "$schema": "./schemas/moduleassembler.v1.0.0.schema.json",
   "ProjectName": "ModuleAssembler",
   "Description": "ModuleAssembler is a PowerShell module that provides scaffolding, build, test, documentation, versioning, and publishing utilities for PowerShell module development. It is suited for both interactive development workflows and CI/CD pipelines.",
-  "Version": "0.3.0",
+  "Version": "0.3.1",
   "CopyResourcesToModuleRoot": false,
   "Manifest": {
     "Author": "TrisBits",
