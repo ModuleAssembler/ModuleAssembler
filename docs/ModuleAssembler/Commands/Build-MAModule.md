@@ -13,7 +13,12 @@ Build-MAModule
 
 ## Description
 
-Invokes the process to build by cleaning up the dist folder, building the module, and copying all necessary resource files.
+Builds the current ModuleAssembler project in the project's dist directory.
+
+Run this command from the module project directory. The build removes any existing
+dist output, combines the class, private, and public source files into the module
+PSM1 file, creates the module manifest, and copies the project resource files into
+the build output according to the project configuration.
 
 ## Aliases
 

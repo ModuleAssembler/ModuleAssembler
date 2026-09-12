@@ -15,8 +15,15 @@ Test-MAModule
 
 ## Description
 
-This function runs Pester tests using the specified configuration and settings in project.json.
-Place all module tests in "tests" folder.
+Runs the Pester tests for the current ModuleAssembler project.
+
+Run this command from the module project directory. Tests are discovered from the
+project's "tests" directory, and the Pester configuration is loaded from the
+"Pester" section of ".moduleassembler/moduleproject.json".
+
+Test results and code coverage reports are written to the project's "dist"
+directory. The command throws an error if the project configuration is invalid
+or if one or more tests fail.
 
 ## Aliases
 
@@ -52,7 +59,8 @@ Runs the Pester tests, excludes any test with tag unit.
 
 ### -TagFilter
 
-Array of Pester tags to run.
+One or more Pester tags. Only tests with at least one matching tag are run.
+If omitted, all tests are eligible to run unless excluded with ExcludeTagFilter.
 
 | Property | Value |
 | --- | --- |
@@ -64,7 +72,8 @@ Array of Pester tags to run.
 
 ### -ExcludeTagFilter
 
-Array of Pester tags to exclude.
+One or more Pester tags. Tests with any matching tag are excluded.
+Exclusions are applied together with TagFilter when both parameters are specified.
 
 | Property | Value |
 | --- | --- |

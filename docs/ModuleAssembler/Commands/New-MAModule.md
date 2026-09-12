@@ -2,7 +2,7 @@
 
 ## Synopsis
 
-Create module scaffolding along with project.json file to build and manage modules.
+Create module scaffolding along with moduleproject.json file to build and manage a module.
 
 ## Syntax
 
@@ -16,7 +16,11 @@ New-MAModule
 
 ## Description
 
-Creates module project folder structure and project.json file. Use this to quickly setup a ModuleAssembler compatible module.
+Creates a ModuleAssembler compatible project directory structure.
+
+The module directory is created as a subdirectory of the specified Path using the module name.
+When Path is omitted, the current working directory is used as the parent directory.
+For example, running New-MAModule from 'C:\Temp' and entering 'MyModule' creates the project in 'C:\Temp\MyModule'.
 
 ## Aliases
 
@@ -30,7 +34,7 @@ MANew
 New-MAModule -Path 'C:\work'
 ```
 
-Creates module project inside c:\work folder.
+Creates module project inside c:\work directory.
 
 ### EXAMPLE 2
 
@@ -38,13 +42,13 @@ Creates module project inside c:\work folder.
 New-MAModule
 ```
 
-Creates module project in the current folder.
+Creates the module project directory in the current working directory.
 
 ## Parameters
 
 ### -Path
 
-Path where module will be created. Provide root folder path, module folder will be created as a subdirectory.
+Parent directory where the module directory will be created. If omitted, the current working directory is used.
 
 | Property | Value |
 | --- | --- |

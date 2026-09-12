@@ -22,8 +22,10 @@ Update-MAModuleVersion -PreReleaseRemove
 
 ## Description
 
-This function updates the version number of the PowerShell module by modifying the moduleproject.json file, which gets written into module manifest file (.psd1). [semver] is supported only for PowerShell 7 and above.
-It increments the version number based on the specified version part (Major, Minor, Patch). Allows for pre-release labels of (alpha, beta, preview, rc).
+This function updates the version number of the PowerShell module by modifying the moduleproject.json
+file, which gets written into module manifest file (.psd1). [semver] is supported only for PowerShell 7 and above.
+It increments the version number based on the specified version part (Major, Minor, Patch).
+Allows for pre-release labels of (alpha, beta, preview, rc).
 
 ## Aliases
 
