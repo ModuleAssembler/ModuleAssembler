@@ -2,7 +2,7 @@
 
 ## Synopsis
 
-Retrieves information about a project by reading data from project.json file in the project folder.
+Gets metadata and derived paths for the current ModuleAssembler project.
 
 ## Syntax
 
@@ -13,9 +13,15 @@ Get-MAProjectInfo
 
 ## Description
 
-Retrieves information about a project by reading data from project.json file located in the root directory.
-Ensure you navigate to a module directory which has project.json in root directory.
-Most variables are already defined in output of this command which can be used in pester tests and other configs.
+Reads the project's .moduleassembler/moduleproject.json file and returns its module metadata
+together with commonly used project, source, resource, build output, module, manifest, and module file paths.
+
+Run this command from the module project directory.
+The command does not search parent directories for a project configuration file and throws an error if
+.moduleassembler/moduleproject.json is not found.
+
+The returned object has the custom type name MAProjectInfo and can be used by
+ModuleAssembler commands, Pester tests, and project configuration scripts.
 
 ## Aliases
 
@@ -29,7 +35,7 @@ MAInfo
 Get-MAProjectInfo
 ```
 
-Get a hashtable output of all module project metadata.
+Returns metadata and derived paths for the current ModuleAssembler project.
 
 ## Parameters
 
@@ -43,4 +49,4 @@ For more information, see [about_CommonParameters](https://learn.microsoft.com/e
 
 ### System.Management.Automation.PSCustomObject
 
-A PSCustomObject with the custom type name MAProjectInfo containing the module project metadata.
+A PSCustomObject with the custom type name MAProjectInfo containing the project metadata and derived paths.

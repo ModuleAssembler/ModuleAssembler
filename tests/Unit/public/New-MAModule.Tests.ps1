@@ -1,5 +1,7 @@
 BeforeAll {
     $script:projectRoot = Split-Path -Path (Split-Path -Path (Split-Path -Path $PSScriptRoot -Parent) -Parent) -Parent
+    . (Join-Path -Path $script:projectRoot -ChildPath 'src/private/Initialize-GitRepo.ps1')
+    . (Join-Path -Path $script:projectRoot -ChildPath 'src/private/Read-HostResponse.ps1')
     . (Join-Path -Path $script:projectRoot -ChildPath 'src/public/New-MAModule.ps1')
 }
 
@@ -104,5 +106,73 @@ Describe 'New-MAModule' -Tag 'Unit' {
         $projectData.ProjectName | Should-Be 'DemoModule'
         $projectData.Manifest.PowerShellVersion | Should-Be '7.6'
         $projectData.Pester | Should-BeNull
+    }
+
+    It 'creates a scaffold in a project directory containing only git metadata and README.md' {
+        $projectDir = Join-Path -Path $script:testRoot -ChildPath 'DemoModule'
+        New-Item -Path $projectDir -ItemType Directory | Out-Null
+        New-Item -Path (Join-Path -Path $projectDir -ChildPath '.git') -ItemType Directory | Out-Null
+        New-Item -Path (Join-Path -Path $projectDir -ChildPath 'README.md') -ItemType File | Out-Null
+
+        $answers = @('DemoModule', 'Description', '0.1.0', 'Author', '', '7.6', 'MIT', 'No', 'No', 'No')
+        $script:answerIndex = 0
+
+        Mock Read-HostResponse {
+            $value = $answers[$script:answerIndex]
+            $script:answerIndex++
+            $value
+        }
+
+        Mock Get-Content {
+            @'
+{
+    "$schema": "./schemas/moduleassembler.v1.0.0.schema.json",
+    "ProjectName": "Template",
+    "Description": "Template",
+    "Version": "0.1.0",
+    "Manifest": {
+        "Author": "",
+        "CompanyName": "",
+        "PowerShellVersion": "7.6",
+        "GUID": "00000000-0000-0000-0000-000000000000"
+    },
+    "Pester": {
+        "Run": {},
+        "Output": {},
+        "Filter": {},
+        "TestResult": {}
+    }
+}
+'@
+        } -ParameterFilter { $Path -like '*ModuleProjectTemplate.json' }
+
+        Mock Get-Content {
+            'MIT template <YEAR> <COPYRIGHT HOLDER>'
+        } -ParameterFilter { $Path -like '*LicenseTemplates*' }
+
+        Mock Get-Content {
+            '# Changelog'
+        } -ParameterFilter { $Path -like '*CHANGELOG.md' }
+
+        New-MAModule -Path $script:testRoot -Confirm:$false
+
+        Test-Path -Path (Join-Path -Path $projectDir -ChildPath '.moduleassembler/moduleproject.json') | Should-BeTrue
+    }
+
+    It 'rejects an existing project directory containing files other than git metadata and README.md' {
+        $projectDir = Join-Path -Path $script:testRoot -ChildPath 'DemoModule'
+        New-Item -Path $projectDir -ItemType Directory | Out-Null
+        New-Item -Path (Join-Path -Path $projectDir -ChildPath 'LICENSE') -ItemType File | Out-Null
+
+        $answers = @('DemoModule', 'Description', '0.1.0', 'Author', '', '7.6', 'MIT', 'No', 'No', 'No')
+        $script:answerIndex = 0
+
+        Mock Read-HostResponse {
+            $value = $answers[$script:answerIndex]
+            $script:answerIndex++
+            $value
+        }
+
+        { New-MAModule -Path $script:testRoot -Confirm:$false } | Should-Throw -ExceptionMessage '*Project already exists*'
     }
 }
