@@ -17,6 +17,11 @@ Types of changes, as level 3 headings:
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed generated Visual Studio Code PowerShell snippets so automatic variables such as `$PSCmdlet`, `$_`, and `$MyInvocation` retain their `$` prefix after snippet expansion.
+- Fixed the minimal Visual Studio Code PowerShell function snippet so generated functions include an `OutputType` attribute consistent with module standards.
+
 ## [0.3.1] - 2026-09-12
 
 ### Changed
