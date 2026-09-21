@@ -17,6 +17,8 @@ Types of changes, as level 3 headings:
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-09-20
+
 ### Fixed
 
 - Fixed `Test-MAModule` so JSON integer values for Pester `CodeCoverage.CoveragePercentTarget` are normalized to the decimal type expected by Pester 6.
