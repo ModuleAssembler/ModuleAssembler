@@ -19,6 +19,7 @@ Types of changes, as level 3 headings:
 
 ### Fixed
 
+- Fixed `Test-MAModule` so JSON integer values for Pester `CodeCoverage.CoveragePercentTarget` are normalized to the decimal type expected by Pester 6.
 - Fixed generated Visual Studio Code PowerShell snippets so automatic variables such as `$PSCmdlet`, `$_`, and `$MyInvocation` retain their `$` prefix after snippet expansion.
 - Fixed the minimal Visual Studio Code PowerShell function snippet so generated functions include an `OutputType` attribute consistent with module standards.
 

@@ -51,6 +51,55 @@ Describe 'Test-MAModule' -Tag 'Unit' {
         ($script:capturedConfiguration.CodeCoverage.OutputPath.Value -replace '\\', '/') | Should-Be './dist/coverage.xml'
     }
 
+    It 'accepts JSON-compatible Pester schema value types before creating Pester configuration' {
+        Mock Test-JsonSchema { $true }
+        Mock Get-MAProjectInfo {
+            [PSCustomObject]@{
+                Pester = @{
+                    Run          = @{}
+                    Output       = @{
+                        Verbosity = 'Detailed'
+                    }
+                    Filter       = @{}
+                    TestResult   = @{
+                        Enabled      = $true
+                        OutputFormat = 'JUnitXml'
+                    }
+                    Should       = @{
+                        DisableV5 = $true
+                    }
+                    CodeCoverage = @{
+                        Enabled               = $false
+                        OutputFormat          = 'JaCoCo'
+                        CoveragePercentTarget = [long] 75
+                    }
+                }
+            }
+        }
+
+        $script:capturedConfiguration = $null
+        Mock Invoke-Pester {
+            param($Configuration)
+            $script:capturedConfiguration = $Configuration
+            [PSCustomObject]@{
+                Result      = 'Passed'
+                FailedCount = 0
+                TotalCount  = 1
+            }
+        }
+
+        Test-MAModule
+
+        $script:capturedConfiguration.CodeCoverage.Enabled.Value | Should-BeFalse
+        $script:capturedConfiguration.CodeCoverage.OutputFormat.Value | Should-Be 'JaCoCo'
+        $script:capturedConfiguration.CodeCoverage.CoveragePercentTarget.Value | Should-HaveType ([decimal])
+        $script:capturedConfiguration.CodeCoverage.CoveragePercentTarget.Value | Should-Be 75
+        $script:capturedConfiguration.TestResult.Enabled.Value | Should-BeTrue
+        $script:capturedConfiguration.TestResult.OutputFormat.Value | Should-Be 'JUnitXml'
+        $script:capturedConfiguration.Should.DisableV5.Value | Should-BeTrue
+        $script:capturedConfiguration.Output.Verbosity.Value | Should-Be 'Detailed'
+    }
+
     It 'throws when any Pester test fails' {
         Mock Test-JsonSchema { $true }
         Mock Get-MAProjectInfo {

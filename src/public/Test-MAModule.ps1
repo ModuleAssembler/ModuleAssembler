@@ -61,6 +61,10 @@ function Test-MAModule {
         }
 
         $data = Get-MAProjectInfo
+        if ($null -ne $data.Pester.CodeCoverage.CoveragePercentTarget) {
+            $data.Pester.CodeCoverage.CoveragePercentTarget = [decimal] $data.Pester.CodeCoverage.CoveragePercentTarget
+        }
+
         $pesterConfig = New-PesterConfiguration -Hashtable $data.Pester
     }
 
