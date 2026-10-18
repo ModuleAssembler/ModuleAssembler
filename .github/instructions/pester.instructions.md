@@ -43,12 +43,16 @@ Also ensure test runners use supported PowerShell versions for Pester v6
 
 ## Test Structure Hierarchy
 
+Every top-level `Describe` block in a file under `tests/Unit/` must include
+`-Tag 'Unit'`. Apply the tag to `Describe`, not to individual `Context` or `It`
+blocks, so the complete unit suite can be selected consistently.
+
 ```powershell
 BeforeAll {
     # Import tested functions
 }
 
-Describe 'FunctionName' {
+Describe 'FunctionName' -Tag 'Unit' {
     Context 'When condition is true' {
         BeforeEach {
             # Setup
@@ -57,10 +61,8 @@ Describe 'FunctionName' {
         It 'Returns expected result' {
             # Arrange
             $input = 'value'
-
             # Act
             $result = FunctionName -Input $input
-
             # Assert
             Should-Be $result 'expected'
         }
@@ -210,6 +212,15 @@ It 'Validates phone number format' {
 - Use `-Verifiable` when call verification is required.
 - Use `Should-Invoke`, `Should-NotInvoke`, and
     `Should-Invoke -Verifiable` for mock-call checks.
+- Mock every external operating-system boundary. Examples include Windows
+  cmdlets, registry-provider operations, CIM calls, Linux services and package
+  managers, and platform-specific native processes.
+- When a platform-specific command is unavailable on the test host,
+  conditionally declare a test-scope function with the parameters used by the
+  source before creating its Pester mock. Do not skip otherwise portable unit
+  tests.
+- Establish baseline mocks in `BeforeEach` so no test path can accidentally invoke an external command.
+- Save and restore environment variables modified to emulate platform-specific paths or behavior.
 
 ```powershell
 Mock Get-Service { [pscustomobject]@{ Status = 'Running' } } `

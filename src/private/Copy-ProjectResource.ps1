@@ -22,7 +22,8 @@ function Copy-ProjectResource {
 
     process {
         if (Test-Path $resFolder) {
-            $items = Get-ChildItem -Path $resFolder -ErrorAction SilentlyContinue
+            $items = Get-ChildItem -Path $resFolder -Force -ErrorAction SilentlyContinue |
+                Where-Object { $_.Name -ne '.gitkeep' }
             if ($items) {
                 Write-Verbose 'START: Copying of Module Resources.'
             } else {
@@ -43,7 +44,11 @@ function Copy-ProjectResource {
         } else {
             # Copy the resources folder itself and its content to the OutputModuleDir resource folder
             Write-Verbose 'Copying resources folder.'
-            Copy-Item -Path $resFolder -Destination ($data.OutputModuleDir) -Recurse -Force -ErrorAction Stop
+            $resourceDestination = Join-Path -Path $data.OutputModuleDir -ChildPath 'resources'
+            New-Item -Path $resourceDestination -ItemType Directory -Force -ErrorAction Stop | Out-Null
+            foreach ($item in $items) {
+                Copy-Item -Path $item.FullName -Destination $resourceDestination -Recurse -Force -ErrorAction Stop
+            }
         }
 
         Write-Verbose 'COMPLETE: Copying of Module Resources.'
