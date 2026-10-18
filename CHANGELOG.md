@@ -26,6 +26,7 @@ Types of changes, as level 3 headings:
 
 ### Fixed
 
+- `Build-MAModule` now skips the resources copy when `src/resources` contains only `.gitkeep` and excludes `.gitkeep` when copying other resources.
 - `New-MAModule` now removes partially generated contents from a pre-existing matching directory when scaffolding fails, while preserving its `.git` directory and `README.md`.
 - Fixed `New-MAModule` so a partially created module directory is removed, and the original location restored, when scaffolding fails. Previously this cleanup was skipped after terminating errors. A pre-existing directory is never removed.
 

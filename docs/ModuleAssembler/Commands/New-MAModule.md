@@ -19,7 +19,9 @@ New-MAModule
 Creates a ModuleAssembler compatible project directory structure.
 
 The module directory is created as a subdirectory of the specified Path using the module name.
-When Path is omitted, the current working directory is used as the parent directory.
+If Path already names the module directory, scaffolding is created directly in that directory.
+An existing module directory must be empty except for optional .git and README.md items.
+When Path is omitted, the current working directory is used.
 For example, running New-MAModule from 'C:\Temp' and entering 'MyModule' creates the project in 'C:\Temp\MyModule'.
 
 ## Aliases
@@ -42,13 +44,16 @@ Creates module project inside c:\work directory.
 New-MAModule
 ```
 
-Creates the module project directory in the current working directory.
+Creates the module project directory in the current working directory, or scaffolds directly
+in the current directory if its name matches the module name and its contents are acceptable.
 
 ## Parameters
 
 ### -Path
 
-Parent directory where the module directory will be created. If omitted, the current working directory is used.
+Parent directory where the module directory will be created, or an existing directory matching
+the module name that is empty except for optional .git and README.md items.
+If omitted, the current working directory is used.
 
 | Property | Value |
 | --- | --- |
