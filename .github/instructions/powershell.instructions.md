@@ -419,6 +419,23 @@ function Remove-CacheFiles {
           Select-Object -First 10
       ```
 
+- **Line Continuation and Splatting:**
+
+  - Never use the PowerShell backtick character for line continuation
+  - Use splatting when a command has multiple parameters and would exceed the preferred line length
+  - Keep splatted parameters in a clearly named hashtable immediately before the command
+  - Example:
+
+    ```powershell
+    $findModuleParameters = @{
+        Name           = 'dbatools'
+        MinimumVersion = [version]::new(2, 0, 0)
+        MaximumVersion = [version]::new(2, 9999, 9999)
+    }
+
+    $module = Find-Module @findModuleParameters
+    ```
+
 ## Static Analysis Gate (PSScriptAnalyzer)
 
 - Treat static analysis as a required quality gate for all PowerShell code
@@ -495,6 +512,19 @@ Invoke-ScriptAnalyzer -Path .\src, .\tests -Recurse -Settings .\PSScriptAnalyzer
   - Use `Where-Object` instead of `?` or `where`
   - Use `ForEach-Object` instead of `%`
   - Use `Get-ChildItem` instead of `ls` or `dir`
+
+- **Comparison Operators and Filtering:**
+  - Use lowercase PowerShell comparison operators, such as `-eq`, `-ne`, `-gt`, and `-like`.
+  - Use explicit `Where-Object -FilterScript` predicates for property comparisons.
+    ```powershell
+    $targetItem = $items |
+      Where-Object -FilterScript { $_.Name -eq $targetName } |
+      Select-Object -First 1
+    ```
+  - Avoid shorthand comparisons such as `Where-Object Name -EQ $targetName`.
+    In shorthand syntax, PowerShell parses `-EQ` as a parameter name, and
+    `PSUseCorrectCasing` formats it in uppercase instead of preserving the
+    lowercase comparison-operator convention.
 
 - **Performance Considerations:**
   - Avoid string concatenation in loops; use `[System.Text.StringBuilder]` or `-join` operator

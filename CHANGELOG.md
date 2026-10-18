@@ -17,6 +17,18 @@ Types of changes, as level 3 headings:
 
 ## [Unreleased]
 
+### Changed
+
+- `New-MAModule` now scaffolds directly in the current or specified directory when its name matches the module name, instead of creating a nested directory of the same name. This supports existing folders and newly cloned repositories.
+- `New-MAModule` only reuses a matching directory when it is empty except for optional `.git` and `README.md` items, and otherwise stops with an error rather than scaffolding into a nested directory.
+- `New-MAModule` now treats `-Path` literally and requires it to be an existing directory, so paths containing wildcard characters such as `[` are handled correctly.
+- Improved the `New-MAModule` error shown for a non-empty target directory to list the allowed contents, the items found, and how to proceed.
+
+### Fixed
+
+- `New-MAModule` now removes partially generated contents from a pre-existing matching directory when scaffolding fails, while preserving its `.git` directory and `README.md`.
+- Fixed `New-MAModule` so a partially created module directory is removed, and the original location restored, when scaffolding fails. Previously this cleanup was skipped after terminating errors. A pre-existing directory is never removed.
+
 ## [0.3.2] - 2026-09-20
 
 ### Fixed

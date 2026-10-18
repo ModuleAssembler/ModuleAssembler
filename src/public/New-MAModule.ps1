@@ -7,11 +7,15 @@ function New-MAModule {
         Creates a ModuleAssembler compatible project directory structure.
 
         The module directory is created as a subdirectory of the specified Path using the module name.
-        When Path is omitted, the current working directory is used as the parent directory.
+        If Path already names the module directory, scaffolding is created directly in that directory.
+        An existing module directory must be empty except for optional .git and README.md items.
+        When Path is omitted, the current working directory is used.
         For example, running New-MAModule from 'C:\Temp' and entering 'MyModule' creates the project in 'C:\Temp\MyModule'.
 
     .PARAMETER Path
-        Parent directory where the module directory will be created. If omitted, the current working directory is used.
+        Parent directory where the module directory will be created, or an existing directory matching
+        the module name that is empty except for optional .git and README.md items.
+        If omitted, the current working directory is used.
 
     .EXAMPLE
         New-MAModule -Path 'C:\work'
@@ -21,7 +25,8 @@ function New-MAModule {
     .EXAMPLE
         New-MAModule
 
-        Creates the module project directory in the current working directory.
+        Creates the module project directory in the current working directory, or scaffolds directly
+        in the current directory if its name matches the module name and its contents are acceptable.
     #>
 
     [CmdletBinding(SupportsShouldProcess = $true)]
@@ -36,14 +41,16 @@ function New-MAModule {
     begin {
         $ErrorActionPreference = 'Stop'
         $scaffoldingComplete = $false
-        $dirProjectCreatedHere = $false
+        $scaffoldingStarted = $false
+        $dirProjectNeedsCreation = $false
     }
 
     process {
-        if (-not(Test-Path $Path)) {
+        if (-not(Test-Path -LiteralPath $Path -PathType Container)) {
             Write-Error 'Not a valid path.' -ErrorAction Stop
         }
-        Push-Location -Path $Path -StackName 'MANew'
+        Push-Location -LiteralPath $Path -StackName 'MANew'
+        $Path = (Get-Location).ProviderPath
 
         $supportedPowerShellVersions = @('5.1', '7.4', '7.6')
         $defaultPowerShellVersion = '7.6'
@@ -147,7 +154,11 @@ function New-MAModule {
         }
 
 
-        $DirProject = Join-Path -Path $Path -ChildPath $Answer.ProjectName
+        $DirProject = if ((Split-Path -Path $Path -Leaf) -eq $Answer.ProjectName) {
+            $Path
+        } else {
+            Join-Path -Path $Path -ChildPath $Answer.ProjectName
+        }
         $DirSrc = Join-Path -Path $DirProject -ChildPath 'src'
         $DirClasses = Join-Path -Path $DirSrc -ChildPath 'classes'
         $DirPrivate = Join-Path -Path $DirSrc -ChildPath 'private'
@@ -157,25 +168,30 @@ function New-MAModule {
         $ModuleAssemblerSettings = Join-Path -Path $DirProject -ChildPath '.moduleassembler'
         $ProjectJSONFile = Join-Path $ModuleAssemblerSettings -ChildPath 'moduleproject.json'
         $ModuleProjectTemplate = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'ModuleProjectTemplate.json')
-
-
         $allowedEmptyProjectItems = @('.git', 'README.md')
 
         $existingItems = @()
-        if (Test-Path $DirProject) {
-            $existingItems = Get-ChildItem -LiteralPath $DirProject -Force -ErrorAction Ignore |
-                Where-Object { $_.Name -notin $allowedEmptyProjectItems }
+        if (Test-Path -LiteralPath $DirProject) {
+            $existingItems = @(
+                Get-ChildItem -LiteralPath $DirProject -Force -ErrorAction Stop |
+                    Where-Object { $_.Name -notin $allowedEmptyProjectItems }
+            )
         }
 
         if ($existingItems.Count -gt 0) {
-            Write-Error 'Project already exists, aborting.' -ErrorAction Stop
+            $itemNames = ($existingItems.Name | Select-Object -First 5) -join ', '
+            if ($existingItems.Count -gt 5) {
+                $itemNames += ', ...'
+            }
+            Write-Error "Directory '$DirProject' already exists and is not empty. A directory can only be used for scaffolding when it contains nothing but: $($allowedEmptyProjectItems -join ', '). Found: $itemNames. Run New-MAModule from an empty directory, or from a parent directory to create a new '$($Answer.ProjectName)' subdirectory." -ErrorAction Stop
         }
 
-        $dirProjectCreatedHere = -not (Test-Path $DirProject)
+        $dirProjectNeedsCreation = -not (Test-Path -LiteralPath $DirProject)
 
         if ($PSCmdlet.ShouldProcess($DirProject, 'Create new module project')) {
-            if ($dirProjectCreatedHere) {
-                Write-Verbose "Path is not an empty project folder. Creating new project directory $($Answer.ProjectName)."
+            $scaffoldingStarted = $true
+            if ($dirProjectNeedsCreation) {
+                Write-Verbose "Creating new project directory '$DirProject'."
                 New-Item -ItemType Directory -Path $DirProject | Out-Null
             }
 
@@ -301,11 +317,22 @@ function New-MAModule {
         }
     }
 
-    end {
-        if (-not $scaffoldingComplete -and $dirProjectCreatedHere -and (Test-Path $DirProject)) {
-            Write-Verbose "Scaffolding failed. Removing partially created project directory '$DirProject'."
-            Remove-Item -Path $DirProject -Recurse -Force -ErrorAction SilentlyContinue
+    # clean runs even after terminating errors in process, unlike end.
+    clean {
+        try {
+            if (-not $scaffoldingComplete -and $scaffoldingStarted -and (Test-Path -LiteralPath $DirProject)) {
+                if ($dirProjectNeedsCreation) {
+                    Write-Verbose "Scaffolding failed. Removing partially created project directory '$DirProject'."
+                    Remove-Item -LiteralPath $DirProject -Recurse -Force -ErrorAction Stop
+                } else {
+                    Write-Verbose "Scaffolding failed. Removing generated contents from existing project directory '$DirProject'."
+                    Get-ChildItem -LiteralPath $DirProject -Force -ErrorAction Stop |
+                        Where-Object { $_.Name -notin $allowedEmptyProjectItems } |
+                        Remove-Item -Recurse -Force -ErrorAction Stop
+                }
+            }
+        } finally {
+            Pop-Location -StackName 'MANew' -ErrorAction SilentlyContinue
         }
-        Pop-Location -StackName 'MANew' -ErrorAction SilentlyContinue
     }
 }
