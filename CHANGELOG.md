@@ -17,6 +17,8 @@ Types of changes, as level 3 headings:
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-10-18
+
 ### Changed
 
 - `New-MAModule` now scaffolds directly in the current or specified directory when its name matches the module name, instead of creating a nested directory of the same name. This supports existing folders and newly cloned repositories.
