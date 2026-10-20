@@ -17,6 +17,11 @@ Types of changes, as level 3 headings:
 
 ## [Unreleased]
 
+### Fixed
+
+- Generated QA tests now skip module import and removal checks when the test host is older than the module's declared minimum PowerShell version, avoiding noisy compatibility errors while retaining the other checks.
+- QA tests now preserve single-item function and alias export results as collections through sorting, preventing false collection assertion failures for modules with one export.
+
 ## [0.4.0] - 2026-10-18
 
 ### Changed

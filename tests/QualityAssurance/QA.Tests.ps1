@@ -383,8 +383,8 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
                 return
             }
 
-            $expectedFunctions = $script:publicFunctions.BaseName | Sort-Object
-            $exportedFunctions = @($script:manifest.FunctionsToExport) | Sort-Object
+            $expectedFunctions = @($script:publicFunctions.BaseName | Sort-Object)
+            $exportedFunctions = @($script:manifest.FunctionsToExport | Sort-Object)
 
             $exportedFunctions | Should-NotContainCollection '*' -Because 'wildcard FunctionsToExport harms module load performance'
             $exportedFunctions.Count | Should-Be $expectedFunctions.Count -Because 'manifest FunctionsToExport count should match public function count'
@@ -411,81 +411,94 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
                         ($functionNode.Body.ParamBlock.Attributes |
                             Where-Object { $_.TypeName -like 'Alias' } |
                             ForEach-Object PositionalArguments).Value
-                        }
                     }
-                ) | Sort-Object
-
-                $rawAliasesToExport = @($script:manifest.AliasesToExport) | Sort-Object
-
-                $rawAliasesToExport | Should-NotContainCollection '*' -Because 'wildcard AliasesToExport harms module load performance'
-                $rawAliasesToExport.Count | Should-Be $expectedAliases.Count -Because 'manifest AliasesToExport count should match aliases defined in public functions'
-                if ($expectedAliases.Count -gt 0) {
-                    Should-BeCollection -Actual $rawAliasesToExport -Expected $expectedAliases
                 }
-            }
+            )
+            $expectedAliases = @($expectedAliases | Sort-Object)
 
-            It 'should have Tags without blank spaces' {
-                if (-not $script:psdPresent) {
-                    Set-ItResult -Skip
-                    return
-                }
+            $rawAliasesToExport = @($script:manifest.AliasesToExport | Sort-Object)
 
-                $tags = @($script:manifest.PrivateData.PSData.Tags)
-                $invalidTags = @($tags | Where-Object { $_ -match '\s' })
-
-                $invalidTags.Count | Should-Be 0 -Because ('PowerShell Gallery tags cannot contain spaces: {0}' -f ($invalidTags -join ', '))
-            }
-
-            It 'should have a combined Tags length of less than 4000 characters' {
-                if (-not $script:psdPresent) {
-                    Set-ItResult -Skip
-                    return
-                }
-
-                $tags = @($script:manifest.PrivateData.PSData.Tags)
-                $combinedLength = ($tags -join '').Length
-
-                $combinedLength | Should-BeLessThan 4000 -Because 'PowerShell Gallery limits the combined length of all tags to 4000 characters'
+            $rawAliasesToExport | Should-NotContainCollection '*' -Because 'wildcard AliasesToExport harms module load performance'
+            $rawAliasesToExport.Count | Should-Be $expectedAliases.Count -Because 'manifest AliasesToExport count should match aliases defined in public functions'
+            if ($expectedAliases.Count -gt 0) {
+                Should-BeCollection -Actual $rawAliasesToExport -Expected $expectedAliases
             }
         }
-    }
 
-    Describe 'General Module Control' -Tag 'ModuleQA' {
-        It 'should import without error' {
-            if (-not $script:psmPresent -or -not $script:psdPresent) {
+        It 'should have Tags without blank spaces' {
+            if (-not $script:psdPresent) {
                 Set-ItResult -Skip
                 return
             }
 
-            $caughtError = $null
-            try {
-                Import-Module -Name $data.OutputModuleDir -Force -ErrorAction Stop
-            } catch {
-                $caughtError = $_
-            }
+            $tags = @($script:manifest.PrivateData.PSData.Tags)
+            $invalidTags = @($tags | Where-Object { $_ -match '\s' })
 
-            $caughtError | Should-BeNull
-            Get-Module -Name $data.ProjectName | Should-NotBeNull
+            $invalidTags.Count | Should-Be 0 -Because ('PowerShell Gallery tags cannot contain spaces: {0}' -f ($invalidTags -join ', '))
         }
 
-        It 'should remove without error' {
-            if (-not $script:psmPresent -or -not $script:psdPresent) {
+        It 'should have a combined Tags length of less than 4000 characters' {
+            if (-not $script:psdPresent) {
                 Set-ItResult -Skip
                 return
             }
 
-            if (-not (Get-Module -Name $data.ProjectName)) {
-                Import-Module -Name $data.OutputModuleDir -Force -ErrorAction Stop
-            }
+            $tags = @($script:manifest.PrivateData.PSData.Tags)
+            $combinedLength = ($tags -join '').Length
 
-            $caughtError = $null
-            try {
-                Remove-Module -Name $data.ProjectName -ErrorAction Stop
-            } catch {
-                $caughtError = $_
-            }
-
-            $caughtError | Should-BeNull
-            Get-Module $data.ProjectName | Should-BeNull
+            $combinedLength | Should-BeLessThan 4000 -Because 'PowerShell Gallery limits the combined length of all tags to 4000 characters'
         }
     }
+}
+
+Describe 'General Module Control' -Tag 'ModuleQA' {
+    It 'should import without error' {
+        if (-not $script:psmPresent -or -not $script:psdPresent) {
+            Set-ItResult -Skip
+            return
+        }
+
+        $minimumPowerShellVersion = [version]$script:manifest.PowerShellVersion
+        if ($PSVersionTable.PSVersion -lt $minimumPowerShellVersion) {
+            Set-ItResult -Skip -Because "Host PowerShell $($PSVersionTable.PSVersion) is below module minimum $minimumPowerShellVersion."
+            return
+        }
+
+        $caughtError = $null
+        try {
+            Import-Module -Name $data.OutputModuleDir -Force -ErrorAction Stop
+        } catch {
+            $caughtError = $_
+        }
+
+        $caughtError | Should-BeNull
+        Get-Module -Name $data.ProjectName | Should-NotBeNull
+    }
+
+    It 'should remove without error' {
+        if (-not $script:psmPresent -or -not $script:psdPresent) {
+            Set-ItResult -Skip
+            return
+        }
+
+        $minimumPowerShellVersion = [version]$script:manifest.PowerShellVersion
+        if ($PSVersionTable.PSVersion -lt $minimumPowerShellVersion) {
+            Set-ItResult -Skip -Because "Host PowerShell $($PSVersionTable.PSVersion) is below module minimum $minimumPowerShellVersion."
+            return
+        }
+
+        if (-not (Get-Module -Name $data.ProjectName)) {
+            Import-Module -Name $data.OutputModuleDir -Force -ErrorAction Stop
+        }
+
+        $caughtError = $null
+        try {
+            Remove-Module -Name $data.ProjectName -ErrorAction Stop
+        } catch {
+            $caughtError = $_
+        }
+
+        $caughtError | Should-BeNull
+        Get-Module $data.ProjectName | Should-BeNull
+    }
+}
