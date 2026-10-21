@@ -20,6 +20,10 @@ Export-MAModuleQABundle
 Copies all current ModuleAssembler Quality Assurance (QA) test files to tests/QualityAssurance in a
 ModuleAssembler project. Existing files are preserved unless -Force is specified.
 
+For project-specific checks, create separate Pester test files under tests/ rather than modifying
+the bundled QA tests. If you intentionally customize an exported copy, use
+Test-MAModule -SkipBundledQA to run the local tests instead of the installed bundle.
+
 ## Examples
 
 ### EXAMPLE 1
