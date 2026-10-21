@@ -12,6 +12,7 @@ ModuleAssembler is a PowerShell module that provides scaffolding, build, test, d
 
 - [Build-MAModule](Commands/Build-MAModule.md)
 - [Build-MAModuleDocumentation](Commands/Build-MAModuleDocumentation.md)
+- [Export-MAModuleQABundle](Commands/Export-MAModuleQABundle.md)
 - [Get-MAProjectInfo](Commands/Get-MAProjectInfo.md)
 - [Invoke-MARelease](Commands/Invoke-MARelease.md)
 - [New-MAModule](Commands/New-MAModule.md)

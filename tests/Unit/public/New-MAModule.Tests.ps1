@@ -51,6 +51,61 @@ Describe 'New-MAModule' -Tag 'Unit' {
         (Test-Path -Path (Join-Path -Path $script:testRoot -ChildPath 'DemoModule')) | Should-BeFalse
     }
 
+    It 'creates unit test directories without copying the bundled QA suite when Pester is enabled' {
+        $answers = @('DemoModule', 'Description', '0.1.0', 'Author', '', '7.6', 'MIT', 'Yes', 'No', 'No')
+        $script:answerIndex = 0
+
+        Mock Read-HostResponse {
+            $value = $answers[$script:answerIndex]
+            $script:answerIndex++
+            $value
+        }
+        Mock Initialize-GitRepo {}
+        Mock Copy-Item {}
+        Mock Get-Content {
+            @'
+{
+    "$schema": "./schemas/moduleassembler.v1.0.0.schema.json",
+    "ProjectName": "Template",
+    "Description": "Template",
+    "Version": "0.1.0",
+    "Manifest": {
+        "Author": "",
+        "CompanyName": "",
+        "PowerShellVersion": "7.6",
+        "GUID": "00000000-0000-0000-0000-000000000000"
+    },
+    "Pester": {
+        "Run": {},
+        "Output": {},
+        "Filter": {},
+        "TestResult": {}
+    }
+}
+'@
+        } -ParameterFilter { $Path -like '*ModuleProjectTemplate.json' }
+        Mock Get-Content { 'MIT template <YEAR> <COPYRIGHT HOLDER>' } -ParameterFilter { $Path -like '*LicenseTemplates*' }
+        Mock Get-Content { '# Changelog' } -ParameterFilter { $Path -like '*CHANGELOG.md' }
+
+        New-MAModule -Path $script:testRoot -Confirm:$false
+
+        $projectDir = Join-Path -Path $script:testRoot -ChildPath 'DemoModule'
+        $projectData = [System.IO.File]::ReadAllText(
+            (Join-Path -Path $projectDir -ChildPath '.moduleassembler/moduleproject.json')
+        ) | ConvertFrom-Json
+        $projectData.Pester | Should-NotBeNull
+        Test-Path -LiteralPath (Join-Path -Path $projectDir -ChildPath 'tests') | Should-BeTrue
+        Test-Path -LiteralPath (Join-Path -Path $projectDir -ChildPath 'tests/QualityAssurance') | Should-BeFalse
+        foreach ($unitTestDirectory in @('classes', 'private', 'public')) {
+            $folderPath = Join-Path -Path $projectDir -ChildPath "tests/Unit/$unitTestDirectory"
+            Test-Path -LiteralPath $folderPath -PathType Container | Should-BeTrue
+            Test-Path -LiteralPath (Join-Path -Path $folderPath -ChildPath '.gitkeep') -PathType Leaf | Should-BeTrue
+        }
+        Should-Invoke Copy-Item -Exactly 0 -ParameterFilter {
+            $Path -like '*PesterTests*'
+        }
+    }
+
     It 'creates a new module subdirectory when the directory name does not match the module name using <Invocation>' -ForEach @(
         @{ Invocation = 'Path' }
         @{ Invocation = 'Current' }

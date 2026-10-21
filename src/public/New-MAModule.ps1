@@ -249,9 +249,6 @@ function New-MAModule {
                     New-Item -ItemType File -Path $folderPath -Name '.gitkeep' | Out-Null
                 }
 
-                $defaultTests = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'PesterTests', '*')
-                Copy-Item -Path $defaultTests -Destination $DirTests -Recurse -Force | Out-Null
-
                 $scriptAnalyzerSettings = [System.IO.Path]::Combine($PSScriptRoot, 'resources', 'PSScriptAnalyzerSettings.psd1')
                 if (!(Test-Path (Join-Path $DirProject -ChildPath 'PSScriptAnalyzerSettings.psd1'))) {
                     Copy-Item -Path $scriptAnalyzerSettings -Destination $DirProject -Force | Out-Null

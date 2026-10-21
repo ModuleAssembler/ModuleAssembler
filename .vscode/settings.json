@@ -14,9 +14,8 @@
     "files.associations": {
         "Apache_v2": "plaintext",
         "BSD_3-Clause": "plaintext",
-        "GPLv3": "plaintext",
         "MIT": "plaintext",
-        "gitignore": "plaintext",
+        "gitignore": "ignore",
     },
     "files.insertFinalNewline": true,
     "files.trimFinalNewlines": true,
