@@ -15,7 +15,9 @@ function Update-MAChangelogRelease {
         Defaults to the current project version.
 
     .PARAMETER ReleaseDate
-        Release date for the versioned changelog heading. Defaults to today.
+        Release date for the versioned changelog heading. Defaults to the current local date
+        on the machine running the command. Only the yyyy-MM-dd date portion is written;
+        the time and timezone are not included.
 
     .EXAMPLE
         Update-MAChangelogRelease

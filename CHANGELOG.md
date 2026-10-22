@@ -17,6 +17,24 @@ Types of changes, as level 3 headings:
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-21
+
+### Added
+
+- Added `Export-MAModuleQABundle` so projects can export the bundled QA test files and explicitly replace local copies with `-Force`.
+
+### Changed
+
+- `Test-MAModule` now runs the installed ModuleAssembler QA suite for consumer projects, including project compliance checks, and documents its bundled QA tags; `-SkipBundledQA` remains available for local QA-only workflows.
+- `New-MAModule` no longer copies the bundled QualityAssurance directory into new projects; it creates the unit test structure separately.
+
+### Fixed
+
+- Generated QA tests now warn when manifest validation is skipped because the test host is older than the module's declared minimum PowerShell version, and skip module import and removal checks on that host to avoid compatibility errors while retaining the other checks.
+- Function-to-file consistency is now checked alongside each existing function file's code quality checks, so empty function directories no longer produce skipped consistency tests.
+- QA tests now preserve single-item function and alias export results as collections through sorting, preventing false collection assertion failures for modules with one export.
+- Built-module QA skips now report `Built module not present` when generated module files are unavailable.
+
 ## [0.4.0] - 2026-10-18
 
 ### Changed

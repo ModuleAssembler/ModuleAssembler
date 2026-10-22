@@ -41,9 +41,6 @@ ExampleModule/
 |   |-- public/
 |   |-- resources/
 |-- tests/
-|   |-- QualityAssurance/
-|   |   |-- ProjectCompliance.Tests.ps1
-|   |   |-- QA.Tests.ps1
 |   |-- Unit/
 |       |-- classes/
 |       |-- private/
@@ -80,6 +77,12 @@ A typical development cycle is:
 5. Run `Build-MAModuleDocumentation` when public command help changes.
 6. Update `CHANGELOG.md` for user-facing changes.
 7. Use `Invoke-MARelease` when the module is ready to version, validate, build, and publish.
+
+### Quality Assurance Tests
+
+`Test-MAModule` runs the QA tests bundled with the installed ModuleAssembler module alongside the project's tests. New projects do not need a local `tests/QualityAssurance` directory for these checks.
+
+For project-specific checks, create separate Pester test files under `tests/` rather than modifying the bundled QA tests. To export a local copy of the bundle, run `Export-MAModuleQABundle`. Existing destination files are preserved; use `-Force` to replace them. If you intentionally customize the exported QA tests, run `Test-MAModule -SkipBundledQA` to use those local tests instead of the installed bundle.
 
 ## Coding Standards and Comment-Based Help
 

@@ -409,7 +409,7 @@ if (`$coverageDestinationPath -and (Test-Path -Path './dist/coverage.xml')) {
             try {
                 switch ($stageName) {
                     'FunctionQA' {
-                        Test-MAModule -TagFilter 'FunctionQA'
+                        Test-MAModule -TagFilter @('FunctionQA', 'ResourceMirror')
                         Copy-PesterResultArtifact -RootPath $projectRoot -DestinationFilePath (Join-Path -Path $testsArtifactPath -ChildPath 'FunctionQA.xml')
                         Copy-CoverageArtifact -RootPath $projectRoot -DestinationFilePath (Join-Path -Path $testsArtifactPath -ChildPath 'FunctionQA.coverage.xml')
                     }
@@ -523,6 +523,22 @@ if (`$coverageDestinationPath -and (Test-Path -Path './dist/coverage.xml')) {
         } else {
             'Passed'
         }
+
+        $versionLabelValue = $null
+        if ($PSBoundParameters.ContainsKey('VersionLabel')) {
+            $versionLabelValue = $VersionLabel
+        }
+
+        $versionPrereleaseTypeValue = $null
+        if ($PSBoundParameters.ContainsKey('VersionPrereleaseType')) {
+            $versionPrereleaseTypeValue = $VersionPrereleaseType
+        }
+
+        $changelogReleaseDateValue = $null
+        if ($PSBoundParameters.ContainsKey('ChangelogReleaseDate')) {
+            $changelogReleaseDateValue = $ChangelogReleaseDate
+        }
+
         $summaryObject = [PSCustomObject]@{
             RunStartedUtc           = $runStartedUtc
             RunEndedUtc             = $runEndedUtc
@@ -534,10 +550,10 @@ if (`$coverageDestinationPath -and (Test-Path -Path './dist/coverage.xml')) {
             ArtifactsPath           = $latestArtifactsPath
             ArtifactsRootPath       = $artifactsRootPath
             UpdateVersion           = $UpdateVersion.IsPresent
-            VersionLabel            = if ($PSBoundParameters.ContainsKey('VersionLabel')) { $VersionLabel } else { $null }
-            VersionPrereleaseType   = if ($PSBoundParameters.ContainsKey('VersionPrereleaseType')) { $VersionPrereleaseType } else { $null }
+            VersionLabel            = $versionLabelValue
+            VersionPrereleaseType   = $versionPrereleaseTypeValue
             PromoteChangelogRelease = $PromoteChangelogRelease.IsPresent
-            ChangelogReleaseDate    = if ($PSBoundParameters.ContainsKey('ChangelogReleaseDate')) { $ChangelogReleaseDate } else { $null }
+            ChangelogReleaseDate    = $changelogReleaseDateValue
             Stages                  = $stageResults
         }
 

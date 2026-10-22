@@ -46,6 +46,18 @@ Describe 'File: <_.BaseName>' -ForEach $files -AllowNullOrEmptyForEach -Tag 'Fun
             @($saResults).Count | Should-Be 0 -Because $($saResults.Message -join ';')
         }
 
+        It 'has exactly one function matching its file name' {
+            $content = Get-Content -Path $_.FullName -Raw
+            $ast = [System.Management.Automation.Language.Parser]::ParseInput($content, [ref]$null, [ref]$null)
+            $functionDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false)
+
+            $requirement = 'function files should define exactly one function matching its file name'
+            $functionDefs.Count | Should-Be 1 -Because ('{0}: {1}' -f $requirement, $_.Name)
+            if ($functionDefs.Count -eq 1) {
+                $functionDefs[0].Name | Should-Be $_.BaseName -Because ('{0}: {1}' -f $requirement, $_.Name)
+            }
+        }
+
         It 'has comment-based help .SYNOPSIS' {
             $content = Get-Content -Path $_.FullName -Raw
             $ast = [System.Management.Automation.Language.Parser]::ParseInput($content, [ref]$null, [ref]$null)
@@ -114,79 +126,11 @@ Describe 'File: <_.BaseName>' -ForEach $files -AllowNullOrEmptyForEach -Tag 'Fun
     }
 }
 
-Describe 'Function and File Name Consistency' -Tag 'FunctionQA' {
-    Context 'Public Function and File Naming Consistency' {
-        It 'public functions should have matching file and function names' {
-            if ($script:publicFunctions.Count -eq 0) {
-                Set-ItResult -Skip -Because 'No public functions found'
-                return
-            }
-
-            $results = @()
-            foreach ($file in $script:publicFunctions) {
-                try {
-                    $content = Get-Content -Path $file.FullName -Raw
-                    $ast = [System.Management.Automation.Language.Parser]::ParseInput($content, [ref]$null, [ref]$null)
-                    $functionDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false)
-
-                    if ($functionDefs.Count -eq 0) {
-                        $results += "File '$($file.Name)' - no function declaration found"
-                    } else {
-                        $functionName = $functionDefs[0].Name
-                        $fileName = $file.BaseName
-
-                        if ($functionName -ne $fileName) {
-                            $results += "File '$($file.Name)' contains function '$functionName' (expected '$fileName')"
-                        }
-                    }
-                } catch {
-                    $results += "File '$($file.Name)' - failed to parse: $($_.Exception.Message)"
-                }
-            }
-
-            $results.Count | Should-Be 0 -Because ($results -join '; ')
-        }
-    }
-
-    Context 'Private Function and File Naming Consistency' {
-        It 'private functions should have matching file and function names' {
-            if ($script:privateFunctions.Count -eq 0) {
-                Set-ItResult -Skip -Because 'No private functions found'
-                return
-            }
-
-            $results = @()
-            foreach ($file in $script:privateFunctions) {
-                try {
-                    $content = Get-Content -Path $file.FullName -Raw
-                    $ast = [System.Management.Automation.Language.Parser]::ParseInput($content, [ref]$null, [ref]$null)
-                    $functionDefs = $ast.FindAll({ $args[0] -is [System.Management.Automation.Language.FunctionDefinitionAst] }, $false)
-
-                    if ($functionDefs.Count -eq 0) {
-                        $results += "File '$($file.Name)' - no function declaration found"
-                    } else {
-                        $functionName = $functionDefs[0].Name
-                        $fileName = $file.BaseName
-
-                        if ($functionName -ne $fileName) {
-                            $results += "File '$($file.Name)' contains function '$functionName' (expected '$fileName')"
-                        }
-                    }
-                } catch {
-                    $results += "File '$($file.Name)' - failed to parse: $($_.Exception.Message)"
-                }
-            }
-
-            $results.Count | Should-Be 0 -Because ($results -join '; ')
-        }
-    }
-}
-
 Describe 'Built Module Testing' -Tag 'ModuleQA' {
     Context 'Module files exist' {
         It "$($data.ProjectName).psm1 should exist" {
             if (-not $script:psmPresent) {
-                Set-ItResult -Skip
+                Set-ItResult -Skip -Because 'Built module not present.'
                 return
             }
 
@@ -195,7 +139,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
 
         It "$($data.ProjectName).psd1 should exist" {
             if (-not $script:psmPresent) {
-                Set-ItResult -Skip
+                Set-ItResult -Skip -Because 'Built module not present.'
                 return
             }
 
@@ -206,7 +150,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
     Context 'PowerShell Script Module (psm1) file' {
         It 'is valid PowerShell Code' {
             if (-not $script:psmPresent) {
-                Set-ItResult -Skip
+                Set-ItResult -Skip -Because 'Built module not present.'
                 return
             }
 
@@ -218,7 +162,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
 
         It 'passes ScriptAnalyzer' {
             if (-not $script:psmPresent) {
-                Set-ItResult -Skip
+                Set-ItResult -Skip -Because 'Built module not present.'
                 return
             }
 
@@ -236,7 +180,14 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
 
         It 'passes Test-ModuleManifest validation' {
             if (-not $script:psdPresent) {
-                Set-ItResult -Skip
+                Set-ItResult -Skip -Because 'Built module not present.'
+                return
+            }
+
+            $minimumPowerShellVersion = [version]$script:manifest.PowerShellVersion
+            if ($PSVersionTable.PSVersion -lt $minimumPowerShellVersion) {
+                Write-Warning "Skipping Test-ModuleManifest validation because host PowerShell $($PSVersionTable.PSVersion) is below the module minimum $minimumPowerShellVersion. Run Test-MAModule in PowerShell $minimumPowerShellVersion or later to validate the manifest."
+                Set-ItResult -Skip -Because "Host PowerShell $($PSVersionTable.PSVersion) is below module minimum $minimumPowerShellVersion."
                 return
             }
 
@@ -251,7 +202,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
 
         It 'is RootModule correct' {
             if (-not $script:psdPresent) {
-                Set-ItResult -Skip
+                Set-ItResult -Skip -Because 'Built module not present.'
                 return
             }
 
@@ -260,7 +211,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
 
         It 'should have ModuleVersion matching moduleproject.json' {
             if (-not $script:psdPresent) {
-                Set-ItResult -Skip
+                Set-ItResult -Skip -Because 'Built module not present.'
                 return
             }
 
@@ -270,7 +221,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
 
         It 'should have Prerelease matching moduleproject.json' {
             if (-not $script:psdPresent) {
-                Set-ItResult -Skip
+                Set-ItResult -Skip -Because 'Built module not present.'
                 return
             }
 
@@ -280,7 +231,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
 
         It 'should have GUID matching moduleproject.json' {
             if (-not $script:psdPresent) {
-                Set-ItResult -Skip
+                Set-ItResult -Skip -Because 'Built module not present.'
                 return
             }
 
@@ -289,7 +240,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
 
         It 'should have Author matching moduleproject.json' {
             if (-not $script:psdPresent) {
-                Set-ItResult -Skip
+                Set-ItResult -Skip -Because 'Built module not present.'
                 return
             }
 
@@ -298,7 +249,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
 
         It 'should have CompanyName matching moduleproject.json' {
             if (-not $script:psdPresent) {
-                Set-ItResult -Skip
+                Set-ItResult -Skip -Because 'Built module not present.'
                 return
             }
 
@@ -313,7 +264,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
 
         It 'should have Copyright matching moduleproject.json' {
             if (-not $script:psdPresent) {
-                Set-ItResult -Skip
+                Set-ItResult -Skip -Because 'Built module not present.'
                 return
             }
 
@@ -328,7 +279,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
 
         It 'should have PowerShellVersion matching moduleproject.json' {
             if (-not $script:psdPresent) {
-                Set-ItResult -Skip
+                Set-ItResult -Skip -Because 'Built module not present.'
                 return
             }
 
@@ -337,7 +288,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
 
         It 'should have RequiredModules matching moduleproject.json' {
             if (-not $script:psdPresent) {
-                Set-ItResult -Skip
+                Set-ItResult -Skip -Because 'Built module not present.'
                 return
             }
 
@@ -379,12 +330,12 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
 
         It 'should have FunctionsToExport matching the public function names' {
             if (-not $script:psdPresent) {
-                Set-ItResult -Skip
+                Set-ItResult -Skip -Because 'Built module not present.'
                 return
             }
 
-            $expectedFunctions = $script:publicFunctions.BaseName | Sort-Object
-            $exportedFunctions = @($script:manifest.FunctionsToExport) | Sort-Object
+            $expectedFunctions = @($script:publicFunctions.BaseName | Sort-Object)
+            $exportedFunctions = @($script:manifest.FunctionsToExport | Sort-Object)
 
             $exportedFunctions | Should-NotContainCollection '*' -Because 'wildcard FunctionsToExport harms module load performance'
             $exportedFunctions.Count | Should-Be $expectedFunctions.Count -Because 'manifest FunctionsToExport count should match public function count'
@@ -396,7 +347,7 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
 
         It 'should have AliasesToExport matching public function aliases' {
             if (-not $script:psdPresent) {
-                Set-ItResult -Skip
+                Set-ItResult -Skip -Because 'Built module not present.'
                 return
             }
 
@@ -411,81 +362,109 @@ Describe 'Built Module Testing' -Tag 'ModuleQA' {
                         ($functionNode.Body.ParamBlock.Attributes |
                             Where-Object { $_.TypeName -like 'Alias' } |
                             ForEach-Object PositionalArguments).Value
-                        }
                     }
-                ) | Sort-Object
-
-                $rawAliasesToExport = @($script:manifest.AliasesToExport) | Sort-Object
-
-                $rawAliasesToExport | Should-NotContainCollection '*' -Because 'wildcard AliasesToExport harms module load performance'
-                $rawAliasesToExport.Count | Should-Be $expectedAliases.Count -Because 'manifest AliasesToExport count should match aliases defined in public functions'
-                if ($expectedAliases.Count -gt 0) {
-                    Should-BeCollection -Actual $rawAliasesToExport -Expected $expectedAliases
                 }
-            }
+            )
+            $expectedAliases = @($expectedAliases | Sort-Object)
 
-            It 'should have Tags without blank spaces' {
-                if (-not $script:psdPresent) {
-                    Set-ItResult -Skip
-                    return
-                }
+            $rawAliasesToExport = @($script:manifest.AliasesToExport | Sort-Object)
 
-                $tags = @($script:manifest.PrivateData.PSData.Tags)
-                $invalidTags = @($tags | Where-Object { $_ -match '\s' })
-
-                $invalidTags.Count | Should-Be 0 -Because ('PowerShell Gallery tags cannot contain spaces: {0}' -f ($invalidTags -join ', '))
-            }
-
-            It 'should have a combined Tags length of less than 4000 characters' {
-                if (-not $script:psdPresent) {
-                    Set-ItResult -Skip
-                    return
-                }
-
-                $tags = @($script:manifest.PrivateData.PSData.Tags)
-                $combinedLength = ($tags -join '').Length
-
-                $combinedLength | Should-BeLessThan 4000 -Because 'PowerShell Gallery limits the combined length of all tags to 4000 characters'
+            $rawAliasesToExport | Should-NotContainCollection '*' -Because 'wildcard AliasesToExport harms module load performance'
+            $rawAliasesToExport.Count | Should-Be $expectedAliases.Count -Because 'manifest AliasesToExport count should match aliases defined in public functions'
+            if ($expectedAliases.Count -gt 0) {
+                Should-BeCollection -Actual $rawAliasesToExport -Expected $expectedAliases
             }
         }
-    }
 
-    Describe 'General Module Control' -Tag 'ModuleQA' {
-        It 'should import without error' {
-            if (-not $script:psmPresent -or -not $script:psdPresent) {
-                Set-ItResult -Skip
+        It 'should have Tags without blank spaces' {
+            if (-not $script:psdPresent) {
+                Set-ItResult -Skip -Because 'Built module not present.'
                 return
             }
 
-            $caughtError = $null
-            try {
-                Import-Module -Name $data.OutputModuleDir -Force -ErrorAction Stop
-            } catch {
-                $caughtError = $_
-            }
+            $tags = @($script:manifest.PrivateData.PSData.Tags)
+            $invalidTags = @($tags | Where-Object { $_ -match '\s' })
 
-            $caughtError | Should-BeNull
-            Get-Module -Name $data.ProjectName | Should-NotBeNull
+            $invalidTags.Count | Should-Be 0 -Because ('PowerShell Gallery tags cannot contain spaces: {0}' -f ($invalidTags -join ', '))
         }
 
-        It 'should remove without error' {
-            if (-not $script:psmPresent -or -not $script:psdPresent) {
-                Set-ItResult -Skip
+        It 'should have a combined Tags length of less than 4000 characters' {
+            if (-not $script:psdPresent) {
+                Set-ItResult -Skip -Because 'Built module not present.'
                 return
             }
 
-            if (-not (Get-Module -Name $data.ProjectName)) {
-                Import-Module -Name $data.OutputModuleDir -Force -ErrorAction Stop
-            }
+            $tags = @($script:manifest.PrivateData.PSData.Tags)
+            $combinedLength = ($tags -join '').Length
 
-            $caughtError = $null
-            try {
-                Remove-Module -Name $data.ProjectName -ErrorAction Stop
-            } catch {
-                $caughtError = $_
-            }
-
-            $caughtError | Should-BeNull
-            Get-Module $data.ProjectName | Should-BeNull
+            $combinedLength | Should-BeLessThan 4000 -Because 'PowerShell Gallery limits the combined length of all tags to 4000 characters'
         }
     }
+}
+
+Describe 'General Module Control' -Tag 'ModuleQA' {
+    It 'should import without error' {
+        if (-not $script:psdPresent) {
+            Set-ItResult -Skip -Because 'Built module not present.'
+            return
+        }
+
+        if (-not $script:psmPresent) {
+            Set-ItResult -Skip -Because 'Built module not present.'
+            return
+        }
+
+        $minimumPowerShellVersion = [version]$script:manifest.PowerShellVersion
+        if ($PSVersionTable.PSVersion -lt $minimumPowerShellVersion) {
+            Set-ItResult -Skip -Because "Host PowerShell $($PSVersionTable.PSVersion) is below module minimum $minimumPowerShellVersion."
+            return
+        }
+
+        $caughtError = $null
+        try {
+            Import-Module -Name $data.OutputModuleDir -Force -ErrorAction Stop
+        } catch {
+            $caughtError = $_
+        }
+
+        $caughtError | Should-BeNull
+        Get-Module -Name $data.ProjectName | Should-NotBeNull
+    }
+
+    It 'should remove without error' {
+        if (-not $script:psdPresent) {
+            Set-ItResult -Skip -Because 'Built module not present.'
+            return
+        }
+
+        if (-not $script:psmPresent) {
+            Set-ItResult -Skip -Because 'Built module not present.'
+            return
+        }
+
+        if ($data.ProjectName -eq 'ModuleAssembler' -and (Get-Module -Name ModuleAssembler)) {
+            Set-ItResult -Skip -Because 'Removing the module would unload the active Test-MAModule runner; isolated self-publish stages test module removal.'
+            return
+        }
+
+        $minimumPowerShellVersion = [version]$script:manifest.PowerShellVersion
+        if ($PSVersionTable.PSVersion -lt $minimumPowerShellVersion) {
+            Set-ItResult -Skip -Because "Host PowerShell $($PSVersionTable.PSVersion) is below module minimum $minimumPowerShellVersion."
+            return
+        }
+
+        if (-not (Get-Module -Name $data.ProjectName)) {
+            Import-Module -Name $data.OutputModuleDir -Force -ErrorAction Stop
+        }
+
+        $caughtError = $null
+        try {
+            Remove-Module -Name $data.ProjectName -ErrorAction Stop
+        } catch {
+            $caughtError = $_
+        }
+
+        $caughtError | Should-BeNull
+        Get-Module $data.ProjectName | Should-BeNull
+    }
+}
