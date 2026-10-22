@@ -17,6 +17,8 @@ Types of changes, as level 3 headings:
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-21
+
 ### Added
 
 - Added `Export-MAModuleQABundle` so projects can export the bundled QA test files and explicitly replace local copies with `-Force`.
